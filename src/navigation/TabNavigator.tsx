@@ -1,7 +1,7 @@
 /**
  * Navigation — Bottom Tabs + Stack for detail screens
  *
- * 5 tabs, each with a nested stack for Cart and detail views.
+ * All content loads natively inside the app (no browser).
  */
 
 import React from 'react';
@@ -15,6 +15,9 @@ import VaultScreen from '../screens/vault/VaultScreen';
 import GalleryScreen from '../screens/gallery/GalleryScreen';
 import MoreScreen from '../screens/more/MoreScreen';
 import CartScreen from '../screens/cart/CartScreen';
+import ContentScreen from '../screens/content/ContentScreen';
+import PostDetailScreen from '../screens/content/PostDetailScreen';
+import ExhibitionDetailScreen from '../screens/content/ExhibitionDetailScreen';
 import { useCartStore } from '../stores/cartStore';
 import { colors } from '../theme/colors';
 
@@ -78,14 +81,10 @@ export default function RootNavigator() {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen name="Tabs" component={TabsNavigator} />
-      <Stack.Screen
-        name="Cart"
-        component={CartScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-        }}
-      />
+      <Stack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
+      <Stack.Screen name="Content" component={ContentScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="ExhibitionDetail" component={ExhibitionDetailScreen} options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }
@@ -106,29 +105,12 @@ const styles = StyleSheet.create({
     letterSpacing: 0.8,
     textTransform: 'uppercase',
   },
-  icon: {
-    fontSize: 20,
-    opacity: 0.6,
-    textAlign: 'center',
-  },
-  iconFocused: {
-    opacity: 1,
-  },
+  icon: { fontSize: 20, opacity: 0.6, textAlign: 'center' },
+  iconFocused: { opacity: 1 },
   cartBadge: {
-    position: 'absolute',
-    top: -4,
-    right: -10,
-    backgroundColor: colors.shared.gold,
-    borderRadius: 8,
-    minWidth: 16,
-    height: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
+    position: 'absolute', top: -4, right: -10,
+    backgroundColor: colors.shared.gold, borderRadius: 8,
+    minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
   },
-  cartBadgeText: {
-    fontFamily: 'Montserrat-Bold',
-    fontSize: 9,
-    color: colors.hub.primary,
-  },
+  cartBadgeText: { fontFamily: 'Montserrat-Bold', fontSize: 9, color: colors.hub.primary },
 });

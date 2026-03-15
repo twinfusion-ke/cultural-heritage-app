@@ -19,6 +19,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { colors, textStyles, spacing } from '../../theme';
 import { useUIStore } from '../../stores/uiStore';
 import { useEnvStore } from '../../stores/envStore';
@@ -27,6 +28,7 @@ import { triggerSync } from '../../services/syncService';
 import { ENVIRONMENTS } from '../../config/environment';
 
 export default function MoreScreen() {
+  const navigation = useNavigation<any>();
   const isOnline = useUIStore((s) => s.isOnline);
   const pendingSyncCount = useUIStore((s) => s.pendingSyncCount);
   const [showAdmin, setShowAdmin] = useState(false);
@@ -87,26 +89,26 @@ export default function MoreScreen() {
 
         {/* Discover */}
         <Section title="DISCOVER">
-          <MenuItem label="About Cultural Heritage" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/')} />
-          <MenuItem label="Our Legacy" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/our-legacy/')} />
-          <MenuItem label="Plan Your Visit" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/visit/')} />
+          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('Content', { slug: 'home', title: 'About Cultural Heritage' })} />
+          <MenuItem label="Our Legacy" onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })} />
+          <MenuItem label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
           <MenuItem label="Contact Us" onPress={() => Linking.openURL('tel:+255786454999')} />
           <MenuItem label="WhatsApp" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
         </Section>
 
         {/* Knowledge */}
         <Section title="KNOWLEDGE">
-          <MenuItem label="Tanzanite Guide" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/jewelry/tanzanite/')} />
-          <MenuItem label="Collecting Art Guide" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/gallery/blog/')} />
-          <MenuItem label="Gemstone Certification" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/jewelry/certification/')} />
-          <MenuItem label="Jewelry Care" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/jewelry/jewelry-care/')} />
+          <MenuItem label="Tanzanite Guide" onPress={() => navigation.navigate('Content', { slug: 'tanzanite', title: 'Tanzanite Guide', site: 'jewelry' })} />
+          <MenuItem label="Collecting Art Guide" onPress={() => navigation.navigate('Content', { slug: 'artists', title: 'Collecting Art Guide', site: 'gallery' })} />
+          <MenuItem label="Gemstone Certification" onPress={() => navigation.navigate('Content', { slug: 'certification', title: 'Gemstone Certification', site: 'jewelry' })} />
+          <MenuItem label="Jewelry Care" onPress={() => navigation.navigate('Content', { slug: 'jewelry-care', title: 'Jewelry Care', site: 'jewelry' })} />
         </Section>
 
         {/* Legal */}
         <Section title="LEGAL">
-          <MenuItem label="Privacy Policy" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/privacy-policy/')} />
-          <MenuItem label="Terms & Conditions" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/terms/')} />
-          <MenuItem label="Shipping Policy" onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/jewelry/shipping/')} />
+          <MenuItem label="Privacy Policy" onPress={() => navigation.navigate('Content', { slug: 'privacy-policy', title: 'Privacy Policy' })} />
+          <MenuItem label="Terms & Conditions" onPress={() => navigation.navigate('Content', { slug: 'terms', title: 'Terms & Conditions' })} />
+          <MenuItem label="Shipping Policy" onPress={() => navigation.navigate('Content', { slug: 'shipping', title: 'Shipping Policy', site: 'jewelry' })} />
         </Section>
 
         {/* App Info */}

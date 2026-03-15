@@ -17,6 +17,7 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
+import type { WPPost } from '../../types/wordpress';
 import { ScreenContainer, BlogCard, Button, Divider } from '../../components';
 import { useHubPosts } from '../../api/hub';
 import { colors, textStyles, spacing, shadows } from '../../theme';
@@ -139,7 +140,12 @@ export default function HomeScreen() {
                 imageUrl={imageUrl}
                 date={post.date}
                 accentColor={colors.shared.gold}
-                onPress={() => {}}
+                onPress={() => navigation.navigate('PostDetail', {
+                  title: post.title.rendered,
+                  content: post.content.rendered,
+                  imageUrl: imageUrl,
+                  date: post.date,
+                })}
               />
             );
           })

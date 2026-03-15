@@ -15,6 +15,7 @@ import {
   ActivityIndicator,
   Linking,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider } from '../../components';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
 import { getExhibitionStatus } from '../../utils/dates';
@@ -22,6 +23,7 @@ import { colors, textStyles, spacing } from '../../theme';
 import type { Exhibition } from '../../types/exhibition';
 
 export default function GalleryScreen() {
+  const navigation = useNavigation<any>();
   const { data: exhibitions, isLoading: exhLoading, refetch, isRefetching } = useExhibitions();
   const { data: products } = useGalleryProducts({ perPage: 6 });
   const { data: posts } = useGalleryPosts(3);
@@ -67,7 +69,14 @@ export default function GalleryScreen() {
                 startDate={exh.meta._ch_exhibition_start_date}
                 endDate={exh.meta._ch_exhibition_end_date}
                 excerpt={exh.excerpt?.rendered?.replace(/<[^>]+>/g, '')}
-                onPress={() => {}}
+                onPress={() => navigation.navigate('ExhibitionDetail', {
+                  title: exh.title.rendered,
+                  content: exh.content.rendered,
+                  imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+                  startDate: exh.meta._ch_exhibition_start_date,
+                  endDate: exh.meta._ch_exhibition_end_date,
+                  excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                })}
               />
             );
           })
@@ -90,7 +99,14 @@ export default function GalleryScreen() {
                   title={exh.title.rendered}
                   startDate={exh.meta._ch_exhibition_start_date}
                   endDate={exh.meta._ch_exhibition_end_date}
-                  onPress={() => {}}
+                  onPress={() => navigation.navigate('ExhibitionDetail', {
+                  title: exh.title.rendered,
+                  content: exh.content.rendered,
+                  imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+                  startDate: exh.meta._ch_exhibition_start_date,
+                  endDate: exh.meta._ch_exhibition_end_date,
+                  excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                })}
                 />
               </View>
             ))}
@@ -144,7 +160,12 @@ export default function GalleryScreen() {
                 imageUrl={imageUrl}
                 date={post.date}
                 accentColor={colors.shared.gold}
-                onPress={() => {}}
+                onPress={() => navigation.navigate('PostDetail', {
+                  title: post.title.rendered,
+                  content: post.content.rendered,
+                  imageUrl: imageUrl,
+                  date: post.date,
+                })}
               />
             );
           })}

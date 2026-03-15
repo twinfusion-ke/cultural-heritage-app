@@ -21,20 +21,6 @@ import WebView from 'react-native-webview';
 import { colors, textStyles, spacing } from '../../theme';
 import { readingTime } from '../../utils/dates';
 
-interface PostDetailScreenProps {
-  route: {
-    params: {
-      title: string;
-      content: string;
-      imageUrl?: string;
-      date: string;
-      category?: string;
-      site?: string;
-    };
-  };
-  navigation: any;
-}
-
 function wrapPostHtml(html: string): string {
   return `
     <!DOCTYPE html>
@@ -66,7 +52,7 @@ function wrapPostHtml(html: string): string {
   `;
 }
 
-export default function PostDetailScreen({ route, navigation }: PostDetailScreenProps) {
+export default function PostDetailScreen({ route, navigation }: any) {
   const { title, content, imageUrl, date, category } = route.params;
 
   const formattedDate = new Date(date).toLocaleDateString('en-US', {

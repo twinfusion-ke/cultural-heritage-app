@@ -14,12 +14,10 @@ import {
   TouchableOpacity,
   Linking,
   ActivityIndicator,
-  useWindowDimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
-import WebView from 'react-native-webview';
-import { useHubPosts, useHubPage } from '../../api/hub';
+import { useHubPosts } from '../../api/hub';
 import { BlogCard, Divider } from '../../components';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
@@ -27,12 +25,8 @@ import { useEnvStore } from '../../stores/envStore';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const { data: posts, isLoading: postsLoading, refetch, isRefetching } = useHubPosts(6);
-  const { data: homePage, isLoading: pageLoading } = useHubPage('home');
-  const env = useEnvStore((s) => s.env);
+  const { data: posts, isLoading: postsLoading } = useHubPosts(6);
   const urls = useEnvStore((s) => s.urls);
-  const { width } = useWindowDimensions();
-
   const baseUrl = urls.hub.base;
 
   return (

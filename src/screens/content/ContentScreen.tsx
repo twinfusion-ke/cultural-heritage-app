@@ -22,16 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useEnvStore } from '../../stores/envStore';
 import { colors, textStyles, spacing } from '../../theme';
 
-interface ContentScreenProps {
-  route: {
-    params: {
-      slug: string;
-      title: string;
-      site?: string;
-    };
-  };
-  navigation: any;
-}
+// Props handled via React Navigation's `any` type
 
 /** Wrap page content in branded mobile-optimized HTML */
 function wrapHtml(title: string, html: string): string {
@@ -74,7 +65,7 @@ function wrapHtml(title: string, html: string): string {
   `;
 }
 
-export default function ContentScreen({ route, navigation }: ContentScreenProps) {
+export default function ContentScreen({ route, navigation }: any) {
   const { slug, title, site } = route.params;
   const urls = useEnvStore((s) => s.urls);
 

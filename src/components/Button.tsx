@@ -45,8 +45,8 @@ export default function Button({
   const containerStyles: ViewStyle[] = [
     styles.base,
     sizeStyles[size],
-    fullWidth && styles.fullWidth,
   ];
+  if (fullWidth) containerStyles.push(styles.fullWidth);
 
   let labelColor = textColor;
 

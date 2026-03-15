@@ -22,20 +22,6 @@ import { ExhibitionBadge } from '../../components';
 import { colors, textStyles, spacing } from '../../theme';
 import { formatDateRange } from '../../utils/dates';
 
-interface ExhibitionDetailScreenProps {
-  route: {
-    params: {
-      title: string;
-      content: string;
-      imageUrl?: string;
-      startDate: string;
-      endDate: string;
-      excerpt?: string;
-    };
-  };
-  navigation: any;
-}
-
 function wrapExhHtml(html: string): string {
   return `
     <!DOCTYPE html>
@@ -61,7 +47,7 @@ function wrapExhHtml(html: string): string {
   `;
 }
 
-export default function ExhibitionDetailScreen({ route, navigation }: ExhibitionDetailScreenProps) {
+export default function ExhibitionDetailScreen({ route, navigation }: any) {
   const { title, content, imageUrl, startDate, endDate, excerpt } = route.params;
 
   async function handleShare() {

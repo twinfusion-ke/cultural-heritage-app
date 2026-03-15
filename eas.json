@@ -16,6 +16,9 @@
       "distribution": "internal",
       "android": {
         "buildType": "apk"
+      },
+      "env": {
+        "EXPO_NO_HERMES_CLEANUP": "1"
       }
     },
     "production": {

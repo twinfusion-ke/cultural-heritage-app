@@ -1,7 +1,5 @@
 /**
- * Navigation — Bottom Tabs + Stack for detail screens
- *
- * All content loads natively inside the app (no browser).
+ * Navigation — Full app with all screens
  */
 
 import React from 'react';
@@ -18,35 +16,15 @@ import CartScreen from '../screens/cart/CartScreen';
 import ContentScreen from '../screens/content/ContentScreen';
 import PostDetailScreen from '../screens/content/PostDetailScreen';
 import ExhibitionDetailScreen from '../screens/content/ExhibitionDetailScreen';
-import { useCartStore } from '../stores/cartStore';
-import { colors } from '../theme/colors';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 function TabIcon({ label, focused }: { label: string; focused: boolean }) {
   const icons: Record<string, string> = {
-    Home: '🏛',
-    Market: '🛍',
-    Vault: '💎',
-    Gallery: '🖼',
-    More: '≡',
+    Home: '🏛', Market: '🛍', Vault: '💎', Gallery: '🖼', More: '≡',
   };
-  return (
-    <Text style={[styles.icon, focused && styles.iconFocused]}>
-      {icons[label] || '•'}
-    </Text>
-  );
-}
-
-function CartBadge() {
-  const count = useCartStore((s) => s.getItemCount());
-  if (count === 0) return null;
-  return (
-    <View style={styles.cartBadge}>
-      <Text style={styles.cartBadgeText}>{count}</Text>
-    </View>
-  );
+  return <Text style={{ fontSize: 20, opacity: focused ? 1 : 0.5 }}>{icons[label] || '•'}</Text>;
 }
 
 function TabsNavigator() {
@@ -54,18 +32,14 @@ function TabsNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarIcon: ({ focused }) => (
-          <View>
-            <TabIcon label={route.name} focused={focused} />
-            {(route.name === 'Market' || route.name === 'Vault' || route.name === 'Gallery') && (
-              <CartBadge />
-            )}
-          </View>
-        ),
-        tabBarActiveTintColor: colors.shared.gold,
-        tabBarInactiveTintColor: colors.hub.textMuted,
-        tabBarStyle: styles.tabBar,
-        tabBarLabelStyle: styles.tabLabel,
+        tabBarIcon: ({ focused }) => <TabIcon label={route.name} focused={focused} />,
+        tabBarActiveTintColor: '#C5A059',
+        tabBarInactiveTintColor: '#888',
+        tabBarStyle: {
+          backgroundColor: '#0e382c', borderTopWidth: 0,
+          height: 60, paddingBottom: 8, paddingTop: 6,
+        },
+        tabBarLabelStyle: { fontSize: 9, letterSpacing: 0.5 },
       })}
     >
       <Tab.Screen name="Home" component={HomeScreen} />
@@ -88,29 +62,3 @@ export default function RootNavigator() {
     </Stack.Navigator>
   );
 }
-
-const styles = StyleSheet.create({
-  tabBar: {
-    backgroundColor: '#0e382c',
-    borderTopWidth: 0,
-    height: 64,
-    paddingBottom: 8,
-    paddingTop: 8,
-    elevation: 0,
-    shadowOpacity: 0,
-  },
-  tabLabel: {
-    fontFamily: 'Montserrat-Medium',
-    fontSize: 9,
-    letterSpacing: 0.8,
-    textTransform: 'uppercase',
-  },
-  icon: { fontSize: 20, opacity: 0.6, textAlign: 'center' },
-  iconFocused: { opacity: 1 },
-  cartBadge: {
-    position: 'absolute', top: -4, right: -10,
-    backgroundColor: colors.shared.gold, borderRadius: 8,
-    minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 4,
-  },
-  cartBadgeText: { fontFamily: 'Montserrat-Bold', fontSize: 9, color: colors.hub.primary },
-});

@@ -1,0 +1,47 @@
+# CI/CD: Build Android APK on push to master
+#
+# Triggers: push to master branch
+# Builds: Android APK via EAS Build
+# Requires: EXPO_TOKEN secret in GitHub repo settings
+#
+# To set up:
+# 1. Go to https://expo.dev/accounts/[your-account]/settings/access-tokens
+# 2. Create a token
+# 3. Add it as EXPO_TOKEN in GitHub repo Settings > Secrets
+
+name: Build Android
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup EAS CLI
+        uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Build Android APK (Preview)
+        run: eas build --platform android --profile preview --non-interactive
+
+      - name: Get build URL
+        run: |
+          echo "Build submitted to EAS. Check https://expo.dev for download link."

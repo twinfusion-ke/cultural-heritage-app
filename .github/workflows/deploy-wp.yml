@@ -1,0 +1,54 @@
+# CI/CD: Deploy WordPress themes & mu-plugins to cPanel via SSH
+#
+# Triggers: push to master on the WP repo (cultural-heritage-arusha)
+# Deploys: themes + mu-plugins to production server
+#
+# Requires secrets:
+# - CPANEL_HOST: twinfusion.co.ke
+# - CPANEL_USER: twinfusion
+# - CPANEL_PASSWORD: (SSH password)
+# - CPANEL_PORT: 22
+#
+# Note: This workflow is for the WordPress repo, not the app repo.
+# Copy this file to the cultural-heritage-arusha repo's .github/workflows/
+
+name: Deploy WordPress to cPanel
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'wp-content/themes/**'
+      - 'wp-content/mu-plugins/**'
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH/SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USER }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: ${{ secrets.CPANEL_PORT }}
+          source: "wp-content/themes/,wp-content/mu-plugins/"
+          target: "public_html/cultural-heritage/"
+          overwrite: true
+
+      - name: Verify deployment
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.CPANEL_HOST }}
+          username: ${{ secrets.CPANEL_USER }}
+          password: ${{ secrets.CPANEL_PASSWORD }}
+          port: ${{ secrets.CPANEL_PORT }}
+          script: |
+            echo "Deployed at $(date)"
+            ls -la public_html/cultural-heritage/wp-content/themes/ | head -10
+            ls -la public_html/cultural-heritage/wp-content/mu-plugins/ | head -10

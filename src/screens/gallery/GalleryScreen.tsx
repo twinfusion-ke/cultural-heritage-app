@@ -1,69 +1,235 @@
 /**
  * Gallery Screen — Tab 4: Art Gallery + Exhibitions
  *
- * Phase 1: Placeholder with brand identity.
- * Phase 3: Exhibitions list, art grid, journal.
+ * Exhibitions grouped by status (Now Showing / Upcoming / Past),
+ * art collection grid, and gallery journal.
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
-import { colors } from '../../theme/colors';
+import {
+  View,
+  Text,
+  StyleSheet,
+  FlatList,
+  ScrollView,
+  ActivityIndicator,
+  Linking,
+} from 'react-native';
+import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider } from '../../components';
+import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
+import { getExhibitionStatus } from '../../utils/dates';
+import { colors, textStyles, spacing } from '../../theme';
+import type { Exhibition } from '../../types/exhibition';
 
 export default function GalleryScreen() {
+  const { data: exhibitions, isLoading: exhLoading, refetch, isRefetching } = useExhibitions();
+  const { data: products } = useGalleryProducts({ perPage: 6 });
+  const { data: posts } = useGalleryPosts(3);
+
+  // Group exhibitions by status
+  const nowShowing: Exhibition[] = [];
+  const upcoming: Exhibition[] = [];
+  const past: Exhibition[] = [];
+
+  exhibitions?.forEach((exh) => {
+    const start = exh.meta?._ch_exhibition_start_date || '';
+    const end = exh.meta?._ch_exhibition_end_date || '';
+    const status = getExhibitionStatus(start, end);
+    if (status === 'Now Showing') nowShowing.push(exh);
+    else if (status === 'Upcoming') upcoming.push(exh);
+    else past.push(exh);
+  });
+
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.gallery.primary} />
-      <View style={styles.content}>
-        <Text style={styles.eyebrow}>CULTURAL HERITAGE CENTRE</Text>
-        <Text style={styles.title}>The Art{'\n'}Gallery</Text>
-        <View style={styles.divider} />
-        <Text style={styles.tagline}>
-          Contemporary & traditional fine art{'\n'}
-          curated from East Africa
-        </Text>
+    <ScreenContainer
+      site="gallery"
+      title="Art Gallery"
+      scrollable
+      refreshing={isRefetching}
+      onRefresh={refetch}
+    >
+      {/* ═══ EXHIBITIONS ═══ */}
+      <View style={styles.section}>
+        <Text style={[textStyles.label, styles.sectionLabel]}>EXHIBITIONS</Text>
+        <Text style={[textStyles.h1, styles.sectionTitle]}>Now Showing</Text>
+        <Divider color={colors.shared.gold} />
+
+        {exhLoading ? (
+          <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: spacing.lg }} />
+        ) : nowShowing.length > 0 ? (
+          nowShowing.map((exh) => {
+            const imageUrl = exh._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+            return (
+              <ExhibitionCard
+                key={exh.id}
+                title={exh.title.rendered}
+                imageUrl={imageUrl}
+                startDate={exh.meta._ch_exhibition_start_date}
+                endDate={exh.meta._ch_exhibition_end_date}
+                excerpt={exh.excerpt?.rendered?.replace(/<[^>]+>/g, '')}
+                onPress={() => {}}
+              />
+            );
+          })
+        ) : (
+          <Text style={styles.emptyText}>No exhibitions currently showing</Text>
+        )}
       </View>
-    </SafeAreaView>
+
+      {/* Upcoming */}
+      {upcoming.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[textStyles.label, styles.sectionLabel]}>COMING SOON</Text>
+          <Text style={[textStyles.h1, styles.sectionTitle]}>Upcoming</Text>
+          <Divider color={colors.status.upcoming} />
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.md }}>
+            {upcoming.map((exh) => (
+              <View key={exh.id} style={styles.upcomingCard}>
+                <ExhibitionCard
+                  title={exh.title.rendered}
+                  startDate={exh.meta._ch_exhibition_start_date}
+                  endDate={exh.meta._ch_exhibition_end_date}
+                  onPress={() => {}}
+                />
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* ═══ ART COLLECTION ═══ */}
+      {products && products.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[textStyles.label, styles.sectionLabel]}>THE COLLECTION</Text>
+          <Text style={[textStyles.h1, styles.sectionTitle]}>Featured Artworks</Text>
+          <Divider color={colors.shared.gold} />
+
+          <View style={styles.productGrid}>
+            {products.map((item) => {
+              const artist = item.attributes?.find((a) => a.name.toLowerCase() === 'artist')?.options?.[0];
+              return (
+                <ProductCard
+                  key={item.id}
+                  name={item.name}
+                  price={`$${item.price}`}
+                  imageUrl={item.images?.[0]?.src || ''}
+                  site="gallery"
+                  subtitle={artist}
+                  onPress={() => {
+                    const msg = `Hello! I'm interested in: ${item.name} ($${item.price})`;
+                    Linking.openURL(`https://wa.me/255786454999?text=${encodeURIComponent(msg)}`);
+                  }}
+                />
+              );
+            })}
+          </View>
+        </View>
+      )}
+
+      {/* ═══ GALLERY JOURNAL ═══ */}
+      {posts && posts.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[textStyles.label, styles.sectionLabel]}>ART JOURNAL</Text>
+          <Text style={[textStyles.h1, styles.sectionTitle]}>Gallery Stories</Text>
+          <Divider color={colors.shared.gold} />
+
+          {posts.map((post) => {
+            const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
+            return (
+              <BlogCard
+                key={post.id}
+                title={post.title.rendered}
+                excerpt={post.excerpt.rendered}
+                imageUrl={imageUrl}
+                date={post.date}
+                accentColor={colors.shared.gold}
+                onPress={() => {}}
+              />
+            );
+          })}
+        </View>
+      )}
+
+      {/* ═══ VISIT CTA ═══ */}
+      <View style={[styles.section, styles.visitCta]}>
+        <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center' }]}>
+          PLAN YOUR VISIT
+        </Text>
+        <Text style={[textStyles.h1, { color: '#FAFAF8', textAlign: 'center', marginTop: 8 }]}>
+          Visit the Gallery
+        </Text>
+        <Divider color={colors.shared.gold} />
+        <Text style={styles.visitDesc}>
+          Our exhibitions are best experienced in person. Three halls of contemporary and traditional African art await.
+        </Text>
+        <View style={styles.visitCtas}>
+          <Button
+            title="Get Directions"
+            onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')}
+            variant="primary"
+            color={colors.shared.gold}
+            textColor={colors.gallery.primary}
+          />
+          <Button
+            title="Call Gallery"
+            onPress={() => Linking.openURL('tel:+255786454999')}
+            variant="outline"
+            color={colors.shared.parchment}
+          />
+        </View>
+      </View>
+    </ScreenContainer>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.gallery.primary,
+  section: {
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing['2xl'],
+    backgroundColor: colors.gallery.background,
   },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 32,
-  },
-  eyebrow: {
-    fontFamily: 'Montserrat',
-    fontSize: 10,
-    letterSpacing: 3,
-    color: colors.shared.gold,
-    textTransform: 'uppercase',
-    marginBottom: 24,
-  },
-  title: {
-    fontFamily: 'Cormorant Garamond',
-    fontSize: 42,
-    color: '#FAFAF8',
+  sectionLabel: {
+    color: colors.gallery.textMuted,
     textAlign: 'center',
-    lineHeight: 46,
+    marginBottom: spacing.xs,
   },
-  divider: {
-    width: 60,
-    height: 1,
-    backgroundColor: colors.shared.gold,
-    marginVertical: 24,
+  sectionTitle: {
+    color: colors.gallery.text,
+    textAlign: 'center',
   },
-  tagline: {
-    fontFamily: 'Montserrat',
+  emptyText: {
+    fontFamily: 'Montserrat-Regular',
     fontSize: 13,
-    color: 'rgba(250, 250, 248, 0.5)',
+    color: colors.gallery.textMuted,
     textAlign: 'center',
-    letterSpacing: 0.5,
+    marginTop: spacing.lg,
+  },
+  upcomingCard: {
+    width: 280,
+    marginRight: spacing.md,
+  },
+  productGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    marginTop: spacing.md,
+  },
+  visitCta: {
+    backgroundColor: colors.gallery.primary,
+    alignItems: 'center',
+  },
+  visitDesc: {
+    fontFamily: 'Montserrat-Regular',
+    fontSize: 13,
+    color: 'rgba(250,250,248,0.6)',
+    textAlign: 'center',
     lineHeight: 22,
+    maxWidth: 300,
+  },
+  visitCtas: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: spacing.lg,
   },
 });

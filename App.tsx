@@ -10,9 +10,11 @@ import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
+import { useFonts } from 'expo-font';
 
 import TabNavigator from './src/navigation/TabNavigator';
 import { useNetworkStatus } from './src/hooks/useNetworkStatus';
+import { fontAssets } from './src/theme/typography';
 import { getDatabase } from './src/db/database';
 import { startSyncService, onSyncChange } from './src/services/syncService';
 import { startSession, endSession } from './src/services/telemetry';
@@ -40,6 +42,7 @@ const queryClient = new QueryClient({
 
 export default function App() {
   const [isReady, setIsReady] = useState(false);
+  const [fontsLoaded] = useFonts(fontAssets);
   const isOnline = useNetworkStatus();
   const setPendingSyncCount = useUIStore((s) => s.setPendingSyncCount);
 
@@ -64,13 +67,13 @@ export default function App() {
       }
     }
 
-    init();
+    if (fontsLoaded) init();
 
     // Cleanup on unmount
     return () => {
       endSession();
     };
-  }, [setPendingSyncCount]);
+  }, [fontsLoaded, setPendingSyncCount]);
 
   const onLayoutRootView = useCallback(async () => {
     if (isReady) {
@@ -78,7 +81,7 @@ export default function App() {
     }
   }, [isReady]);
 
-  if (!isReady) {
+  if (!isReady || !fontsLoaded) {
     return (
       <View style={styles.loading}>
         <ActivityIndicator size="large" color={colors.shared.gold} />

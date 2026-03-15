@@ -120,8 +120,8 @@ export default function MarketScreen() {
                 Our artisans are preparing their finest handcrafts for you.
               </Text>
               <Button
-                title="Browse on Website"
-                onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/market/shop/')}
+                title="Contact Us on WhatsApp"
+                onPress={() => Linking.openURL('https://wa.me/255786454999?text=Hello!%20I%20am%20looking%20for%20handcrafts%20and%20artifacts')}
                 variant="outline"
                 color={colors.market.accent}
                 style={{ marginTop: spacing.lg }}

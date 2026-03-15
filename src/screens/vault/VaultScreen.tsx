@@ -99,8 +99,8 @@ export default function VaultScreen() {
                 style={{ marginTop: spacing.lg }}
               />
               <Button
-                title="Browse on Website"
-                onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage/jewelry/shop/')}
+                title="Contact Us on WhatsApp"
+                onPress={() => Linking.openURL('https://wa.me/255786454999?text=Hello!%20I%20am%20interested%20in%20tanzanite%20and%20fine%20jewelry')}
                 variant="outline"
                 color={colors.vault.accent}
                 style={{ marginTop: spacing.sm }}

@@ -1,0 +1,50 @@
+{
+  "expo": {
+    "name": "Cultural Heritage",
+    "slug": "cultural-heritage-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "scheme": "culturalheritage",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0e382c"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.twinfusion.culturalheritage",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "We use your location to provide directions to the Cultural Heritage Centre."
+      }
+    },
+    "android": {
+      "package": "com.twinfusion.culturalheritage",
+      "versionCode": 1,
+      "adaptiveIcon": {
+        "backgroundColor": "#0e382c",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "permissions": [
+        "INTERNET",
+        "ACCESS_NETWORK_STATE",
+        "ACCESS_FINE_LOCATION"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-sqlite",
+      "expo-font"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": ""
+      }
+    }
+  }
+}

@@ -16,7 +16,7 @@ import {
   Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider } from '../../components';
+import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider, AppHeader } from '../../components';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
 import { getExhibitionStatus } from '../../utils/dates';
 import { colors, textStyles, spacing } from '../../theme';
@@ -45,11 +45,12 @@ export default function GalleryScreen() {
   return (
     <ScreenContainer
       site="gallery"
-      title="Art Gallery"
       scrollable
       refreshing={isRefetching}
       onRefresh={refetch}
     >
+      <AppHeader backgroundColor={colors.gallery.primary} />
+
       {/* ═══ EXHIBITIONS ═══ */}
       <View style={styles.section}>
         <Text style={[textStyles.label, styles.sectionLabel]}>EXHIBITIONS</Text>

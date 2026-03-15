@@ -15,7 +15,7 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
-import { ScreenContainer, ProductCard, Button, Divider } from '../../components';
+import { ScreenContainer, ProductCard, Button, Divider, AppHeader } from '../../components';
 import { useJewelryProducts } from '../../api/jewelry';
 import { colors, textStyles, spacing } from '../../theme';
 import type { WCProduct } from '../../types/woocommerce';
@@ -35,7 +35,8 @@ export default function VaultScreen() {
   }
 
   return (
-    <ScreenContainer site="jewelry" title="The Vault" scrollable={false}>
+    <ScreenContainer site="jewelry" scrollable={false}>
+      <AppHeader backgroundColor={colors.vault.primary} />
       {/* Hero Banner */}
       <View style={styles.heroBanner}>
         <Text style={[textStyles.label, { color: colors.vault.accentBlue }]}>

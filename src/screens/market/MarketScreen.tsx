@@ -15,7 +15,7 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
-import { ScreenContainer, ProductCard, Button } from '../../components';
+import { ScreenContainer, ProductCard, Button, AppHeader } from '../../components';
 import { useMarketProducts, useMarketCategories } from '../../api/market';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
@@ -49,7 +49,8 @@ export default function MarketScreen() {
   }
 
   return (
-    <ScreenContainer site="market" title="The Market" scrollable={false}>
+    <ScreenContainer site="market" scrollable={false}>
+      <AppHeader backgroundColor={colors.market.primary} />
       {/* Category Chips */}
       <View style={styles.categoriesContainer}>
         <FlatList

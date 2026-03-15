@@ -1,75 +1,97 @@
 /**
  * Cultural Heritage Centre — Mobile App
- *
- * Simplified root — loads fonts, then shows navigation.
- * No complex init that could crash on startup.
+ * Minimal startup — no complex deps until proven stable.
  */
 
-import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, SafeAreaView, StatusBar } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { useFonts } from 'expo-font';
-import * as SplashScreen from 'expo-splash-screen';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import RootNavigator from './src/navigation/TabNavigator';
-import { colors } from './src/theme/colors';
-import { fontAssets } from './src/theme/typography';
+const Tab = createBottomTabNavigator();
 
-SplashScreen.preventAutoHideAsync();
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 60 * 24,
-      retry: 1,
-      networkMode: 'offlineFirst',
-    },
-  },
-});
-
-export default function App() {
-  const [fontsLoaded, fontError] = useFonts(fontAssets);
-  const [appReady, setAppReady] = useState(false);
-
-  useEffect(() => {
-    if (fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-      setAppReady(true);
-    }
-  }, [fontsLoaded, fontError]);
-
-  if (!appReady) {
-    return (
-      <View style={styles.loading}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.hub.primary} />
-        <ActivityIndicator size="large" color={colors.shared.gold} />
-      </View>
-    );
-  }
-
+function HomeTab() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <SafeAreaView style={styles.root}>
-        <StatusBar barStyle="light-content" backgroundColor={colors.hub.primary} />
-        <NavigationContainer>
-          <RootNavigator />
-        </NavigationContainer>
-      </SafeAreaView>
-    </QueryClientProvider>
+    <View style={s.screen}>
+      <Text style={s.label}>ARUSHA, TANZANIA — EST. 1994</Text>
+      <Text style={s.title}>Cultural Heritage{'\n'}Centre</Text>
+      <View style={s.line} />
+      <Text style={s.sub}>Where Art, Heritage & Discovery Converge</Text>
+    </View>
   );
 }
 
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: colors.hub.primary,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: colors.hub.primary,
-  },
+function MarketTab() {
+  return (
+    <View style={[s.screen, { backgroundColor: '#3D2B1F' }]}>
+      <Text style={[s.label, { color: '#D4813B' }]}>CULTURAL HERITAGE</Text>
+      <Text style={s.title}>The Market</Text>
+      <View style={[s.line, { backgroundColor: '#D4813B' }]} />
+      <Text style={s.sub}>Handcrafts, spices, textiles & artifacts</Text>
+    </View>
+  );
+}
+
+function VaultTab() {
+  return (
+    <View style={[s.screen, { backgroundColor: '#0A0A14' }]}>
+      <Text style={[s.label, { color: '#1E2F97' }]}>EST. TANZANIA</Text>
+      <Text style={s.title}>The Vault</Text>
+      <View style={[s.line, { backgroundColor: '#1E2F97' }]} />
+      <Text style={s.sub}>Rare gemstones & fine jewelry</Text>
+    </View>
+  );
+}
+
+function GalleryTab() {
+  return (
+    <View style={[s.screen, { backgroundColor: '#1A1A1A' }]}>
+      <Text style={[s.label, { color: '#C5A059' }]}>CULTURAL HERITAGE</Text>
+      <Text style={s.title}>Art Gallery</Text>
+      <View style={s.line} />
+      <Text style={s.sub}>Contemporary & traditional fine art</Text>
+    </View>
+  );
+}
+
+function MoreTab() {
+  return (
+    <View style={[s.screen, { backgroundColor: '#F5F2ED' }]}>
+      <Text style={[s.title, { color: '#0e382c' }]}>More</Text>
+      <Text style={[s.sub, { color: '#666' }]}>Settings, legal, profile</Text>
+    </View>
+  );
+}
+
+export default function App() {
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#0e382c' }}>
+      <StatusBar barStyle="light-content" backgroundColor="#0e382c" />
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={{
+            headerShown: false,
+            tabBarStyle: { backgroundColor: '#0e382c', borderTopWidth: 0, height: 60, paddingBottom: 8 },
+            tabBarActiveTintColor: '#C5A059',
+            tabBarInactiveTintColor: '#888',
+            tabBarLabelStyle: { fontSize: 10, textTransform: 'uppercase', letterSpacing: 0.5 },
+          }}
+        >
+          <Tab.Screen name="Home" component={HomeTab} options={{ tabBarLabel: 'Home' }} />
+          <Tab.Screen name="Market" component={MarketTab} options={{ tabBarLabel: 'Market' }} />
+          <Tab.Screen name="Vault" component={VaultTab} options={{ tabBarLabel: 'Vault' }} />
+          <Tab.Screen name="Gallery" component={GalleryTab} options={{ tabBarLabel: 'Gallery' }} />
+          <Tab.Screen name="More" component={MoreTab} options={{ tabBarLabel: 'More' }} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaView>
+  );
+}
+
+const s = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: '#0e382c', justifyContent: 'center', alignItems: 'center', padding: 32 },
+  label: { fontSize: 10, letterSpacing: 3, color: '#C5A059', textTransform: 'uppercase', marginBottom: 20 },
+  title: { fontSize: 36, color: '#F5F2ED', textAlign: 'center', lineHeight: 42 },
+  line: { width: 50, height: 1, backgroundColor: '#C5A059', marginVertical: 20 },
+  sub: { fontSize: 13, color: 'rgba(245,242,237,0.5)', textAlign: 'center', lineHeight: 20 },
 });

@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Cultural Heritage",
-    "slug": "cultural-heritage-app",
+    "slug": "cultural-heritage",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -43,8 +43,9 @@
     ],
     "extra": {
       "eas": {
-        "projectId": ""
+        "projectId": "5fb06408-5628-413c-9cf0-d869d8b69511"
       }
-    }
+    },
+    "owner": "eagesa"
   }
 }

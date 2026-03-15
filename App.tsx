@@ -12,7 +12,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import * as SplashScreen from 'expo-splash-screen';
 import { useFonts } from 'expo-font';
 
-import TabNavigator from './src/navigation/TabNavigator';
+import RootNavigator from './src/navigation/TabNavigator';
 import { useNetworkStatus } from './src/hooks/useNetworkStatus';
 import { fontAssets } from './src/theme/typography';
 import { getDatabase } from './src/db/database';
@@ -102,7 +102,7 @@ export default function App() {
         )}
 
         <NavigationContainer>
-          <TabNavigator />
+          <RootNavigator />
         </NavigationContainer>
       </View>
     </QueryClientProvider>

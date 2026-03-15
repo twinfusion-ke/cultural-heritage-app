@@ -1,15 +1,15 @@
 /**
- * Cart Store (Zustand + MMKV)
+ * Cart Store (Zustand + AsyncStorage)
  *
  * Unified cart across Market, Vault, and Gallery.
  * Persisted locally — survives app kill.
  */
 
 import { create } from 'zustand';
-import { MMKV } from 'react-native-mmkv';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import type { SiteKey } from '../config/environment';
 
-const storage = new MMKV({ id: 'cart-store' });
+const CART_KEY = 'cart_items';
 
 export interface CartItem {
   productId: number;
@@ -23,6 +23,8 @@ export interface CartItem {
 
 interface CartState {
   items: CartItem[];
+  loaded: boolean;
+  loadFromStorage: () => Promise<void>;
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: number, site: SiteKey) => void;
   updateQuantity: (productId: number, site: SiteKey, quantity: number) => void;
@@ -33,21 +35,26 @@ interface CartState {
   getSiteItems: (site: SiteKey) => CartItem[];
 }
 
-// Load persisted cart
-function loadCart(): CartItem[] {
-  const saved = storage.getString('cart');
-  if (saved) {
-    try { return JSON.parse(saved); } catch {}
-  }
-  return [];
-}
-
 function persistCart(items: CartItem[]) {
-  storage.set('cart', JSON.stringify(items));
+  AsyncStorage.setItem(CART_KEY, JSON.stringify(items));
 }
 
 export const useCartStore = create<CartState>((set, get) => ({
-  items: loadCart(),
+  items: [],
+  loaded: false,
+
+  loadFromStorage: async () => {
+    try {
+      const saved = await AsyncStorage.getItem(CART_KEY);
+      if (saved) {
+        set({ items: JSON.parse(saved), loaded: true });
+      } else {
+        set({ loaded: true });
+      }
+    } catch {
+      set({ loaded: true });
+    }
+  },
 
   addItem: (item) => {
     set((state) => {

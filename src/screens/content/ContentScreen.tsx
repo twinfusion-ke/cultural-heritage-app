@@ -11,12 +11,12 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import WebView from 'react-native-webview';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HtmlRenderer from '../../components/HtmlRenderer';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useEnvStore } from '../../stores/envStore';
@@ -66,6 +66,7 @@ function wrapHtml(title: string, html: string): string {
 }
 
 export default function ContentScreen({ route, navigation }: any) {
+  const insets = useSafeAreaInsets();
   const { slug, title, site } = route.params;
   const urls = useEnvStore((s) => s.urls);
 
@@ -90,8 +91,8 @@ export default function ContentScreen({ route, navigation }: any) {
   });
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.hub.primary} />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
@@ -106,12 +107,9 @@ export default function ContentScreen({ route, navigation }: any) {
           <ActivityIndicator size="large" color={colors.shared.gold} />
         </View>
       ) : page ? (
-        <WebView
-          source={{ html: wrapHtml(page.title.rendered, page.content.rendered) }}
+        <HtmlRenderer
+          html={wrapHtml(page.title.rendered, page.content.rendered)}
           style={styles.webview}
-          originWhitelist={['*']}
-          scrollEnabled
-          showsVerticalScrollIndicator={false}
         />
       ) : (
         <View style={styles.loadingContainer}>
@@ -119,7 +117,7 @@ export default function ContentScreen({ route, navigation }: any) {
           <Text style={styles.errorSub}>This page hasn't been created yet.</Text>
         </View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 

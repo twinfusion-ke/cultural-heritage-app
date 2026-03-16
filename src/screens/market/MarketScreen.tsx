@@ -1,11 +1,11 @@
 /**
  * Market Screen — Tab 2: The Market (Handcrafts & Artifacts)
  *
- * Product grid with category filters, pull-to-refresh,
- * WhatsApp enquiry, and add-to-cart.
+ * Product grid with category filters, infinite scroll,
+ * pull-to-refresh, QuickView modal, and add-to-cart.
  */
 
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { ScreenContainer, ProductCard, Button, AppHeader } from '../../components';
+import ProductQuickView from '../../components/ProductQuickView';
 import { useMarketProducts, useMarketCategories } from '../../api/market';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
@@ -24,14 +25,33 @@ import type { WCProduct } from '../../types/woocommerce';
 export default function MarketScreen() {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
   const [page, setPage] = useState(1);
+  const [allProducts, setAllProducts] = useState<WCProduct[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
 
-  const { data: products, isLoading, refetch, isRefetching } = useMarketProducts({
+  const { data: products, isLoading, refetch, isRefetching, isFetching } = useMarketProducts({
     category: selectedCategory,
     page,
     perPage: 12,
   });
   const { data: categories } = useMarketCategories();
   const addItem = useCartStore((s) => s.addItem);
+
+  // Merge products when new page loads
+  React.useEffect(() => {
+    if (products) {
+      if (page === 1) {
+        setAllProducts(products);
+      } else {
+        setAllProducts((prev) => {
+          const ids = new Set(prev.map((p) => p.id));
+          const newItems = products.filter((p) => !ids.has(p.id));
+          return [...prev, ...newItems];
+        });
+      }
+      setHasMore(products.length >= 12);
+    }
+  }, [products, page]);
 
   function handleAddToCart(product: WCProduct) {
     addItem({
@@ -43,9 +63,24 @@ export default function MarketScreen() {
     });
   }
 
-  function handleWhatsAppEnquiry(product: WCProduct) {
-    const message = `Hello! I'm interested in: ${product.name} ($${product.price})`;
-    Linking.openURL(`https://wa.me/255786454999?text=${encodeURIComponent(message)}`);
+  function handleLoadMore() {
+    if (!isFetching && hasMore) {
+      setPage((p) => p + 1);
+    }
+  }
+
+  function handleCategoryChange(id: number | undefined) {
+    setSelectedCategory(id);
+    setPage(1);
+    setAllProducts([]);
+    setHasMore(true);
+  }
+
+  function handleRefresh() {
+    setPage(1);
+    setAllProducts([]);
+    setHasMore(true);
+    refetch();
   }
 
   return (
@@ -67,10 +102,7 @@ export default function MarketScreen() {
                   ? styles.categoryActive
                   : null,
               ]}
-              onPress={() => {
-                setSelectedCategory(item.id === 0 ? undefined : item.id);
-                setPage(1);
-              }}
+              onPress={() => handleCategoryChange(item.id === 0 ? undefined : item.id)}
             >
               <Text
                 style={[
@@ -88,20 +120,22 @@ export default function MarketScreen() {
       </View>
 
       {/* Product Grid */}
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.market.accent} />
           <Text style={styles.loadingText}>Loading products...</Text>
         </View>
       ) : (
         <FlatList
-          data={products || []}
+          data={allProducts}
           numColumns={2}
           columnWrapperStyle={styles.productRow}
           contentContainerStyle={styles.productGrid}
           showsVerticalScrollIndicator={false}
-          refreshing={isRefetching}
-          onRefresh={refetch}
+          refreshing={isRefetching && page === 1}
+          onRefresh={handleRefresh}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => (
             <ProductCard
@@ -110,9 +144,15 @@ export default function MarketScreen() {
               imageUrl={item.images?.[0]?.src || ''}
               site="market"
               saleBadge={item.on_sale}
-              onPress={() => handleWhatsAppEnquiry(item)}
+              onPress={() => setSelectedProduct(item)}
+              onAddToCart={() => handleAddToCart(item)}
             />
           )}
+          ListFooterComponent={
+            isFetching && page > 1 ? (
+              <ActivityIndicator size="small" color={colors.market.accent} style={{ marginVertical: 20 }} />
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>🛍</Text>
@@ -131,6 +171,14 @@ export default function MarketScreen() {
           }
         />
       )}
+
+      {/* Quick View Modal */}
+      <ProductQuickView
+        product={selectedProduct}
+        site="market"
+        visible={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </ScreenContainer>
   );
 }

@@ -11,7 +11,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   TouchableOpacity,
@@ -20,6 +19,7 @@ import {
   TextInput,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 import { useUIStore } from '../../stores/uiStore';
 import { useEnvStore } from '../../stores/envStore';
@@ -61,8 +61,9 @@ export default function MoreScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.hub.primary} />
+    <View style={styles.container}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
+      <AppHeader backgroundColor={colors.hub.primary} />
       <ScrollView contentContainerStyle={styles.scroll}>
         {/* Header */}
         <View style={styles.header}>
@@ -89,10 +90,12 @@ export default function MoreScreen() {
 
         {/* Discover */}
         <Section title="DISCOVER">
-          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('Content', { slug: 'home', title: 'About Cultural Heritage' })} />
+          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Cultural Heritage' })} />
           <MenuItem label="Our Legacy" onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })} />
+          <MenuItem label="Experience" onPress={() => navigation.navigate('Content', { slug: 'experience', title: 'Experience' })} />
           <MenuItem label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
-          <MenuItem label="Contact Us" onPress={() => Linking.openURL('tel:+255786454999')} />
+          <MenuItem label="Contact Us" onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us' })} />
+          <MenuItem label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'The Cultural Heritage Letter' })} />
           <MenuItem label="WhatsApp" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
         </Section>
 
@@ -190,7 +193,7 @@ export default function MoreScreen() {
           </View>
         )}
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -213,7 +216,7 @@ function MenuItem({ label, onPress }: { label: string; onPress: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.hub.background },
+  container: { flex: 1, backgroundColor: colors.hub.primary },
   scroll: { paddingBottom: 60 },
   header: {
     backgroundColor: colors.hub.primary,

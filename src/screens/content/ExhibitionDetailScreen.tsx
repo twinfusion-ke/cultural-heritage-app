@@ -9,7 +9,6 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   TouchableOpacity,
@@ -17,7 +16,8 @@ import {
   Share,
 } from 'react-native';
 import { Image } from 'expo-image';
-import WebView from 'react-native-webview';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HtmlRenderer from '../../components/HtmlRenderer';
 import { ExhibitionBadge } from '../../components';
 import { colors, textStyles, spacing } from '../../theme';
 import { formatDateRange } from '../../utils/dates';
@@ -48,6 +48,7 @@ function wrapExhHtml(html: string): string {
 }
 
 export default function ExhibitionDetailScreen({ route, navigation }: any) {
+  const insets = useSafeAreaInsets();
   const { title, content, imageUrl, startDate, endDate, excerpt } = route.params;
 
   async function handleShare() {
@@ -57,8 +58,8 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.gallery.primary} />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       {/* Header */}
       <View style={styles.header}>
@@ -96,10 +97,9 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
         )}
 
         {/* Content */}
-        <WebView
-          source={{ html: wrapExhHtml(content) }}
+        <HtmlRenderer
+          html={wrapExhHtml(content)}
           style={styles.content}
-          originWhitelist={['*']}
           scrollEnabled={false}
         />
 
@@ -132,7 +132,7 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
           </TouchableOpacity>
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

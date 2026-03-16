@@ -10,14 +10,14 @@ import {
   View,
   Text,
   StyleSheet,
-  SafeAreaView,
   StatusBar,
   ScrollView,
   TouchableOpacity,
   Share,
 } from 'react-native';
 import { Image } from 'expo-image';
-import WebView from 'react-native-webview';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import HtmlRenderer from '../../components/HtmlRenderer';
 import { colors, textStyles, spacing } from '../../theme';
 import { readingTime } from '../../utils/dates';
 
@@ -53,6 +53,7 @@ function wrapPostHtml(html: string): string {
 }
 
 export default function PostDetailScreen({ route, navigation }: any) {
+  const insets = useSafeAreaInsets();
   const { title, content, imageUrl, date, category } = route.params;
 
   const formattedDate = new Date(date).toLocaleDateString('en-US', {
@@ -69,8 +70,8 @@ export default function PostDetailScreen({ route, navigation }: any) {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" backgroundColor={colors.hub.primary} />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
       {/* Header */}
       <View style={styles.header}>
@@ -107,22 +108,13 @@ export default function PostDetailScreen({ route, navigation }: any) {
         <Text style={[textStyles.h1, styles.title]}>{title}</Text>
 
         {/* Content */}
-        <WebView
-          source={{ html: wrapPostHtml(content) }}
+        <HtmlRenderer
+          html={wrapPostHtml(content)}
           style={styles.content}
-          originWhitelist={['*']}
           scrollEnabled={false}
-          nestedScrollEnabled={false}
-          onMessage={() => {}}
-          injectedJavaScript={`
-            setTimeout(() => {
-              window.ReactNativeWebView.postMessage(document.body.scrollHeight.toString());
-            }, 500);
-            true;
-          `}
         />
       </ScrollView>
-    </SafeAreaView>
+    </View>
   );
 }
 

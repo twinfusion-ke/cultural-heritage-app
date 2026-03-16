@@ -2,31 +2,35 @@
  * Gallery Screen — Tab 4: Art Gallery + Exhibitions
  *
  * Exhibitions grouped by status (Now Showing / Upcoming / Past),
- * art collection grid, and gallery journal.
+ * art collection grid with QuickView + add-to-cart, and gallery journal.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  FlatList,
   ScrollView,
   ActivityIndicator,
   Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider, AppHeader } from '../../components';
+import ProductQuickView from '../../components/ProductQuickView';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
+import { useCartStore } from '../../stores/cartStore';
 import { getExhibitionStatus } from '../../utils/dates';
 import { colors, textStyles, spacing } from '../../theme';
 import type { Exhibition } from '../../types/exhibition';
+import type { WCProduct } from '../../types/woocommerce';
 
 export default function GalleryScreen() {
   const navigation = useNavigation<any>();
   const { data: exhibitions, isLoading: exhLoading, refetch, isRefetching } = useExhibitions();
   const { data: products } = useGalleryProducts({ perPage: 6 });
   const { data: posts } = useGalleryPosts(3);
+  const addItem = useCartStore((s) => s.addItem);
+  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
 
   // Group exhibitions by status
   const nowShowing: Exhibition[] = [];
@@ -41,6 +45,16 @@ export default function GalleryScreen() {
     else if (status === 'Upcoming') upcoming.push(exh);
     else past.push(exh);
   });
+
+  function handleAddToCart(product: WCProduct) {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.images?.[0]?.src || '',
+      site: 'gallery',
+    });
+  }
 
   return (
     <ScreenContainer
@@ -101,13 +115,42 @@ export default function GalleryScreen() {
                   startDate={exh.meta._ch_exhibition_start_date}
                   endDate={exh.meta._ch_exhibition_end_date}
                   onPress={() => navigation.navigate('ExhibitionDetail', {
-                  title: exh.title.rendered,
-                  content: exh.content.rendered,
-                  imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
-                  startDate: exh.meta._ch_exhibition_start_date,
-                  endDate: exh.meta._ch_exhibition_end_date,
-                  excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
-                })}
+                    title: exh.title.rendered,
+                    content: exh.content.rendered,
+                    imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+                    startDate: exh.meta._ch_exhibition_start_date,
+                    endDate: exh.meta._ch_exhibition_end_date,
+                    excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                  })}
+                />
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Past */}
+      {past.length > 0 && (
+        <View style={styles.section}>
+          <Text style={[textStyles.label, styles.sectionLabel]}>ARCHIVE</Text>
+          <Text style={[textStyles.h1, styles.sectionTitle]}>Past Exhibitions</Text>
+          <Divider color={colors.status.past} />
+
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.md }}>
+            {past.map((exh) => (
+              <View key={exh.id} style={styles.upcomingCard}>
+                <ExhibitionCard
+                  title={exh.title.rendered}
+                  startDate={exh.meta._ch_exhibition_start_date}
+                  endDate={exh.meta._ch_exhibition_end_date}
+                  onPress={() => navigation.navigate('ExhibitionDetail', {
+                    title: exh.title.rendered,
+                    content: exh.content.rendered,
+                    imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
+                    startDate: exh.meta._ch_exhibition_start_date,
+                    endDate: exh.meta._ch_exhibition_end_date,
+                    excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                  })}
                 />
               </View>
             ))}
@@ -133,10 +176,8 @@ export default function GalleryScreen() {
                   imageUrl={item.images?.[0]?.src || ''}
                   site="gallery"
                   subtitle={artist}
-                  onPress={() => {
-                    const msg = `Hello! I'm interested in: ${item.name} ($${item.price})`;
-                    Linking.openURL(`https://wa.me/255786454999?text=${encodeURIComponent(msg)}`);
-                  }}
+                  onPress={() => setSelectedProduct(item)}
+                  onAddToCart={() => handleAddToCart(item)}
                 />
               );
             })}
@@ -201,6 +242,14 @@ export default function GalleryScreen() {
           />
         </View>
       </View>
+
+      {/* Quick View Modal */}
+      <ProductQuickView
+        product={selectedProduct}
+        site="gallery"
+        visible={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </ScreenContainer>
   );
 }

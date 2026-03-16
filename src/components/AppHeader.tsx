@@ -1,18 +1,22 @@
 /**
  * AppHeader — Branded header with logo, cart, and WhatsApp
  *
- * Matches the website header: logo left, action buttons right.
- * Appears on all screens.
+ * Uses useSafeAreaInsets() to apply paddingTop equal to insets.top,
+ * so the header sits perfectly below the system status bar while
+ * its background color bleeds edge-to-edge into the status bar area.
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useEnvStore } from '../stores/envStore';
 import { useCartStore } from '../stores/cartStore';
 import { useUIStore } from '../stores/uiStore';
 import { colors, spacing } from '../theme';
+
+const HEADER_CONTENT_HEIGHT = 52;
 
 interface AppHeaderProps {
   backgroundColor?: string;
@@ -23,63 +27,76 @@ export default function AppHeader({
   backgroundColor = colors.hub.primary,
   showCart = true,
 }: AppHeaderProps) {
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation<any>();
   const baseUrl = useEnvStore((s) => s.urls.hub.base);
   const cartCount = useCartStore((s) => s.getItemCount());
   const isOnline = useUIStore((s) => s.isOnline);
 
   return (
-    <View style={[styles.header, { backgroundColor }]}>
-      {/* Logo */}
-      <Image
-        source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
-        style={styles.logo}
-        contentFit="contain"
-        cachePolicy="disk"
-      />
+    <View style={[styles.headerOuter, { backgroundColor, paddingTop: insets.top }]}>
+      <View style={styles.headerInner}>
+        {/* Logo */}
+        <Image
+          source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
+          style={styles.logo}
+          contentFit="contain"
+          cachePolicy="disk"
+        />
 
-      {/* Right actions */}
-      <View style={styles.actions}>
-        {/* Offline indicator */}
-        {!isOnline && (
-          <View style={styles.offlineDot} />
-        )}
+        {/* Right actions */}
+        <View style={styles.actions}>
+          {/* Offline indicator */}
+          {!isOnline && (
+            <View style={styles.offlineDot} />
+          )}
 
-        {/* WhatsApp */}
-        <TouchableOpacity
-          onPress={() => Linking.openURL('https://wa.me/255786454999')}
-          style={styles.actionBtn}
-        >
-          <Text style={styles.actionIcon}>💬</Text>
-        </TouchableOpacity>
-
-        {/* Cart */}
-        {showCart && (
+          {/* Search */}
           <TouchableOpacity
-            onPress={() => navigation.navigate('Cart')}
+            onPress={() => navigation.navigate('Search')}
             style={styles.actionBtn}
           >
-            <Text style={styles.actionIcon}>🛒</Text>
-            {cartCount > 0 && (
-              <View style={styles.cartBadge}>
-                <Text style={styles.cartBadgeText}>{cartCount}</Text>
-              </View>
-            )}
+            <Text style={styles.actionIcon}>🔍</Text>
           </TouchableOpacity>
-        )}
+
+          {/* WhatsApp */}
+          <TouchableOpacity
+            onPress={() => Linking.openURL('https://wa.me/255786454999')}
+            style={styles.actionBtn}
+          >
+            <Text style={styles.actionIcon}>💬</Text>
+          </TouchableOpacity>
+
+          {/* Cart */}
+          {showCart && (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('Cart')}
+              style={styles.actionBtn}
+            >
+              <Text style={styles.actionIcon}>🛒</Text>
+              {cartCount > 0 && (
+                <View style={styles.cartBadge}>
+                  <Text style={styles.cartBadgeText}>{cartCount}</Text>
+                </View>
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  header: {
+  headerOuter: {
+    // Background bleeds into status bar; paddingTop = insets.top (applied inline)
+  },
+  headerInner: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: spacing.md,
-    paddingVertical: 10,
-    height: 52,
+    height: HEADER_CONTENT_HEIGHT,
   },
   logo: {
     width: 140,

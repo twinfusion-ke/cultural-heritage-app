@@ -3,20 +3,31 @@
  *
  * Complete app with: navigation, API data, cart, offline support.
  * Error boundary prevents crashes from killing the app.
+ *
+ * Edge-to-edge: SafeAreaProvider at root, transparent system bars,
+ * insets applied via hooks in AppHeader and TabNavigator.
  */
 
 import React, { useEffect, useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, StatusBar, ActivityIndicator, Platform } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useFonts } from 'expo-font';
 import * as SplashScreen from 'expo-splash-screen';
+import * as NavigationBar from 'expo-navigation-bar';
 
 import RootNavigator from './src/navigation/TabNavigator';
 import { colors } from './src/theme/colors';
 import { fontAssets } from './src/theme/typography';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
+
+// Android edge-to-edge: transparent navigation bar
+if (Platform.OS === 'android') {
+  NavigationBar.setBackgroundColorAsync('transparent').catch(() => {});
+  NavigationBar.setPositionAsync('absolute').catch(() => {});
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -47,7 +58,7 @@ class ErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <View style={styles.errorScreen}>
-          <StatusBar barStyle="light-content" backgroundColor="#0e382c" />
+          <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
           <Text style={styles.errorTitle}>Something went wrong</Text>
           <Text style={styles.errorMsg}>{this.state.error}</Text>
           <Text
@@ -88,7 +99,7 @@ export default function App() {
   if (!ready) {
     return (
       <View style={styles.loading}>
-        <StatusBar barStyle="light-content" backgroundColor="#0e382c" />
+        <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
         <ActivityIndicator size="large" color="#C5A059" />
       </View>
     );
@@ -97,19 +108,18 @@ export default function App() {
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <SafeAreaView style={styles.root}>
-          <StatusBar barStyle="light-content" backgroundColor="#0e382c" />
+        <SafeAreaProvider>
+          <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
           <NavigationContainer>
             <RootNavigator />
           </NavigationContainer>
-        </SafeAreaView>
+        </SafeAreaProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
 }
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: '#0e382c' },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0e382c' },
   errorScreen: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#0e382c', padding: 32 },
   errorTitle: { fontSize: 22, color: '#F5F2ED', marginBottom: 12, textAlign: 'center' },

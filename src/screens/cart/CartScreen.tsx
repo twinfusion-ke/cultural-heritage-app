@@ -3,6 +3,7 @@
  *
  * Shows all cart items grouped by site, quantity controls,
  * order summary, and WhatsApp checkout button.
+ * Uses useSafeAreaInsets for edge-to-edge layout.
  */
 
 import React, { useState } from 'react';
@@ -12,13 +13,13 @@ import {
   StyleSheet,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   StatusBar,
   Alert,
   TextInput,
   Linking,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore, type CartItem } from '../../stores/cartStore';
 import { useUIStore } from '../../stores/uiStore';
 import { addToOutbox } from '../../db/outbox';
@@ -41,6 +42,7 @@ const siteAccents: Record<string, string> = {
 };
 
 export default function CartScreen({ navigation }: any) {
+  const insets = useSafeAreaInsets();
   const items = useCartStore((s) => s.items);
   const removeItem = useCartStore((s) => s.removeItem);
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -80,7 +82,7 @@ export default function CartScreen({ navigation }: any) {
     for (const [site, siteItems] of Object.entries(grouped)) {
       message += `--- ${siteNames[site] || site} ---\n`;
       for (const item of siteItems) {
-        message += `• ${item.name} x${item.quantity} ($${(parseFloat(item.price) * item.quantity).toFixed(2)})\n`;
+        message += `\u{2022} ${item.name} x${item.quantity} ($${(parseFloat(item.price) * item.quantity).toFixed(2)})\n`;
       }
       message += `\n`;
     }
@@ -138,8 +140,8 @@ export default function CartScreen({ navigation }: any) {
 
   if (items.length === 0) {
     return (
-      <SafeAreaView style={styles.emptyContainer}>
-        <StatusBar barStyle="dark-content" />
+      <View style={[styles.emptyContainer, { paddingTop: insets.top }]}>
+        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
         <View style={styles.emptyContent}>
           <Text style={styles.emptyIcon}>🛒</Text>
           <Text style={[textStyles.h1, { color: colors.hub.text, textAlign: 'center' }]}>
@@ -157,13 +159,13 @@ export default function CartScreen({ navigation }: any) {
             style={{ marginTop: spacing.lg }}
           />
         </View>
-      </SafeAreaView>
+      </View>
     );
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="dark-content" />
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
 
       {/* Header */}
       <View style={styles.header}>
@@ -179,7 +181,7 @@ export default function CartScreen({ navigation }: any) {
         </TouchableOpacity>
       </View>
 
-      <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+      <ScrollView style={styles.scroll} contentContainerStyle={[styles.scrollContent, { paddingBottom: 100 + insets.bottom }]}>
         {/* Cart Items grouped by site */}
         {Object.entries(grouped).map(([site, siteItems]) => (
           <View key={site} style={styles.siteGroup}>
@@ -279,7 +281,7 @@ export default function CartScreen({ navigation }: any) {
       </ScrollView>
 
       {/* Checkout Button */}
-      <View style={styles.checkoutBar}>
+      <View style={[styles.checkoutBar, { paddingBottom: Math.max(insets.bottom, spacing.md) }]}>
         <Button
           title={isOnline ? 'Complete via WhatsApp' : 'Queue Order (Offline)'}
           onPress={handleCheckout}
@@ -290,7 +292,7 @@ export default function CartScreen({ navigation }: any) {
           fullWidth
         />
       </View>
-    </SafeAreaView>
+    </View>
   );
 }
 
@@ -311,7 +313,7 @@ const styles = StyleSheet.create({
   backButton: { fontFamily: 'Montserrat-Medium', fontSize: 14, color: colors.hub.text },
   clearButton: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.shared.error },
   scroll: { flex: 1 },
-  scrollContent: { paddingBottom: 100 },
+  scrollContent: {},
   siteGroup: { marginTop: spacing.md },
   siteHeader: {
     paddingHorizontal: spacing.lg, paddingVertical: spacing.sm,
@@ -353,7 +355,7 @@ const styles = StyleSheet.create({
   summaryValue: { fontFamily: 'Montserrat-Medium', fontSize: 14, color: colors.hub.text },
   checkoutBar: {
     position: 'absolute', bottom: 0, left: 0, right: 0,
-    backgroundColor: colors.shared.white, padding: spacing.md,
+    backgroundColor: colors.shared.white, paddingHorizontal: spacing.md, paddingTop: spacing.md,
     borderTopWidth: 1, borderTopColor: colors.hub.border,
   },
 });

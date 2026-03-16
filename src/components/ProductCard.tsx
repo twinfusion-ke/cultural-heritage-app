@@ -3,6 +3,7 @@
  *
  * Used across Market, Vault, and Gallery tabs.
  * Adapts accent color based on site context.
+ * Includes add-to-cart button overlay.
  */
 
 import React from 'react';
@@ -19,6 +20,7 @@ interface ProductCardProps {
   imageUrl: string;
   site: SiteKey;
   onPress: () => void;
+  onAddToCart?: () => void;
   saleBadge?: boolean;
   subtitle?: string;
 }
@@ -35,6 +37,7 @@ export default function ProductCard({
   imageUrl,
   site,
   onPress,
+  onAddToCart,
   saleBadge,
   subtitle,
 }: ProductCardProps) {
@@ -54,6 +57,18 @@ export default function ProductCard({
           <View style={styles.saleBadge}>
             <Text style={styles.saleBadgeText}>SALE</Text>
           </View>
+        )}
+        {onAddToCart && (
+          <TouchableOpacity
+            style={[styles.addToCartBtn, { backgroundColor: accent }]}
+            onPress={(e) => {
+              e.stopPropagation?.();
+              onAddToCart();
+            }}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.addToCartText}>+</Text>
+          </TouchableOpacity>
         )}
       </View>
 
@@ -103,6 +118,27 @@ const styles = StyleSheet.create({
     fontSize: 9,
     color: colors.shared.white,
     letterSpacing: 1,
+  },
+  addToCartBtn: {
+    position: 'absolute',
+    bottom: 8,
+    right: 8,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+  },
+  addToCartText: {
+    fontFamily: 'Montserrat-Bold',
+    fontSize: 18,
+    color: '#fff',
+    marginTop: -1,
   },
   info: {
     padding: 12,

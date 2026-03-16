@@ -14,6 +14,7 @@ import {
   TouchableOpacity,
   Linking,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useNavigation } from '@react-navigation/native';
@@ -25,7 +26,7 @@ import { useEnvStore } from '../../stores/envStore';
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const { data: posts, isLoading: postsLoading } = useHubPosts(6);
+  const { data: posts, isLoading: postsLoading, refetch, isRefetching } = useHubPosts(6);
   const urls = useEnvStore((s) => s.urls);
   const baseUrl = urls.hub.base;
 
@@ -35,6 +36,14 @@ export default function HomeScreen() {
       <ScrollView
         style={styles.container}
         showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefetching}
+            onRefresh={refetch}
+            tintColor={colors.shared.gold}
+            colors={[colors.shared.gold]}
+          />
+        }
       >
       {/* ═══ HERO ═══ */}
       <View style={styles.hero}>
@@ -169,7 +178,7 @@ export default function HomeScreen() {
         />
         <QuickLink
           label="Contact Us"
-          onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact' })}
+          onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us' })}
         />
       </View>
 

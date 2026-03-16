@@ -1,8 +1,8 @@
 /**
  * ScreenContainer — Standard screen wrapper
  *
- * Provides consistent layout with optional header,
- * scroll behavior, and branded styling per site.
+ * Uses View (not SafeAreaView) to avoid "white jump" artifacts.
+ * Safe area insets are handled by AppHeader (top) and CustomTabBar (bottom).
  */
 
 import React, { type ReactNode } from 'react';
@@ -11,7 +11,6 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  SafeAreaView,
   StatusBar,
   RefreshControl,
 } from 'react-native';
@@ -52,8 +51,8 @@ export default function ScreenContainer({
   const bg = backgroundColor || siteColor.bg;
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: siteColor.headerBg }]}>
-      <StatusBar barStyle={statusBarStyle} backgroundColor={siteColor.headerBg} />
+    <View style={[styles.root, { backgroundColor: siteColor.headerBg }]}>
+      <StatusBar barStyle={statusBarStyle} backgroundColor="transparent" translucent />
 
       {/* Header */}
       {title && (
@@ -85,12 +84,12 @@ export default function ScreenContainer({
       ) : (
         <View style={[styles.container, { backgroundColor: bg }]}>{children}</View>
       )}
-    </SafeAreaView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safe: {
+  root: {
     flex: 1,
   },
   header: {

@@ -1,7 +1,7 @@
 /**
  * Vault Screen — Tab 3: Jewelry / The Vault
  *
- * Luxury product grid with filters (stone, carat, cut, price),
+ * Luxury product grid with infinite scroll, QuickView modal,
  * deep-zoom ready images, WhatsApp enquiry.
  */
 
@@ -16,55 +16,94 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import { ScreenContainer, ProductCard, Button, Divider, AppHeader } from '../../components';
+import ProductQuickView from '../../components/ProductQuickView';
 import { useJewelryProducts } from '../../api/jewelry';
+import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
 import type { WCProduct } from '../../types/woocommerce';
 
 export default function VaultScreen() {
   const [page, setPage] = useState(1);
+  const [allProducts, setAllProducts] = useState<WCProduct[]>([]);
+  const [hasMore, setHasMore] = useState(true);
+  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
 
-  const { data: products, isLoading, refetch, isRefetching } = useJewelryProducts({
+  const { data: products, isLoading, refetch, isRefetching, isFetching } = useJewelryProducts({
     page,
     perPage: 12,
   });
+  const addItem = useCartStore((s) => s.addItem);
 
-  function handleEnquiry(product: WCProduct) {
-    const attrs = product.attributes?.map((a) => `${a.name}: ${a.options.join(', ')}`).join('\n') || '';
-    const message = `Hello! I'm interested in:\n\n${product.name}\nPrice: $${product.price}\n${attrs}\n\nPlease provide more details.`;
-    Linking.openURL(`https://wa.me/255786454999?text=${encodeURIComponent(message)}`);
+  React.useEffect(() => {
+    if (products) {
+      if (page === 1) {
+        setAllProducts(products);
+      } else {
+        setAllProducts((prev) => {
+          const ids = new Set(prev.map((p) => p.id));
+          return [...prev, ...products.filter((p) => !ids.has(p.id))];
+        });
+      }
+      setHasMore(products.length >= 12);
+    }
+  }, [products, page]);
+
+  function handleAddToCart(product: WCProduct) {
+    addItem({
+      productId: product.id,
+      name: product.name,
+      price: product.price,
+      imageUrl: product.images?.[0]?.src || '',
+      site: 'jewelry',
+    });
   }
+
+  function handleLoadMore() {
+    if (!isFetching && hasMore) setPage((p) => p + 1);
+  }
+
+  function handleRefresh() {
+    setPage(1);
+    setAllProducts([]);
+    setHasMore(true);
+    refetch();
+  }
+
+  const ListHeader = (
+    <View style={styles.heroBanner}>
+      <Text style={[textStyles.label, { color: colors.vault.accentBlue }]}>
+        FOUND ONLY IN TANZANIA
+      </Text>
+      <Text style={[textStyles.h1, styles.heroTitle]}>
+        Rare Gemstones{'\n'}& Fine Jewelry
+      </Text>
+      <Divider color={colors.vault.accentBlue} width={40} marginVertical={12} />
+      <Text style={styles.heroSub}>
+        Each piece certified, ethically sourced, and handcrafted in Arusha
+      </Text>
+    </View>
+  );
 
   return (
     <ScreenContainer site="jewelry" scrollable={false}>
       <AppHeader backgroundColor={colors.vault.primary} />
-      {/* Hero Banner */}
-      <View style={styles.heroBanner}>
-        <Text style={[textStyles.label, { color: colors.vault.accentBlue }]}>
-          FOUND ONLY IN TANZANIA
-        </Text>
-        <Text style={[textStyles.h1, styles.heroTitle]}>
-          Rare Gemstones{'\n'}& Fine Jewelry
-        </Text>
-        <Divider color={colors.vault.accentBlue} width={40} marginVertical={12} />
-        <Text style={styles.heroSub}>
-          Each piece certified, ethically sourced, and handcrafted in Arusha
-        </Text>
-      </View>
 
-      {/* Product Grid */}
-      {isLoading ? (
+      {isLoading && page === 1 ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.vault.accent} />
         </View>
       ) : (
         <FlatList
-          data={products || []}
+          data={allProducts}
           numColumns={2}
           columnWrapperStyle={styles.productRow}
           contentContainerStyle={styles.productGrid}
           showsVerticalScrollIndicator={false}
-          refreshing={isRefetching}
-          onRefresh={refetch}
+          refreshing={isRefetching && page === 1}
+          onRefresh={handleRefresh}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.3}
+          ListHeaderComponent={ListHeader}
           keyExtractor={(item) => String(item.id)}
           renderItem={({ item }) => {
             const stoneType = item.attributes?.find((a) => a.name.toLowerCase().includes('stone'))?.options?.[0];
@@ -79,16 +118,20 @@ export default function VaultScreen() {
                 site="jewelry"
                 subtitle={subtitle}
                 saleBadge={item.on_sale}
-                onPress={() => handleEnquiry(item)}
+                onPress={() => setSelectedProduct(item)}
+                onAddToCart={() => handleAddToCart(item)}
               />
             );
           }}
+          ListFooterComponent={
+            isFetching && page > 1 ? (
+              <ActivityIndicator size="small" color={colors.vault.accent} style={{ marginVertical: 20 }} />
+            ) : null
+          }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>💎</Text>
-              <Text style={[textStyles.h2, styles.emptyTitle]}>
-                The Collection
-              </Text>
+              <Text style={[textStyles.h2, styles.emptyTitle]}>The Collection</Text>
               <Text style={styles.emptyDesc}>
                 Our curated selection of tanzanite and precious gemstones will be available here soon.
               </Text>
@@ -120,6 +163,14 @@ export default function VaultScreen() {
           <Text style={styles.ctaText}>Book Private Consultation</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Quick View Modal */}
+      <ProductQuickView
+        product={selectedProduct}
+        site="jewelry"
+        visible={!!selectedProduct}
+        onClose={() => setSelectedProduct(null)}
+      />
     </ScreenContainer>
   );
 }
@@ -145,7 +196,6 @@ const styles = StyleSheet.create({
   },
   productGrid: {
     paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
     paddingBottom: 80,
   },
   productRow: {

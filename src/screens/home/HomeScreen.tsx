@@ -20,6 +20,8 @@ import {
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import WebView from 'react-native-webview';
+import { FadeIn, ScaleIn } from '../../components/animated';
 import { useHubPosts } from '../../api/hub';
 import { useMarketProducts } from '../../api/market';
 import { useJewelryProducts } from '../../api/jewelry';
@@ -53,29 +55,35 @@ export default function HomeScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.shared.gold} colors={[colors.shared.gold]} />
         }
       >
-      {/* ═══ HERO ═══ */}
+      {/* ═══ HERO WITH VIDEO ═══ */}
       <View style={styles.hero}>
-        <Image
-          source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
+        <WebView
+          source={{ uri: 'https://www.youtube.com/embed/z_kLkxaQHNg?autoplay=1&mute=1&loop=1&playlist=z_kLkxaQHNg&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1' }}
           style={StyleSheet.absoluteFillObject}
-          contentFit="cover"
-          cachePolicy="disk"
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          javaScriptEnabled
+          scrollEnabled={false}
+          pointerEvents="none"
         />
         <View style={styles.heroOverlay} />
-        <View style={styles.heroContent}>
-          <Text style={styles.heroEyebrow}>ARUSHA, TANZANIA — EST. 1994</Text>
-          <Image
-            source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
-            style={styles.heroLogo}
-            contentFit="contain"
-            cachePolicy="disk"
-          />
-          <Divider color={colors.shared.gold} width={60} marginVertical={16} />
-          <Text style={styles.heroTagline}>Where Art, Heritage & Discovery Converge</Text>
-        </View>
+        <FadeIn delay={300} slideUp={30}>
+          <View style={styles.heroContent}>
+            <Text style={styles.heroEyebrow}>ARUSHA, TANZANIA — EST. 1994</Text>
+            <Image
+              source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
+              style={styles.heroLogo}
+              contentFit="contain"
+              cachePolicy="disk"
+            />
+            <Divider color={colors.shared.gold} width={60} marginVertical={16} />
+            <Text style={styles.heroTagline}>Where Art, Heritage & Discovery Converge</Text>
+          </View>
+        </FadeIn>
       </View>
 
       {/* ═══ THE MARKET — with 2 products ═══ */}
+      <FadeIn delay={100} slideUp={20}>
       <DivisionSection
         label="THE MARKET"
         title="Handcrafts & Artifacts"
@@ -91,8 +99,10 @@ export default function HomeScreen() {
         onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'market' })}
         onViewAll={() => navigation.navigate('Market')}
       />
+      </FadeIn>
 
       {/* ═══ THE VAULT — with 2 products ═══ */}
+      <FadeIn delay={200} slideUp={20}>
       <DivisionSection
         label="THE VAULT"
         title="Tanzanite & Fine Jewelry"
@@ -108,8 +118,10 @@ export default function HomeScreen() {
         onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'jewelry' })}
         onViewAll={() => navigation.navigate('Vault')}
       />
+      </FadeIn>
 
       {/* ═══ ART GALLERY — with 2 products ═══ */}
+      <FadeIn delay={300} slideUp={20}>
       <DivisionSection
         label="THE GALLERY"
         title="Contemporary & Traditional Art"
@@ -125,6 +137,7 @@ export default function HomeScreen() {
         onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'gallery' })}
         onViewAll={() => navigation.navigate('Gallery')}
       />
+      </FadeIn>
 
       {/* ═══ HERITAGE STORIES ═══ */}
       <View style={styles.section}>
@@ -164,6 +177,7 @@ export default function HomeScreen() {
       {/* ═══ QUICK LINKS ═══ */}
       <View style={styles.linksSection}>
         <QuickLink label="About Cultural Heritage" icon="information-circle-outline" onPress={() => navigation.navigate('About')} />
+        <QuickLink label="Our Legacy (1994–2024)" icon="time-outline" onPress={() => navigation.navigate('Legacy')} />
         <QuickLink label="Plan Your Visit" icon="map-outline" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
         <QuickLink label="Contact Us" icon="call-outline" onPress={() => navigation.navigate('Contact')} />
       </View>

@@ -26,6 +26,7 @@ import SearchScreen from '../screens/search/SearchScreen';
 import BlogScreen from '../screens/blog/BlogScreen';
 import AboutScreen from '../screens/about/AboutScreen';
 import ContactScreen from '../screens/contact/ContactScreen';
+import LegacyScreen from '../screens/legacy/LegacyScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import FavoritesScreen from '../screens/favorites/FavoritesScreen';
 
@@ -115,6 +116,7 @@ export default function RootNavigator() {
       <Stack.Screen name="Blog" component={BlogScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="About" component={AboutScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="Contact" component={ContactScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Legacy" component={LegacyScreen} options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }

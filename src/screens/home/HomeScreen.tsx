@@ -1,7 +1,8 @@
 /**
  * Home Screen — Tab 1: Cultural Heritage Centre
  *
- * All content fetched from the custom PHP API.
+ * Hero banner, division cards with 2 sample products each,
+ * heritage stories, quick links, and contact bar.
  */
 
 import React from 'react';
@@ -14,21 +15,33 @@ import {
   Linking,
   ActivityIndicator,
   RefreshControl,
+  Dimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useHubPosts } from '../../api/hub';
+import { useMarketProducts } from '../../api/market';
+import { useJewelryProducts } from '../../api/jewelry';
+import { useGalleryProducts } from '../../api/gallery';
 import { BlogCard, Divider } from '../../components';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 import { useEnvStore } from '../../stores/envStore';
+import { useCartStore } from '../../stores/cartStore';
+
+const { width: SCREEN_W } = Dimensions.get('window');
+const PRODUCT_CARD_W = (SCREEN_W - spacing.lg * 2 - 12) / 2;
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
-  const { data: posts, isLoading: postsLoading, refetch, isRefetching } = useHubPosts(6);
+  const { data: posts, isLoading: postsLoading, refetch, isRefetching } = useHubPosts(4);
+  const { data: marketProducts } = useMarketProducts({ perPage: 2 });
+  const { data: jewelryProducts } = useJewelryProducts({ perPage: 2 });
+  const { data: galleryProducts } = useGalleryProducts({ perPage: 2 });
   const urls = useEnvStore((s) => s.urls);
   const baseUrl = urls.hub.base;
+  const addItem = useCartStore((s) => s.addItem);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.hub.primary }}>
@@ -37,15 +50,10 @@ export default function HomeScreen() {
         style={styles.container}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl
-            refreshing={isRefetching}
-            onRefresh={refetch}
-            tintColor={colors.shared.gold}
-            colors={[colors.shared.gold]}
-          />
+          <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.shared.gold} colors={[colors.shared.gold]} />
         }
       >
-      {/* HERO */}
+      {/* ═══ HERO ═══ */}
       <View style={styles.hero}>
         <Image
           source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
@@ -63,73 +71,62 @@ export default function HomeScreen() {
             cachePolicy="disk"
           />
           <Divider color={colors.shared.gold} width={60} marginVertical={16} />
-          <Text style={styles.heroTagline}>
-            Where Art, Heritage & Discovery Converge
-          </Text>
+          <Text style={styles.heroTagline}>Where Art, Heritage & Discovery Converge</Text>
         </View>
       </View>
 
-      {/* THREE PILLARS */}
-      <View style={styles.pillarsSection}>
-        <Text style={[textStyles.label, styles.sectionLabel]}>OUR WORLD</Text>
-        <Divider />
+      {/* ═══ THE MARKET — with 2 products ═══ */}
+      <DivisionSection
+        label="THE MARKET"
+        title="Handcrafts & Artifacts"
+        labelColor={colors.market.accent}
+        bgColor={colors.market.background}
+        heroImage={`${baseUrl}/wp-content/themes/ch-market/assets/images/market-hero.jpg`}
+        overlayColor="rgba(61,43,31,0.7)"
+        products={marketProducts}
+        site="market"
+        accentColor={colors.market.accent}
+        onBannerPress={() => navigation.navigate('Market')}
+        onProductPress={(p: any) => navigation.navigate('ProductDetail', { product: p, site: 'market' })}
+        onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'market' })}
+        onViewAll={() => navigation.navigate('Market')}
+      />
 
-        <TouchableOpacity
-          style={styles.pillarCard}
-          onPress={() => navigation.navigate('Market')}
-          activeOpacity={0.85}
-        >
-          <Image
-            source={{ uri: `${baseUrl}/wp-content/themes/ch-market/assets/images/market-hero.jpg` }}
-            style={StyleSheet.absoluteFillObject}
-            contentFit="cover"
-            cachePolicy="disk"
-          />
-          <View style={styles.pillarOverlay} />
-          <View style={styles.pillarContent}>
-            <Text style={[textStyles.label, { color: colors.market.accent }]}>THE MARKET</Text>
-            <Text style={[textStyles.h2, styles.pillarTitle]}>Handcrafts & Artifacts</Text>
-          </View>
-        </TouchableOpacity>
+      {/* ═══ THE VAULT — with 2 products ═══ */}
+      <DivisionSection
+        label="THE VAULT"
+        title="Tanzanite & Fine Jewelry"
+        labelColor={colors.vault.accent}
+        bgColor={colors.vault.background}
+        heroImage={`${baseUrl}/wp-content/themes/ch-jewelry/assets/images/tanzanite-slide-1-scaled.jpg`}
+        overlayColor="rgba(10,10,20,0.75)"
+        products={jewelryProducts}
+        site="jewelry"
+        accentColor={colors.vault.accent}
+        onBannerPress={() => navigation.navigate('Vault')}
+        onProductPress={(p: any) => navigation.navigate('ProductDetail', { product: p, site: 'jewelry' })}
+        onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'jewelry' })}
+        onViewAll={() => navigation.navigate('Vault')}
+      />
 
-        <TouchableOpacity
-          style={styles.pillarCard}
-          onPress={() => navigation.navigate('Vault')}
-          activeOpacity={0.85}
-        >
-          <Image
-            source={{ uri: `${baseUrl}/wp-content/themes/ch-jewelry/assets/images/tanzanite-slide-1-scaled.jpg` }}
-            style={StyleSheet.absoluteFillObject}
-            contentFit="cover"
-            cachePolicy="disk"
-          />
-          <View style={styles.pillarOverlay} />
-          <View style={styles.pillarContent}>
-            <Text style={[textStyles.label, { color: colors.vault.accent }]}>THE VAULT</Text>
-            <Text style={[textStyles.h2, styles.pillarTitle]}>Tanzanite & Fine Jewelry</Text>
-          </View>
-        </TouchableOpacity>
+      {/* ═══ ART GALLERY — with 2 products ═══ */}
+      <DivisionSection
+        label="THE GALLERY"
+        title="Contemporary & Traditional Art"
+        labelColor={colors.shared.gold}
+        bgColor={colors.gallery.background}
+        heroImage={`${baseUrl}/wp-content/themes/ch-gallery/assets/images/gallery-hero.jpg`}
+        overlayColor="rgba(26,26,26,0.7)"
+        products={galleryProducts}
+        site="gallery"
+        accentColor={colors.shared.gold}
+        onBannerPress={() => navigation.navigate('Gallery')}
+        onProductPress={(p: any) => navigation.navigate('ProductDetail', { product: p, site: 'gallery' })}
+        onAddToCart={(p: any) => addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'gallery' })}
+        onViewAll={() => navigation.navigate('Gallery')}
+      />
 
-        <TouchableOpacity
-          style={styles.pillarCard}
-          onPress={() => navigation.navigate('Gallery')}
-          activeOpacity={0.85}
-        >
-          <Image
-            source={{ uri: `${baseUrl}/wp-content/themes/ch-gallery/assets/images/gallery-hero.jpg` }}
-            style={StyleSheet.absoluteFillObject}
-            contentFit="cover"
-            cachePolicy="disk"
-          />
-          <View style={styles.pillarOverlay} />
-          <View style={styles.pillarContent}>
-            <Text style={[textStyles.label, { color: colors.shared.gold }]}>THE GALLERY</Text>
-            <Text style={[textStyles.h2, styles.pillarTitle]}>Contemporary & Traditional Art</Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-
-      {/* HERITAGE STORIES */}
+      {/* ═══ HERITAGE STORIES ═══ */}
       <View style={styles.section}>
         <Text style={[textStyles.label, styles.sectionLabel]}>THE JOURNAL</Text>
         <Text style={[textStyles.h1, styles.sectionTitle]}>Heritage Stories</Text>
@@ -157,37 +154,23 @@ export default function HomeScreen() {
         ) : (
           <Text style={styles.emptyText}>Stories loading...</Text>
         )}
+
+        <TouchableOpacity style={styles.viewAllBtn} onPress={() => navigation.navigate('Blog')}>
+          <Text style={styles.viewAllText}>View All Stories</Text>
+          <Ionicons name="arrow-forward" size={16} color={colors.shared.gold} />
+        </TouchableOpacity>
       </View>
 
-      {/* QUICK LINKS */}
+      {/* ═══ QUICK LINKS ═══ */}
       <View style={styles.linksSection}>
-        <QuickLink
-          label="About Cultural Heritage"
-          icon="information-circle-outline"
-          onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Cultural Heritage' })}
-        />
-        <QuickLink
-          label="Our Legacy"
-          icon="time-outline"
-          onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })}
-        />
-        <QuickLink
-          label="Newsletter"
-          icon="mail-outline"
-          onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })}
-        />
-        <QuickLink
-          label="Contact Us"
-          icon="call-outline"
-          onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us', site: 'market' })}
-        />
+        <QuickLink label="About Cultural Heritage" icon="information-circle-outline" onPress={() => navigation.navigate('About')} />
+        <QuickLink label="Plan Your Visit" icon="map-outline" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
+        <QuickLink label="Contact Us" icon="call-outline" onPress={() => navigation.navigate('Contact')} />
       </View>
 
-      {/* CONTACT BAR */}
+      {/* ═══ CONTACT BAR ═══ */}
       <View style={styles.contactBar}>
-        <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center', marginBottom: 16 }]}>
-          VISIT US
-        </Text>
+        <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center', marginBottom: 16 }]}>VISIT US</Text>
         <Text style={styles.contactText}>Dodoma Road, Arusha, Tanzania</Text>
         <Text style={styles.contactText}>Mon–Sat 8am–8pm · Sun 10am–7pm</Text>
         <View style={styles.contactButtons}>
@@ -210,6 +193,60 @@ export default function HomeScreen() {
   );
 }
 
+/** Division Section — Banner + 2 Product Cards */
+function DivisionSection({ label, title, labelColor, bgColor, heroImage, overlayColor, products, site, accentColor, onBannerPress, onProductPress, onAddToCart, onViewAll }: any) {
+  return (
+    <View style={[styles.divisionSection, { backgroundColor: bgColor }]}>
+      {/* Banner */}
+      <TouchableOpacity style={styles.divisionBanner} onPress={onBannerPress} activeOpacity={0.85}>
+        <Image source={{ uri: heroImage }} style={StyleSheet.absoluteFillObject} contentFit="cover" cachePolicy="disk" />
+        <View style={[styles.divisionOverlay, { backgroundColor: overlayColor }]} />
+        <View style={styles.divisionBannerContent}>
+          <Text style={[textStyles.label, { color: labelColor }]}>{label}</Text>
+          <Text style={[textStyles.h2, { color: '#fff', marginTop: 4 }]}>{title}</Text>
+          <View style={styles.shopNowRow}>
+            <Text style={[styles.shopNowText, { color: labelColor }]}>Shop Now</Text>
+            <Ionicons name="arrow-forward" size={14} color={labelColor} />
+          </View>
+        </View>
+      </TouchableOpacity>
+
+      {/* 2 Product Cards */}
+      {products && products.length > 0 && (
+        <View style={styles.productRow}>
+          {products.slice(0, 2).map((p: any) => (
+            <TouchableOpacity key={p.id} style={styles.miniProductCard} onPress={() => onProductPress(p)} activeOpacity={0.9}>
+              {p.images?.[0]?.src ? (
+                <Image source={{ uri: p.images[0].src }} style={styles.miniProductImage} contentFit="cover" cachePolicy="disk" transition={200} />
+              ) : (
+                <View style={[styles.miniProductImage, { backgroundColor: '#F0F0F0', alignItems: 'center', justifyContent: 'center' }]}>
+                  <Ionicons name="image-outline" size={24} color="#CCC" />
+                </View>
+              )}
+              <View style={styles.miniProductInfo}>
+                <Text style={styles.miniProductName} numberOfLines={2}>{p.name}</Text>
+                <Text style={[styles.miniProductPrice, { color: accentColor }]}>${p.price}</Text>
+              </View>
+              <TouchableOpacity
+                style={[styles.miniAddBtn, { backgroundColor: accentColor }]}
+                onPress={() => onAddToCart(p)}
+              >
+                <Ionicons name="add" size={16} color="#fff" />
+              </TouchableOpacity>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
+
+      {/* View All */}
+      <TouchableOpacity style={styles.viewAllBtn} onPress={onViewAll}>
+        <Text style={[styles.viewAllText, { color: accentColor }]}>View Collection</Text>
+        <Ionicons name="arrow-forward" size={16} color={accentColor} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.quickLink} onPress={onPress} activeOpacity={0.7}>
@@ -224,75 +261,41 @@ function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPr
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.hub.background },
-  hero: {
-    height: 420, justifyContent: 'flex-end', alignItems: 'center',
-    paddingBottom: 40,
-  },
-  heroOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(14,56,44,0.75)',
-  },
+  hero: { height: 380, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 36 },
+  heroOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(14,56,44,0.75)' },
   heroContent: { alignItems: 'center', zIndex: 1, paddingHorizontal: 32 },
-  heroEyebrow: {
-    fontFamily: 'Montserrat-SemiBold', fontSize: 9, letterSpacing: 3,
-    color: colors.shared.gold, textTransform: 'uppercase', marginBottom: 16,
-  },
+  heroEyebrow: { fontFamily: 'Montserrat-SemiBold', fontSize: 10, letterSpacing: 3, color: colors.shared.gold, textTransform: 'uppercase', marginBottom: 16 },
   heroLogo: { width: 260, height: 117 },
-  heroTagline: {
-    fontFamily: 'Montserrat-Regular', fontSize: 12,
-    color: 'rgba(245,242,237,0.6)', textAlign: 'center', letterSpacing: 0.5,
-  },
-  pillarsSection: {
-    paddingHorizontal: spacing.lg, paddingVertical: spacing.xl,
-    backgroundColor: colors.shared.white,
-  },
+  heroTagline: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(245,242,237,0.6)', textAlign: 'center', letterSpacing: 0.5 },
+
+  divisionSection: { paddingBottom: spacing.md },
+  divisionBanner: { height: 180, justifyContent: 'flex-end', marginHorizontal: spacing.lg, marginTop: spacing.lg, borderRadius: 8, overflow: 'hidden' },
+  divisionOverlay: { ...StyleSheet.absoluteFillObject },
+  divisionBannerContent: { padding: 20, zIndex: 1 },
+  shopNowRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
+  shopNowText: { fontFamily: 'Montserrat-SemiBold', fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
+
+  productRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.md },
+  miniProductCard: { width: PRODUCT_CARD_W, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
+  miniProductImage: { width: '100%', aspectRatio: 1 },
+  miniProductInfo: { padding: 10 },
+  miniProductName: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.hub.text, lineHeight: 18 },
+  miniProductPrice: { fontFamily: 'Montserrat-SemiBold', fontSize: 15, marginTop: 4 },
+  miniAddBtn: { position: 'absolute', bottom: 10, right: 10, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
+
+  viewAllBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, paddingVertical: spacing.md },
+  viewAllText: { fontFamily: 'Montserrat-SemiBold', fontSize: 13, color: colors.shared.gold, letterSpacing: 0.5 },
+
+  section: { paddingHorizontal: spacing.lg, paddingVertical: spacing['2xl'], backgroundColor: colors.hub.background },
   sectionLabel: { color: colors.hub.textMuted, textAlign: 'center', marginBottom: 4 },
-  pillarCard: {
-    height: 160, marginTop: 12, overflow: 'hidden',
-    justifyContent: 'flex-end', borderRadius: 4,
-  },
-  pillarOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  pillarContent: { padding: 20, zIndex: 1 },
-  pillarTitle: { color: '#fff', marginTop: 4 },
-  section: {
-    paddingHorizontal: spacing.lg, paddingVertical: spacing['2xl'],
-    backgroundColor: colors.hub.background,
-  },
   sectionTitle: { color: colors.hub.text, textAlign: 'center' },
-  emptyText: {
-    fontFamily: 'Montserrat-Regular', fontSize: 13,
-    color: colors.hub.textMuted, textAlign: 'center', marginTop: 24,
-  },
-  linksSection: {
-    backgroundColor: colors.shared.white,
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing.md,
-  },
-  quickLink: {
-    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
-    paddingVertical: 16, borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.hub.border,
-  },
-  quickLinkText: { fontFamily: 'Montserrat-Medium', fontSize: 15, color: colors.hub.text },
-  contactBar: {
-    backgroundColor: colors.hub.primary, padding: spacing.lg, paddingVertical: spacing.xl,
-  },
-  contactText: {
-    fontFamily: 'Montserrat-Regular', fontSize: 13,
-    color: 'rgba(245,242,237,0.6)', textAlign: 'center', lineHeight: 22,
-  },
-  contactButtons: {
-    flexDirection: 'row', justifyContent: 'center', gap: 12, marginTop: 20,
-  },
-  contactBtn: {
-    borderWidth: 1, borderColor: 'rgba(245,242,237,0.2)',
-    paddingHorizontal: 16, paddingVertical: 10,
-    flexDirection: 'row', alignItems: 'center', gap: 6,
-  },
-  contactBtnText: {
-    fontFamily: 'Montserrat-Medium', fontSize: 12, color: colors.shared.parchment,
-  },
+  emptyText: { fontFamily: 'Montserrat-Regular', fontSize: 14, color: colors.hub.textMuted, textAlign: 'center', marginTop: 24 },
+  linksSection: { backgroundColor: colors.shared.white, paddingHorizontal: spacing.lg, paddingVertical: spacing.md },
+  quickLink: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border },
+  quickLinkText: { fontFamily: 'Montserrat-Medium', fontSize: 16, color: colors.hub.text },
+  contactBar: { backgroundColor: colors.hub.primary, padding: spacing.lg, paddingVertical: spacing.xl },
+  contactText: { fontFamily: 'Montserrat-Regular', fontSize: 14, color: 'rgba(245,242,237,0.6)', textAlign: 'center', lineHeight: 22 },
+  contactButtons: { flexDirection: 'row', justifyContent: 'center', gap: 12, marginTop: 20 },
+  contactBtn: { borderWidth: 1, borderColor: 'rgba(245,242,237,0.2)', paddingHorizontal: 16, paddingVertical: 10, flexDirection: 'row', alignItems: 'center', gap: 6, borderRadius: 4 },
+  contactBtnText: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.shared.parchment },
 });

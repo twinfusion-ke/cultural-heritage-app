@@ -27,6 +27,8 @@ import { useMarketProducts } from '../../api/market';
 import { useJewelryProducts } from '../../api/jewelry';
 import { useGalleryProducts } from '../../api/gallery';
 import { BlogCard, Divider } from '../../components';
+import YouTubeCard from '../../components/YouTubeCard';
+import ReviewsSection from '../../components/ReviewsSection';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 import { useEnvStore } from '../../stores/envStore';
@@ -148,11 +150,35 @@ export default function HomeScreen() {
         {postsLoading ? (
           <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: 24 }} />
         ) : posts && posts.length > 0 ? (
-          posts.map((post) => (
-            <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
-              onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
+          <>
+            {/* First 2 blog posts */}
+            {posts.slice(0, 2).map((post) => (
+              <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
+                onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
+              />
+            ))}
+
+            {/* Video 1 — Between blogs */}
+            <YouTubeCard
+              videoId="z9wh0prnkpo"
+              title="Discover the Centre"
+              subtitle="Take a virtual tour of the Cultural Heritage Centre — where art, gemstones, and centuries of African craftsmanship come together."
             />
-          ))
+
+            {/* Remaining blog posts */}
+            {posts.slice(2).map((post) => (
+              <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
+                onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
+              />
+            ))}
+
+            {/* Video 2 — After last blog */}
+            <YouTubeCard
+              videoId="z_kLkxaQHNg"
+              title="Our Heritage"
+              subtitle="Three decades of preserving and celebrating Africa's cultural treasures in Arusha, Tanzania."
+            />
+          </>
         ) : (
           <Text style={styles.emptyText}>Stories loading...</Text>
         )}
@@ -161,6 +187,9 @@ export default function HomeScreen() {
           <Ionicons name="arrow-forward" size={16} color={colors.shared.gold} />
         </TouchableOpacity>
       </View>
+
+      {/* ═══ REVIEWS ═══ */}
+      <ReviewsSection />
 
       {/* ═══ QUICK LINKS ═══ */}
       <View style={styles.linksSection}>

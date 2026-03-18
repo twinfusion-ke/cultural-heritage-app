@@ -96,42 +96,18 @@ function get_table_prefix(string $site): string {
 
 // ── Helper Functions ────────────────────────────────────────────────────────
 function get_featured_image(PDO $pdo, string $prefix, int $post_id): ?string {
+    // Best approach: use the guid from the attachment post (always has full URL in multisite)
     $stmt = $pdo->prepare("
-        SELECT pm2.meta_value AS url
-        FROM {$prefix}postmeta pm
-        JOIN {$prefix}postmeta pm2 ON pm2.post_id = pm.meta_value AND pm2.meta_key = '_wp_attached_file'
-        WHERE pm.post_id = ? AND pm.meta_key = '_thumbnail_id'
-        LIMIT 1
-    ");
-    $stmt->execute([$post_id]);
-    $row = $stmt->fetch();
-    if ($row && $row['url']) {
-        // If it's already a full URL (external image), return as-is
-        if (str_starts_with($row['url'], 'http://') || str_starts_with($row['url'], 'https://')) {
-            return $row['url'];
-        }
-        global $base_url;
-        return $base_url . '/wp-content/uploads/' . $row['url'];
-    }
-    // Check the attachment's guid (full URL stored by WP)
-    $stmt2 = $pdo->prepare("
         SELECT p2.guid
         FROM {$prefix}postmeta pm
         JOIN {$prefix}posts p2 ON p2.ID = pm.meta_value
         WHERE pm.post_id = ? AND pm.meta_key = '_thumbnail_id'
         LIMIT 1
     ");
-    $stmt2->execute([$post_id]);
-    $row2 = $stmt2->fetch();
-    if ($row2 && $row2['guid']) {
-        $guid = $row2['guid'];
-        // If guid is already a full URL, return it
-        if (str_starts_with($guid, 'http://') || str_starts_with($guid, 'https://')) {
-            return $guid;
-        }
-        // Otherwise construct from base
-        global $base_url;
-        return $base_url . '/wp-content/uploads/' . $guid;
+    $stmt->execute([$post_id]);
+    $row = $stmt->fetch();
+    if ($row && $row['guid']) {
+        return $row['guid'];
     }
     return null;
 }
@@ -143,23 +119,18 @@ function get_product_images(PDO $pdo, string $prefix, int $product_id): array {
     if ($featured) {
         $images[] = ['src' => $featured, 'alt' => ''];
     }
-    // Gallery images from _product_image_gallery
+    // Gallery images from _product_image_gallery — use guid for multisite
     $stmt = $pdo->prepare("SELECT meta_value FROM {$prefix}postmeta WHERE post_id = ? AND meta_key = '_product_image_gallery'");
     $stmt->execute([$product_id]);
     $gallery = $stmt->fetchColumn();
     if ($gallery) {
         $ids = explode(',', $gallery);
         foreach ($ids as $img_id) {
-            $stmt2 = $pdo->prepare("SELECT meta_value FROM {$prefix}postmeta WHERE post_id = ? AND meta_key = '_wp_attached_file'");
+            $stmt2 = $pdo->prepare("SELECT guid FROM {$prefix}posts WHERE ID = ?");
             $stmt2->execute([(int)$img_id]);
-            $url = $stmt2->fetchColumn();
-            if ($url) {
-                if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
-                    $images[] = ['src' => $url, 'alt' => ''];
-                } else {
-                    global $base_url;
-                    $images[] = ['src' => $base_url . '/wp-content/uploads/' . $url, 'alt' => ''];
-                }
+            $guid = $stmt2->fetchColumn();
+            if ($guid) {
+                $images[] = ['src' => $guid, 'alt' => ''];
             }
         }
     }

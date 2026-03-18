@@ -26,6 +26,7 @@ import { useUIStore } from './src/stores/uiStore';
 import { useEnvStore } from './src/stores/envStore';
 import { useCartStore } from './src/stores/cartStore';
 import { useFavoritesStore } from './src/stores/favoritesStore';
+import { useAuthStore } from './src/stores/authStore';
 import { cacheClearAll } from './src/db/contentCache';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -92,6 +93,7 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
     useEnvStore.getState().loadFromStorage();
     useCartStore.getState().loadFromStorage();
     useFavoritesStore.getState().loadFromStorage();
+    useAuthStore.getState().loadFromStorage();
 
     // Start background sync service
     startSyncService();

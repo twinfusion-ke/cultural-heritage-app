@@ -673,6 +673,223 @@ switch ($action) {
         echo json_encode(['success' => $sent, 'message' => $sent ? 'Form submitted successfully' : 'Email sending failed, please try WhatsApp']);
         break;
 
+    // ── Auth: Register ─────────────────────────────────────────────────
+    case 'register':
+        $hp = get_table_prefix('hub');
+        // Ensure app_users table exists
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ch_app_users (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            name VARCHAR(100) NOT NULL,
+            email VARCHAR(150) NOT NULL UNIQUE,
+            phone VARCHAR(30),
+            password_hash VARCHAR(255) NOT NULL,
+            avatar_url VARCHAR(500),
+            preferences TEXT,
+            location VARCHAR(200),
+            device_info TEXT,
+            last_login DATETIME,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            status ENUM('active','suspended') DEFAULT 'active'
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ch_app_sessions (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            token VARCHAR(64) NOT NULL UNIQUE,
+            device_info TEXT,
+            ip_address VARCHAR(45),
+            location VARCHAR(200),
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            expires_at DATETIME NOT NULL,
+            INDEX(token), INDEX(user_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ch_app_analytics (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT,
+            session_token VARCHAR(64),
+            event_type VARCHAR(50) NOT NULL,
+            screen VARCHAR(100),
+            product_id INT,
+            site VARCHAR(20),
+            metadata TEXT,
+            ip_address VARCHAR(45),
+            location VARCHAR(200),
+            device_info TEXT,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX(user_id), INDEX(event_type)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $name = $_GET['name'] ?? $_POST['name'] ?? '';
+        $email = $_GET['email'] ?? $_POST['email'] ?? '';
+        $phone = $_GET['phone'] ?? $_POST['phone'] ?? '';
+        $password = $_GET['password'] ?? $_POST['password'] ?? '';
+        $device = $_GET['device_info'] ?? $_POST['device_info'] ?? '';
+        $loc = $_GET['location'] ?? $_POST['location'] ?? '';
+
+        if (!$name || !$email || !$password) {
+            echo json_encode(['error' => 'Name, email and password are required']);
+            break;
+        }
+        if (strlen($password) < 6) {
+            echo json_encode(['error' => 'Password must be at least 6 characters']);
+            break;
+        }
+
+        // Check if email exists
+        $stmt = $pdo->prepare("SELECT id FROM ch_app_users WHERE email = ?");
+        $stmt->execute([$email]);
+        if ($stmt->fetch()) {
+            echo json_encode(['error' => 'Email already registered. Please login.']);
+            break;
+        }
+
+        $hash = password_hash($password, PASSWORD_BCRYPT);
+        $stmt = $pdo->prepare("INSERT INTO ch_app_users (name, email, phone, password_hash, device_info, location) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$name, $email, $phone, $hash, $device, $loc]);
+        $user_id = $pdo->lastInsertId();
+
+        // Create session
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $stmt = $pdo->prepare("INSERT INTO ch_app_sessions (user_id, token, device_info, ip_address, location, expires_at) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $token, $device, $ip, $loc, $expires]);
+
+        echo json_encode([
+            'success' => true,
+            'user' => ['id' => (int)$user_id, 'name' => $name, 'email' => $email, 'phone' => $phone],
+            'token' => $token,
+            'expires' => $expires,
+        ]);
+        break;
+
+    // ── Auth: Login ──────────────────────────────────────────────────────
+    case 'login':
+        $email = $_GET['email'] ?? $_POST['email'] ?? '';
+        $password = $_GET['password'] ?? $_POST['password'] ?? '';
+        $device = $_GET['device_info'] ?? $_POST['device_info'] ?? '';
+        $loc = $_GET['location'] ?? $_POST['location'] ?? '';
+
+        if (!$email || !$password) {
+            echo json_encode(['error' => 'Email and password are required']);
+            break;
+        }
+
+        $stmt = $pdo->prepare("SELECT * FROM ch_app_users WHERE email = ? AND status = 'active'");
+        $stmt->execute([$email]);
+        $user = $stmt->fetch();
+
+        if (!$user || !password_verify($password, $user['password_hash'])) {
+            echo json_encode(['error' => 'Invalid email or password']);
+            break;
+        }
+
+        // Update last login
+        $pdo->prepare("UPDATE ch_app_users SET last_login = NOW(), device_info = ?, location = ? WHERE id = ?")->execute([$device, $loc, $user['id']]);
+
+        // Create new session
+        $token = bin2hex(random_bytes(32));
+        $expires = date('Y-m-d H:i:s', strtotime('+30 days'));
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $stmt = $pdo->prepare("INSERT INTO ch_app_sessions (user_id, token, device_info, ip_address, location, expires_at) VALUES (?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$user['id'], $token, $device, $ip, $loc, $expires]);
+
+        echo json_encode([
+            'success' => true,
+            'user' => ['id' => (int)$user['id'], 'name' => $user['name'], 'email' => $user['email'], 'phone' => $user['phone'], 'preferences' => $user['preferences'] ? json_decode($user['preferences'], true) : null],
+            'token' => $token,
+            'expires' => $expires,
+        ]);
+        break;
+
+    // ── Auth: Profile (get/update) ───────────────────────────────────────
+    case 'profile':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode(['error' => 'Authentication required']); break; }
+
+        $stmt = $pdo->prepare("SELECT s.user_id, u.* FROM ch_app_sessions s JOIN ch_app_users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > NOW()");
+        $stmt->execute([$token]);
+        $user = $stmt->fetch();
+        if (!$user) { echo json_encode(['error' => 'Session expired. Please login again.']); break; }
+
+        // If updating preferences
+        $prefs = $_GET['preferences'] ?? $_POST['preferences'] ?? '';
+        if ($prefs) {
+            $pdo->prepare("UPDATE ch_app_users SET preferences = ? WHERE id = ?")->execute([$prefs, $user['id']]);
+        }
+
+        echo json_encode([
+            'user' => ['id' => (int)$user['id'], 'name' => $user['name'], 'email' => $user['email'], 'phone' => $user['phone'], 'preferences' => $user['preferences'] ? json_decode($user['preferences'], true) : null, 'created_at' => $user['created_at']],
+        ]);
+        break;
+
+    // ── Auth: Logout ─────────────────────────────────────────────────────
+    case 'logout':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if ($token) {
+            $pdo->prepare("DELETE FROM ch_app_sessions WHERE token = ?")->execute([$token]);
+        }
+        echo json_encode(['success' => true]);
+        break;
+
+    // ── Analytics: Track Event ───────────────────────────────────────────
+    case 'track':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        $event = $_GET['event_type'] ?? $_POST['event_type'] ?? 'view';
+        $screen = $_GET['screen'] ?? $_POST['screen'] ?? '';
+        $product_id = $_GET['product_id'] ?? $_POST['product_id'] ?? null;
+        $site_key = $_GET['site'] ?? $_POST['site'] ?? '';
+        $meta = $_GET['metadata'] ?? $_POST['metadata'] ?? '';
+        $device = $_GET['device_info'] ?? $_POST['device_info'] ?? '';
+        $loc = $_GET['location'] ?? $_POST['location'] ?? '';
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+
+        // Resolve user from token
+        $user_id = null;
+        if ($token) {
+            $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+            $stmt->execute([$token]);
+            $user_id = $stmt->fetchColumn() ?: null;
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO ch_app_analytics (user_id, session_token, event_type, screen, product_id, site, metadata, ip_address, location, device_info) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->execute([$user_id, $token, $event, $screen, $product_id, $site_key, $meta, $ip, $loc, $device]);
+
+        echo json_encode(['success' => true]);
+        break;
+
+    // ── Analytics: User Recommendations ──────────────────────────────────
+    case 'recommendations':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode([]); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $user_id = $stmt->fetchColumn();
+        if (!$user_id) { echo json_encode([]); break; }
+
+        // Get most viewed sites/categories
+        $stmt = $pdo->prepare("SELECT site, COUNT(*) as cnt FROM ch_app_analytics WHERE user_id = ? AND event_type = 'view_product' GROUP BY site ORDER BY cnt DESC LIMIT 1");
+        $stmt->execute([$user_id]);
+        $fav_site = $stmt->fetchColumn() ?: 'market';
+
+        // Get products from favorite site
+        $p = get_table_prefix($fav_site === 'jewelry' ? 'jewelry' : ($fav_site === 'gallery' ? 'gallery' : 'market'));
+        $blog_id = $site_blog_ids[$fav_site] ?? 2;
+        $prefix = $blog_id === 1 ? 'wp_' : "wp_{$blog_id}_";
+
+        $stmt = $pdo->prepare("SELECT * FROM {$prefix}posts WHERE post_type = 'product' AND post_status = 'publish' ORDER BY RAND() LIMIT 4");
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        $products = array_map(function($row) use ($pdo, $prefix) {
+            return format_product($pdo, $prefix, $row);
+        }, $rows);
+
+        echo json_encode(['site' => $fav_site, 'products' => $products]);
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

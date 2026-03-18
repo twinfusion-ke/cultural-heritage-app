@@ -31,6 +31,7 @@ import ContactScreen from '../screens/contact/ContactScreen';
 import LegacyScreen from '../screens/legacy/LegacyScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import VisitScreen from '../screens/visit/VisitScreen';
+import AuthScreen from '../screens/auth/AuthScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { ACTIVE_TAB_GOLD } from '../theme';
@@ -65,6 +66,7 @@ function addSharedScreens(S: any) {
       <S.Screen name="Contact" component={ContactScreen} options={{ animation: 'slide_from_right' }} />
       <S.Screen name="Legacy" component={LegacyScreen} options={{ animation: 'slide_from_right' }} />
       <S.Screen name="Visit" component={VisitScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Auth" component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
     </>
   );
 }

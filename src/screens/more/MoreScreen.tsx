@@ -23,6 +23,7 @@ import { colors, textStyles, spacing } from '../../theme';
 import { useUIStore } from '../../stores/uiStore';
 import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
+import { useAuthStore } from '../../stores/authStore';
 import { triggerSync } from '../../services/syncService';
 import { ENVIRONMENTS } from '../../config/environment';
 
@@ -38,6 +39,8 @@ export default function MoreScreen() {
   const updateCredentials = useEnvStore((s) => s.updateCredentials);
   const env = useEnvStore((s) => s.env);
   const itemCount = useCartStore((s) => s.getItemCount());
+  const user = useAuthStore((s) => s.user);
+  const logout = useAuthStore((s) => s.logout);
 
   function handleVersionPress() {
     const count = versionPressCount + 1;
@@ -74,6 +77,26 @@ export default function MoreScreen() {
             </View>
           )}
         </View>
+
+        {/* Account */}
+        <Section title="ACCOUNT">
+          {user ? (
+            <>
+              <View style={styles.profileCard}>
+                <View style={styles.profileAvatar}>
+                  <Text style={styles.profileInitial}>{user.name[0]}</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.profileName}>{user.name}</Text>
+                  <Text style={styles.profileEmail}>{user.email}</Text>
+                </View>
+              </View>
+              <MenuItem icon="log-out-outline" label="Sign Out" onPress={() => { Alert.alert('Sign Out', 'Are you sure?', [{ text: 'Cancel' }, { text: 'Sign Out', style: 'destructive', onPress: logout }]); }} />
+            </>
+          ) : (
+            <MenuItem icon="person-outline" label="Login / Register" onPress={() => navigation.navigate('Auth')} />
+          )}
+        </Section>
 
         {/* Discover */}
         <Section title="DISCOVER">
@@ -184,4 +207,9 @@ const styles = StyleSheet.create({
   envButtonText: { fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 1 },
   envButtonTextActive: { color: colors.shared.success },
   closeAdmin: { marginTop: spacing.lg, alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#333' },
+  profileCard: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border },
+  profileAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.shared.gold, alignItems: 'center', justifyContent: 'center' },
+  profileInitial: { fontFamily: 'Montserrat-Bold', fontSize: 18, color: colors.hub.primary },
+  profileName: { fontFamily: 'Montserrat-SemiBold', fontSize: 16, color: colors.shared.parchment },
+  profileEmail: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(245,242,237,0.6)', marginTop: 2 },
 });

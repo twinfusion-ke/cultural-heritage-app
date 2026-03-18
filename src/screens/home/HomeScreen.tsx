@@ -33,7 +33,7 @@ import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
-const PRODUCT_CARD_W = (SCREEN_W - spacing.lg * 2 - 12) / 2;
+const PRODUCT_CARD_W = (SCREEN_W - spacing.lg * 2 - 10) / 2;
 
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
@@ -289,11 +289,11 @@ const styles = StyleSheet.create({
   shopNowRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 },
   shopNowText: { fontFamily: 'Montserrat-SemiBold', fontSize: 12, letterSpacing: 1, textTransform: 'uppercase' },
 
-  productRow: { flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: spacing.lg, marginTop: spacing.md },
-  miniProductCard: { width: PRODUCT_CARD_W, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
-  miniProductImage: { width: '100%', aspectRatio: 1 },
+  productRow: { flexDirection: 'row', gap: 10, paddingHorizontal: spacing.lg, marginTop: spacing.md },
+  miniProductCard: { flex: 1, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.06, shadowRadius: 4 },
+  miniProductImage: { width: '100%', aspectRatio: 0.9 },
   miniProductInfo: { padding: 10 },
-  miniProductName: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.hub.text, lineHeight: 18 },
+  miniProductName: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.hub.text, lineHeight: 17 },
   miniProductPrice: { fontFamily: 'Montserrat-SemiBold', fontSize: 15, marginTop: 4 },
   miniAddBtn: { position: 'absolute', bottom: 10, right: 10, width: 28, height: 28, borderRadius: 14, alignItems: 'center', justifyContent: 'center' },
 

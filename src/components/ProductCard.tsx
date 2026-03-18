@@ -12,7 +12,7 @@ import { Image } from 'expo-image';
 import { colors, textStyles, shadows } from '../theme';
 import type { SiteKey } from '../config/environment';
 
-const CARD_WIDTH = (Dimensions.get('window').width - 24 * 2 - 16) / 2;
+const CARD_WIDTH = (Dimensions.get('window').width - 24 * 2 - 10) / 2;
 
 interface ProductCardProps {
   name: string;

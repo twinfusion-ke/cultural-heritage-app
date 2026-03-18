@@ -75,7 +75,7 @@ export default function HomeScreen() {
       {/* ═══ HERO WITH VIDEO ═══ */}
       <View style={styles.hero}>
         <WebView
-          source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;overflow:hidden}body{background:#0e382c}iframe{position:fixed;top:50%;left:50%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:none}</style></head><body><iframe src="https://www.youtube.com/embed/z_kLkxaQHNg?autoplay=1&mute=1&loop=1&playlist=z_kLkxaQHNg&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3" allow="autoplay;encrypted-media" allowfullscreen></iframe></body></html>` }}
+          source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;overflow:hidden}body{background:#0e382c}iframe{position:fixed;top:50%;left:50%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:none}</style></head><body><iframe src="https://www.youtube.com/embed/z9wh0prnkpo?autoplay=1&mute=1&loop=1&playlist=z9wh0prnkpo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3" allow="autoplay;encrypted-media" allowfullscreen></iframe></body></html>` }}
           style={StyleSheet.absoluteFillObject}
           allowsInlineMediaPlayback
           mediaPlaybackRequiresUserAction={false}

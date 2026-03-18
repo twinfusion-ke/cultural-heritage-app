@@ -1,15 +1,29 @@
 /**
- * SQLite Database Schema
+ * SQLite Database Schema v2
  *
  * Local-first tables for offline functionality:
+ * - content_cache: Cached API responses for offline browsing
  * - outbox: Pending mutations (orders, enquiries) queued for sync
  * - telemetry: Usage logging (session, screen, action)
  * - users_local: Offline user registration
  */
 
-export const SCHEMA_VERSION = 1;
+export const SCHEMA_VERSION = 2;
 
 export const CREATE_TABLES = `
+  CREATE TABLE IF NOT EXISTS content_cache (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    cache_key TEXT NOT NULL UNIQUE,
+    site TEXT NOT NULL,
+    content_type TEXT NOT NULL,
+    data TEXT NOT NULL,
+    cached_at TEXT NOT NULL DEFAULT (datetime('now')),
+    expires_at TEXT NOT NULL
+  );
+
+  CREATE INDEX IF NOT EXISTS idx_cache_key ON content_cache(cache_key);
+  CREATE INDEX IF NOT EXISTS idx_cache_expires ON content_cache(expires_at);
+
   CREATE TABLE IF NOT EXISTS outbox (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,

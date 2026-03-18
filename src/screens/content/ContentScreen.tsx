@@ -3,7 +3,7 @@
  *
  * Fetches page by slug from any site's REST API
  * and renders the HTML content inside a styled WebView.
- * No external browser — everything stays in-app.
+ * Cached to SQLite for offline access.
  */
 
 import React from 'react';
@@ -14,17 +14,16 @@ import {
   StatusBar,
   TouchableOpacity,
   ActivityIndicator,
+  ScrollView,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import HtmlRenderer from '../../components/HtmlRenderer';
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useEnvStore } from '../../stores/envStore';
+import { cacheSet, cacheGet } from '../../db/contentCache';
 import { colors, textStyles, spacing } from '../../theme';
 
-// Props handled via React Navigation's `any` type
-
-/** Wrap page content in branded mobile-optimized HTML */
 function wrapHtml(title: string, html: string): string {
   return `
     <!DOCTYPE html>
@@ -55,6 +54,10 @@ function wrapHtml(title: string, html: string): string {
         table { width: 100%; border-collapse: collapse; margin: 16px 0; }
         th, td { padding: 10px; border: 1px solid #E5E7EB; font-size: 13px; }
         th { background: #F5F5F5; font-weight: 600; text-align: left; }
+        .wp-block-image { margin: 16px 0; }
+        .wp-block-image img { width: 100%; }
+        figure { margin: 0; }
+        figcaption { font-size: 12px; color: #888; text-align: center; margin-top: 8px; }
       </style>
     </head>
     <body>
@@ -70,22 +73,30 @@ export default function ContentScreen({ route, navigation }: any) {
   const { slug, title, site } = route.params;
   const urls = useEnvStore((s) => s.urls);
 
-  // Determine which site's REST API to use
   const siteUrlMap: Record<string, string> = {
     hub: urls.hub.rest,
     market: urls.market.rest,
     jewelry: urls.jewelry.rest,
     gallery: urls.gallery.rest,
   };
-  const restUrl = siteUrlMap[site || 'hub'] || urls.hub.rest;
+  const siteKey = site || 'hub';
+  const restUrl = siteUrlMap[siteKey] || urls.hub.rest;
 
-  const { data: page, isLoading } = useQuery({
-    queryKey: ['page', site || 'hub', slug],
+  const { data: page, isLoading, isError, refetch } = useQuery({
+    queryKey: ['page', siteKey, slug],
     queryFn: async () => {
-      const { data } = await axios.get(`${restUrl}/pages`, {
-        params: { slug },
-      });
-      return data[0];
+      try {
+        const { data } = await axios.get(`${restUrl}/pages`, {
+          params: { slug },
+        });
+        const result = data[0];
+        if (result) await cacheSet(siteKey, 'pages', result, slug);
+        return result;
+      } catch (error: any) {
+        const cached = await cacheGet(siteKey, 'pages', slug);
+        if (cached) return cached.data;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 60,
   });
@@ -105,6 +116,7 @@ export default function ContentScreen({ route, navigation }: any) {
       {isLoading ? (
         <View style={styles.loadingContainer}>
           <ActivityIndicator size="large" color={colors.shared.gold} />
+          <Text style={styles.loadingText}>Loading content...</Text>
         </View>
       ) : page ? (
         <HtmlRenderer
@@ -113,8 +125,18 @@ export default function ContentScreen({ route, navigation }: any) {
         />
       ) : (
         <View style={styles.loadingContainer}>
+          <Text style={styles.errorIcon}>📄</Text>
           <Text style={styles.errorText}>Content not available</Text>
-          <Text style={styles.errorSub}>This page hasn't been created yet.</Text>
+          <Text style={styles.errorSub}>
+            {isError
+              ? 'Check your connection and try again.'
+              : "This page hasn't been created yet."}
+          </Text>
+          {isError && (
+            <TouchableOpacity style={styles.retryBtn} onPress={() => refetch()}>
+              <Text style={styles.retryText}>Try Again</Text>
+            </TouchableOpacity>
+          )}
         </View>
       )}
     </View>
@@ -132,6 +154,10 @@ const styles = StyleSheet.create({
   headerTitle: { color: colors.shared.parchment, flex: 1, textAlign: 'center' },
   webview: { flex: 1, backgroundColor: '#FAFAF8' },
   loadingContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#FAFAF8' },
+  loadingText: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: colors.hub.textMuted, marginTop: 12 },
+  errorIcon: { fontSize: 48, marginBottom: spacing.md, opacity: 0.4 },
   errorText: { fontFamily: 'Montserrat-Medium', fontSize: 16, color: colors.hub.text },
-  errorSub: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: colors.hub.textMuted, marginTop: 6 },
+  errorSub: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: colors.hub.textMuted, marginTop: 6, textAlign: 'center', paddingHorizontal: 40 },
+  retryBtn: { marginTop: spacing.lg, borderWidth: 1, borderColor: colors.shared.gold, paddingHorizontal: 24, paddingVertical: 10 },
+  retryText: { fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: colors.shared.gold, textTransform: 'uppercase', letterSpacing: 1 },
 });

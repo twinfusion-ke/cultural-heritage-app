@@ -20,6 +20,12 @@ import * as NavigationBar from 'expo-navigation-bar';
 import RootNavigator from './src/navigation/TabNavigator';
 import { colors } from './src/theme/colors';
 import { fontAssets } from './src/theme/typography';
+import { useNetworkStatus } from './src/hooks/useNetworkStatus';
+import { startSyncService, onSyncChange } from './src/services/syncService';
+import { useUIStore } from './src/stores/uiStore';
+import { useEnvStore } from './src/stores/envStore';
+import { useCartStore } from './src/stores/cartStore';
+import { cachePurgeExpired } from './src/db/contentCache';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -74,6 +80,32 @@ class ErrorBoundary extends React.Component<
   }
 }
 
+/** App initializer — loads stores, starts services */
+function AppInitializer({ children }: { children: React.ReactNode }) {
+  useNetworkStatus();
+
+  useEffect(() => {
+    // Load persisted stores
+    useEnvStore.getState().loadFromStorage();
+    useCartStore.getState().loadFromStorage();
+
+    // Start background sync service
+    startSyncService();
+
+    // Listen for sync count changes
+    const unsub = onSyncChange((count) => {
+      useUIStore.getState().setPendingSyncCount(count);
+    });
+
+    // Purge old cache entries
+    cachePurgeExpired();
+
+    return unsub;
+  }, []);
+
+  return <>{children}</>;
+}
+
 export default function App() {
   const [fontsLoaded] = useFonts(fontAssets);
   const [ready, setReady] = useState(false);
@@ -85,12 +117,12 @@ export default function App() {
     }
   }, [fontsLoaded]);
 
-  // Show loading while fonts load (system font fallback if fonts fail)
+  // Force ready even if fonts fail after 3s
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (!ready) {
         SplashScreen.hideAsync().catch(() => {});
-        setReady(true); // Force ready even if fonts fail
+        setReady(true);
       }
     }, 3000);
     return () => clearTimeout(timeout);
@@ -110,9 +142,11 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <SafeAreaProvider>
           <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
-          <NavigationContainer>
-            <RootNavigator />
-          </NavigationContainer>
+          <AppInitializer>
+            <NavigationContainer>
+              <RootNavigator />
+            </NavigationContainer>
+          </AppInitializer>
         </SafeAreaProvider>
       </QueryClientProvider>
     </ErrorBoundary>

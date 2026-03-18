@@ -2,11 +2,13 @@
  * Market API — Products & Posts
  *
  * Fetches handcraft products and blog posts from The Market sub-site.
+ * All data cached to SQLite for offline browsing.
  */
 
 import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
 import { useEnvStore } from '../stores/envStore';
+import { cacheSet, cacheGet } from '../db/contentCache';
 import type { WCProduct, WCCategory } from '../types/woocommerce';
 import type { WPPost } from '../types/wordpress';
 
@@ -34,25 +36,33 @@ export function useMarketProducts(params?: {
 }) {
   const urls = useMarketUrls();
   const auth = useWcAuth();
+  const cacheParams = JSON.stringify(params || {});
 
   return useQuery<WCProduct[]>({
     queryKey: ['market', 'products', params],
     queryFn: async () => {
-      const { data } = await axios.get(`${urls.wc}/products`, {
-        params: {
-          per_page: params?.perPage || 12,
-          page: params?.page || 1,
-          category: params?.category,
-          search: params?.search,
-          min_price: params?.minPrice,
-          max_price: params?.maxPrice,
-          orderby: params?.orderby || 'date',
-          order: params?.order || 'desc',
-          status: 'publish',
-          ...auth,
-        },
-      });
-      return data;
+      try {
+        const { data } = await axios.get(`${urls.wc}/products`, {
+          params: {
+            per_page: params?.perPage || 12,
+            page: params?.page || 1,
+            category: params?.category,
+            search: params?.search,
+            min_price: params?.minPrice,
+            max_price: params?.maxPrice,
+            orderby: params?.orderby || 'date',
+            order: params?.order || 'desc',
+            status: 'publish',
+            ...auth,
+          },
+        });
+        await cacheSet('market', 'products', data, cacheParams);
+        return data;
+      } catch (error: any) {
+        const cached = await cacheGet<WCProduct[]>('market', 'products', cacheParams);
+        if (cached) return cached.data;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5,
   });
@@ -66,12 +76,19 @@ export function useMarketCategories() {
   return useQuery<WCCategory[]>({
     queryKey: ['market', 'categories'],
     queryFn: async () => {
-      const { data } = await axios.get(`${urls.wc}/products/categories`, {
-        params: { per_page: 50, ...auth },
-      });
-      return data;
+      try {
+        const { data } = await axios.get(`${urls.wc}/products/categories`, {
+          params: { per_page: 50, ...auth },
+        });
+        await cacheSet('market', 'categories', data);
+        return data;
+      } catch (error: any) {
+        const cached = await cacheGet<WCCategory[]>('market', 'categories');
+        if (cached) return cached.data;
+        throw error;
+      }
     },
-    staleTime: 1000 * 60 * 60, // 1 hour
+    staleTime: 1000 * 60 * 60,
   });
 }
 
@@ -83,10 +100,17 @@ export function useMarketProduct(id: number) {
   return useQuery<WCProduct>({
     queryKey: ['market', 'product', id],
     queryFn: async () => {
-      const { data } = await axios.get(`${urls.wc}/products/${id}`, {
-        params: auth,
-      });
-      return data;
+      try {
+        const { data } = await axios.get(`${urls.wc}/products/${id}`, {
+          params: auth,
+        });
+        await cacheSet('market', 'products', data, `id-${id}`);
+        return data;
+      } catch (error: any) {
+        const cached = await cacheGet<WCProduct>('market', 'products', `id-${id}`);
+        if (cached) return cached.data;
+        throw error;
+      }
     },
     enabled: !!id,
   });
@@ -99,10 +123,17 @@ export function useMarketPosts(perPage: number = 10) {
   return useQuery<WPPost[]>({
     queryKey: ['market', 'posts', perPage],
     queryFn: async () => {
-      const { data } = await axios.get(`${urls.rest}/posts`, {
-        params: { per_page: perPage, _embed: true },
-      });
-      return data;
+      try {
+        const { data } = await axios.get(`${urls.rest}/posts`, {
+          params: { per_page: perPage, _embed: true },
+        });
+        await cacheSet('market', 'posts', data, `${perPage}`);
+        return data;
+      } catch (error: any) {
+        const cached = await cacheGet<WPPost[]>('market', 'posts', `${perPage}`);
+        if (cached) return cached.data;
+        throw error;
+      }
     },
     staleTime: 1000 * 60 * 5,
   });

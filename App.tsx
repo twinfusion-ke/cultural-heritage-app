@@ -39,10 +39,12 @@ if (Platform.OS === 'android') {
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5,
-      gcTime: 1000 * 60 * 60 * 24,
+      staleTime: 1000 * 30,        // 30 seconds — refetch often for fresh content
+      gcTime: 1000 * 60 * 60 * 24, // keep cache 24h for offline
       retry: 1,
       networkMode: 'offlineFirst',
+      refetchOnMount: true,
+      refetchOnWindowFocus: true,
     },
   },
 });

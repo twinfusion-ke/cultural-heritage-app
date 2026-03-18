@@ -16,7 +16,7 @@ export async function appApi<T = any>(
 ): Promise<T> {
   const { urls } = useEnvStore.getState();
   const { data } = await axios.get(urls.api, {
-    params: { action, ...params },
+    params: { action, ...params, _t: Date.now() },
     timeout: 15000,
   });
   return data;

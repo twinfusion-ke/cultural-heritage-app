@@ -11,12 +11,12 @@ type ContentType = 'products' | 'categories' | 'posts' | 'pages' | 'exhibitions'
 
 /** Cache TTL in minutes */
 const TTL: Record<ContentType, number> = {
-  products: 60,        // 1 hour
-  categories: 1440,    // 24 hours
-  posts: 120,          // 2 hours
-  pages: 1440,         // 24 hours
-  exhibitions: 720,    // 12 hours
-  search: 10,          // 10 minutes
+  products: 5,         // 5 minutes — show WP changes quickly
+  categories: 30,      // 30 minutes
+  posts: 5,            // 5 minutes
+  pages: 15,           // 15 minutes
+  exhibitions: 15,     // 15 minutes
+  search: 2,           // 2 minutes
 };
 
 function buildKey(site: string, type: ContentType, params?: string): string {

@@ -23,7 +23,8 @@ header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type');
-header('Cache-Control: public, max-age=300');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+header('Pragma: no-cache');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
@@ -112,7 +113,7 @@ function get_featured_image(PDO $pdo, string $prefix, int $post_id): ?string {
         global $base_url;
         return $base_url . '/wp-content/uploads/' . $row['url'];
     }
-    // Also check the attachment's guid (full URL stored by WP)
+    // Check the attachment's guid (full URL stored by WP)
     $stmt2 = $pdo->prepare("
         SELECT p2.guid
         FROM {$prefix}postmeta pm
@@ -122,8 +123,15 @@ function get_featured_image(PDO $pdo, string $prefix, int $post_id): ?string {
     ");
     $stmt2->execute([$post_id]);
     $row2 = $stmt2->fetch();
-    if ($row2 && $row2['guid'] && (str_starts_with($row2['guid'], 'http://') || str_starts_with($row2['guid'], 'https://'))) {
-        return $row2['guid'];
+    if ($row2 && $row2['guid']) {
+        $guid = $row2['guid'];
+        // If guid is already a full URL, return it
+        if (str_starts_with($guid, 'http://') || str_starts_with($guid, 'https://')) {
+            return $guid;
+        }
+        // Otherwise construct from base
+        global $base_url;
+        return $base_url . '/wp-content/uploads/' . $guid;
     }
     return null;
 }

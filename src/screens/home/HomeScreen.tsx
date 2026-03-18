@@ -1,8 +1,8 @@
 /**
- * Home Screen — Tab 1: Cultural Heritage Centre
+ * Home Screen — Cultural Heritage Centre
  *
- * Video hero, division banners with sample products,
- * heritage stories, quick links, contact bar.
+ * Full-height hero carousel, division banners with products,
+ * blog posts with video cards, traveler reviews, quick links.
  */
 
 import React, { useEffect, useRef } from 'react';
@@ -21,14 +21,17 @@ import {
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-
+import { useQuery } from '@tanstack/react-query';
+import { appApi } from '../../api/appApi';
+import HeroCarousel, { type SliderItem } from '../../components/HeroCarousel';
+import YouTubeCard from '../../components/YouTubeCard';
+import ReviewsSection from '../../components/ReviewsSection';
 import { useHubPosts } from '../../api/hub';
 import { useMarketProducts } from '../../api/market';
 import { useJewelryProducts } from '../../api/jewelry';
 import { useGalleryProducts } from '../../api/gallery';
 import { BlogCard, Divider } from '../../components';
-import YouTubeCard from '../../components/YouTubeCard';
-import ReviewsSection from '../../components/ReviewsSection';
+import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 import { useEnvStore } from '../../stores/envStore';
@@ -36,7 +39,7 @@ import { useCartStore } from '../../stores/cartStore';
 
 const { width: SCREEN_W } = Dimensions.get('window');
 
-/** Simple fade-in hook */
+/** Fade-in hook */
 function useFadeIn(delay: number = 0) {
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(24)).current;
@@ -59,10 +62,28 @@ export default function HomeScreen() {
   const baseUrl = urls.hub.base;
   const addItem = useCartStore((s) => s.addItem);
 
-  const heroAnim = useFadeIn(300);
+  // Fetch slider data from API
+  const { data: slidesData } = useQuery<any[]>({
+    queryKey: ['sliders'],
+    queryFn: () => appApi('sliders'),
+    staleTime: 1000 * 60 * 5,
+  });
+
   const marketAnim = useFadeIn(100);
   const vaultAnim = useFadeIn(200);
   const galleryAnim = useFadeIn(300);
+
+  // Map API slides to carousel items
+  const slides: SliderItem[] = (slidesData || []).map((s: any) => ({
+    id: s.id,
+    image: s.image,
+    title: s.title,
+    subtitle: s.subtitle,
+    label: s.label,
+    labelColor: s.label_color,
+    cta: s.cta,
+    onPress: s.tab ? () => navigation.navigate(s.tab) : undefined,
+  }));
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.hub.primary }}>
@@ -74,27 +95,18 @@ export default function HomeScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.shared.gold} colors={[colors.shared.gold]} />
         }
       >
-      {/* ═══ HERO ═══ */}
-      <View style={styles.hero}>
+      {/* ═══ HERO CAROUSEL ═══ */}
+      <HeroCarousel slides={slides} />
+
+      {/* ═══ LOGO BAR ═══ */}
+      <View style={styles.logoBar}>
         <Image
-          source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
-          style={StyleSheet.absoluteFillObject}
-          contentFit="cover"
+          source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
+          style={styles.logoImage}
+          contentFit="contain"
           cachePolicy="disk"
-          transition={400}
         />
-        <View style={styles.heroOverlay} />
-        <Animated.View style={[styles.heroContent, heroAnim]}>
-          <Text style={styles.heroEyebrow}>ARUSHA, TANZANIA — EST. 1994</Text>
-          <Image
-            source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
-            style={styles.heroLogo}
-            contentFit="contain"
-            cachePolicy="disk"
-          />
-          <Divider color={colors.shared.gold} width={60} marginVertical={16} />
-          <Text style={styles.heroTagline}>Where Art, Heritage & Discovery Converge</Text>
-        </Animated.View>
+        <Text style={styles.logoTagline}>Arusha, Tanzania — Est. 1994</Text>
       </View>
 
       {/* ═══ THE MARKET ═══ */}
@@ -142,42 +154,28 @@ export default function HomeScreen() {
         />
       </Animated.View>
 
-      {/* ═══ HERITAGE STORIES ═══ */}
+      {/* ═══ HERITAGE STORIES + VIDEOS ═══ */}
       <View style={styles.section}>
         <Text style={[textStyles.label, styles.sectionLabel]}>THE JOURNAL</Text>
         <Text style={[textStyles.h1, styles.sectionTitle]}>Heritage Stories</Text>
         <Divider />
+
         {postsLoading ? (
           <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: 24 }} />
         ) : posts && posts.length > 0 ? (
           <>
-            {/* First 2 blog posts */}
             {posts.slice(0, 2).map((post) => (
               <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
                 onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
               />
             ))}
-
-            {/* Video 1 — Between blogs */}
-            <YouTubeCard
-              videoId="z9wh0prnkpo"
-              title="Discover the Centre"
-              subtitle="Take a virtual tour of the Cultural Heritage Centre — where art, gemstones, and centuries of African craftsmanship come together."
-            />
-
-            {/* Remaining blog posts */}
+            <YouTubeCard videoId="z9wh0prnkpo" title="Discover the Centre" subtitle="A virtual tour of the Cultural Heritage Centre in Arusha, Tanzania." />
             {posts.slice(2).map((post) => (
               <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
                 onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
               />
             ))}
-
-            {/* Video 2 — After last blog */}
-            <YouTubeCard
-              videoId="z_kLkxaQHNg"
-              title="Our Heritage"
-              subtitle="Three decades of preserving and celebrating Africa's cultural treasures in Arusha, Tanzania."
-            />
+            <YouTubeCard videoId="z_kLkxaQHNg" title="Our Heritage" subtitle="Three decades of preserving Africa's cultural treasures." />
           </>
         ) : (
           <Text style={styles.emptyText}>Stories loading...</Text>
@@ -224,11 +222,9 @@ export default function HomeScreen() {
   );
 }
 
-/** Division Section — Banner + 2 Product Cards */
 function DivisionSection({ label, title, labelColor, bgColor, heroImage, overlayColor, products, site, accentColor, darkMode, onBannerPress, onProductPress, onAddToCart, onViewAll }: any) {
-  const textColor = darkMode ? '#FAFAFA' : colors.hub.text;
+  const textColor = darkMode ? '#E8E8E8' : colors.hub.text;
   const cardBg = darkMode ? '#1A1A28' : '#fff';
-  const nameColor = darkMode ? '#E8E8E8' : colors.hub.text;
 
   return (
     <View style={[styles.divisionSection, { backgroundColor: bgColor }]}>
@@ -257,7 +253,7 @@ function DivisionSection({ label, title, labelColor, bgColor, heroImage, overlay
                 </View>
               )}
               <View style={styles.miniProductInfo}>
-                <Text style={[styles.miniProductName, { color: nameColor }]} numberOfLines={2}>{p.name}</Text>
+                <Text style={[styles.miniProductName, { color: textColor }]} numberOfLines={2}>{p.name}</Text>
                 <Text style={[styles.miniProductPrice, { color: accentColor }]}>${p.price}</Text>
               </View>
               <TouchableOpacity style={[styles.miniAddBtn, { backgroundColor: accentColor }]} onPress={() => onAddToCart(p)}>
@@ -290,12 +286,10 @@ function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPr
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.hub.background },
-  hero: { height: 400, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 36 },
-  heroOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(14,56,44,0.72)' },
-  heroContent: { alignItems: 'center', paddingHorizontal: 32, zIndex: 1 },
-  heroEyebrow: { fontFamily: 'Montserrat-SemiBold', fontSize: 10, letterSpacing: 3, color: colors.shared.gold, textTransform: 'uppercase', marginBottom: 16 },
-  heroLogo: { width: 260, height: 117 },
-  heroTagline: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(245,242,237,0.6)', textAlign: 'center', letterSpacing: 0.5 },
+
+  logoBar: { backgroundColor: colors.hub.primary, alignItems: 'center', paddingVertical: 20 },
+  logoImage: { width: 200, height: 50 },
+  logoTagline: { fontFamily: 'Montserrat-Regular', fontSize: 11, color: 'rgba(245,242,237,0.5)', marginTop: 8, letterSpacing: 1 },
 
   divisionSection: { paddingBottom: spacing.md },
   divisionBanner: { height: 180, justifyContent: 'flex-end', marginHorizontal: spacing.lg, marginTop: spacing.lg, borderRadius: 8, overflow: 'hidden' },

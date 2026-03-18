@@ -560,6 +560,61 @@ switch ($action) {
         echo json_encode($config);
         break;
 
+    // ── Sliders (managed from WP options or fallback to defaults) ─────
+    case 'sliders':
+        $hp = get_prefix(1);
+        $stmt = $pdo->prepare("SELECT option_value FROM {$hp}options WHERE option_name = 'ch_app_sliders'");
+        $stmt->execute();
+        $saved = $stmt->fetchColumn();
+
+        if ($saved) {
+            echo $saved;
+        } else {
+            // Default slides using theme hero images
+            echo json_encode([
+                [
+                    'id' => 1,
+                    'image' => $base_url . '/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg',
+                    'title' => 'Cultural Heritage Centre',
+                    'subtitle' => 'Where Art, Heritage & Discovery Converge',
+                    'label' => 'EST. 1994',
+                    'label_color' => '#C5A059',
+                    'cta' => 'Explore',
+                ],
+                [
+                    'id' => 2,
+                    'image' => $base_url . '/wp-content/themes/ch-market/assets/images/market-hero.jpg',
+                    'title' => 'The Market',
+                    'subtitle' => 'Handcrafted treasures from across Africa — Makonde carvings, Maasai beadwork, Zanzibar spices',
+                    'label' => 'HANDCRAFTS & ARTIFACTS',
+                    'label_color' => '#D4813B',
+                    'cta' => 'Shop Now',
+                    'tab' => 'Market',
+                ],
+                [
+                    'id' => 3,
+                    'image' => $base_url . '/wp-content/themes/ch-jewelry/assets/images/tanzanite-slide-1-scaled.jpg',
+                    'title' => 'The Vault',
+                    'subtitle' => 'Rare tanzanite, ethically sourced gemstones, and fine jewelry crafted in Arusha',
+                    'label' => 'TANZANITE & FINE JEWELRY',
+                    'label_color' => '#1E2F97',
+                    'cta' => 'Discover',
+                    'tab' => 'Vault',
+                ],
+                [
+                    'id' => 4,
+                    'image' => $base_url . '/wp-content/themes/ch-gallery/assets/images/gallery-hero.jpg',
+                    'title' => 'The Art Gallery',
+                    'subtitle' => 'Three halls of contemporary and traditional African art with rotating exhibitions',
+                    'label' => 'EXHIBITIONS & ART',
+                    'label_color' => '#C5A059',
+                    'cta' => 'View Gallery',
+                    'tab' => 'Gallery',
+                ],
+            ]);
+        }
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

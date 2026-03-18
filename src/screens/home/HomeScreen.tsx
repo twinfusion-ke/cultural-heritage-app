@@ -34,7 +34,6 @@ import { BlogCard, Divider } from '../../components';
 import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
-import useFormatPrice from '../../hooks/useFormatPrice';
 import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
 
@@ -81,7 +80,6 @@ export default function HomeScreen() {
   const urls = useEnvStore((s) => s.urls);
   const baseUrl = urls.hub.base;
   const addItem = useCartStore((s) => s.addItem);
-  const fp = useFormatPrice();
 
   // Fetch slider data from API
   const { data: slidesData } = useQuery<any[]>({
@@ -275,7 +273,7 @@ function DivisionSection({ label, title, labelColor, bgColor, heroImage, overlay
               )}
               <View style={styles.miniProductInfo}>
                 <Text style={[styles.miniProductName, { color: textColor }]} numberOfLines={2}>{p.name}</Text>
-                <Text style={[styles.miniProductPrice, { color: accentColor }]}>{fp(p.price)}</Text>
+                <Text style={[styles.miniProductPrice, { color: accentColor }]}>${p.price}</Text>
               </View>
               <TouchableOpacity style={[styles.miniAddBtn, { backgroundColor: accentColor }]} onPress={() => onAddToCart(p)}>
                 <Ionicons name="add" size={16} color="#fff" />

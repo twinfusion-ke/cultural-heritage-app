@@ -34,6 +34,7 @@ import VisitScreen from '../screens/visit/VisitScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
+import CurrencySwitch from '../components/CurrencySwitch';
 import { ACTIVE_TAB_GOLD } from '../theme';
 import { colors } from '../theme';
 
@@ -166,6 +167,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
 
 export default function RootNavigator() {
   return (
+    <View style={{ flex: 1 }}>
     <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Market" component={MarketStack} />
@@ -174,6 +176,8 @@ export default function RootNavigator() {
       <Tab.Screen name="Favorites" component={FavoritesStack} />
       <Tab.Screen name="More" component={MoreStack} />
     </Tab.Navigator>
+    <CurrencySwitch />
+    </View>
   );
 }
 

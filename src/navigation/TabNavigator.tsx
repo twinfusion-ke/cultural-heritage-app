@@ -50,13 +50,10 @@ const TAB_CONFIG: Record<string, { active: string; inactive: string }> = {
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
-  const activeRoute = state.routes[state.index].name;
-  const division = routeToDivision[activeRoute] || 'hub';
-  const theme = divisionThemes[division];
   const favCount = useFavoritesStore((s) => s.items.length);
 
   return (
-    <View style={[styles.tabBar, { backgroundColor: theme.primary, paddingBottom: Math.max(insets.bottom, 4) }]}>
+    <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 4) }]}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
         const icons = TAB_CONFIG[route.name] || { active: 'ellipsis-horizontal', inactive: 'ellipsis-horizontal-outline' };
@@ -74,7 +71,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             }}
           >
             <View>
-              <Ionicons name={iconName as any} size={22} color={focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.4)'} />
+              <Ionicons name={iconName as any} size={22} color={focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.6)'} />
               {showBadge && (
                 <View style={styles.badge}>
                   <Text style={styles.badgeText}>{favCount}</Text>
@@ -82,7 +79,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               )}
             </View>
             {focused && <View style={styles.activeIndicator} />}
-            <Text style={[styles.tabLabel, { color: focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.4)' }]}>
+            <Text style={[styles.tabLabel, { color: focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.6)' }]}>
               {route.name}
             </Text>
           </TouchableOpacity>
@@ -123,7 +120,7 @@ export default function RootNavigator() {
 }
 
 const styles = StyleSheet.create({
-  tabBar: { flexDirection: 'row', borderTopWidth: 0, elevation: 0 },
+  tabBar: { flexDirection: 'row', borderTopWidth: 0, elevation: 0, backgroundColor: colors.hub.primary },
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', height: TAB_CONTENT_HEIGHT },
   activeIndicator: { width: 20, height: 2, backgroundColor: ACTIVE_TAB_GOLD, marginTop: 2, borderRadius: 1 },
   tabLabel: { fontSize: 9, letterSpacing: 0.5, fontFamily: 'Montserrat-Medium', marginTop: 2 },

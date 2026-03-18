@@ -1,9 +1,7 @@
 /**
- * More Screen — Tab 5: Settings, Legal, Profile, Admin
+ * More Screen — Settings, Information, Admin
  *
- * Full menu with: discover, knowledge, legal, settings.
- * Shows online/offline status and pending sync count.
- * Long-press on version reveals admin server settings.
+ * Clean menu with only pages that have actual content.
  */
 
 import React, { useState } from 'react';
@@ -18,6 +16,7 @@ import {
   Alert,
   TextInput,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
@@ -38,26 +37,17 @@ export default function MoreScreen() {
   const setEnvironment = useEnvStore((s) => s.setEnvironment);
   const updateCredentials = useEnvStore((s) => s.updateCredentials);
   const env = useEnvStore((s) => s.env);
-
   const itemCount = useCartStore((s) => s.getItemCount());
 
-  // Long-press or 5 taps on version opens admin
   function handleVersionPress() {
     const count = versionPressCount + 1;
     setVersionPressCount(count);
-    if (count >= 5) {
-      setShowAdmin(true);
-      setVersionPressCount(0);
-    }
+    if (count >= 5) { setShowAdmin(true); setVersionPressCount(0); }
   }
 
   async function handleManualSync() {
-    try {
-      await triggerSync();
-      Alert.alert('Sync Complete', 'All pending items have been synced.');
-    } catch {
-      Alert.alert('Sync Failed', 'Please check your connection and try again.');
-    }
+    try { await triggerSync(); Alert.alert('Sync Complete', 'All pending items have been synced.'); }
+    catch { Alert.alert('Sync Failed', 'Please check your connection and try again.'); }
   }
 
   return (
@@ -70,55 +60,42 @@ export default function MoreScreen() {
           <Text style={[textStyles.h1, { color: colors.shared.parchment }]}>More</Text>
           <View style={styles.statusRow}>
             <View style={[styles.statusDot, isOnline ? styles.online : styles.offline]} />
-            <Text style={styles.statusText}>
-              {isOnline ? 'Connected to server' : 'Working offline'}
-            </Text>
+            <Text style={styles.statusText}>{isOnline ? 'Connected to server' : 'Working offline'}</Text>
           </View>
           {pendingSyncCount > 0 && (
             <TouchableOpacity style={styles.syncBar} onPress={handleManualSync}>
-              <Text style={styles.syncText}>
-                {pendingSyncCount} pending — Tap to sync
-              </Text>
+              <Text style={styles.syncText}>{pendingSyncCount} pending — Tap to sync</Text>
             </TouchableOpacity>
           )}
           {itemCount > 0 && (
             <View style={styles.cartBar}>
-              <Text style={styles.cartText}>🛒 {itemCount} items in cart</Text>
+              <Ionicons name="bag-outline" size={14} color={colors.shared.parchment} />
+              <Text style={styles.cartText}>{itemCount} items in cart</Text>
             </View>
           )}
         </View>
 
         {/* Discover */}
         <Section title="DISCOVER">
-          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('About')} />
-          <MenuItem label="Heritage Journal" onPress={() => navigation.navigate('Blog')} />
-          <MenuItem label="Our Legacy" onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })} />
-          <MenuItem label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
-          <MenuItem label="Contact Us" onPress={() => navigation.navigate('Contact')} />
-          <MenuItem label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })} />
-          <MenuItem label="WhatsApp" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
+          <MenuItem icon="information-circle-outline" label="About Us" onPress={() => navigation.navigate('About')} />
+          <MenuItem icon="newspaper-outline" label="Heritage Journal" onPress={() => navigation.navigate('Blog')} />
+          <MenuItem icon="map-outline" label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
+          <MenuItem icon="call-outline" label="Contact Us" onPress={() => navigation.navigate('Contact')} />
+          <MenuItem icon="mail-outline" label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })} />
+          <MenuItem icon="logo-whatsapp" label="WhatsApp Us" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
         </Section>
 
         {/* Knowledge */}
         <Section title="KNOWLEDGE">
-          <MenuItem label="Tanzanite Guide" onPress={() => navigation.navigate('Content', { slug: 'tanzanite', title: 'Tanzanite Guide', site: 'jewelry' })} />
-          <MenuItem label="Collecting Art Guide" onPress={() => navigation.navigate('Content', { slug: 'artists', title: 'Collecting Art Guide', site: 'gallery' })} />
-          <MenuItem label="Gemstone Certification" onPress={() => navigation.navigate('Content', { slug: 'certification', title: 'Gemstone Certification', site: 'jewelry' })} />
-          <MenuItem label="Jewelry Care" onPress={() => navigation.navigate('Content', { slug: 'jewelry-care', title: 'Jewelry Care', site: 'jewelry' })} />
+          <MenuItem icon="diamond-outline" label="Tanzanite Guide" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Tanzanite', site: 'jewelry' })} />
+          <MenuItem icon="color-palette-outline" label="About the Gallery" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About the Gallery', site: 'gallery' })} />
+          <MenuItem icon="basket-outline" label="About the Market" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About the Market', site: 'market' })} />
         </Section>
 
         {/* Legal */}
-        <Section title="LEGAL">
-          <MenuItem label="Privacy Policy" onPress={() => navigation.navigate('Content', { slug: 'privacy-policy', title: 'Privacy Policy' })} />
-          <MenuItem label="Terms & Conditions" onPress={() => navigation.navigate('Content', { slug: 'terms', title: 'Terms & Conditions' })} />
-          <MenuItem label="Shipping Policy" onPress={() => navigation.navigate('Content', { slug: 'shipping', title: 'Shipping Policy', site: 'jewelry' })} />
-        </Section>
-
-        {/* App Info */}
-        <Section title="APP">
-          <MenuItem label="Notifications" onPress={() => Alert.alert('Coming Soon', 'Push notifications will be available in a future update.')} />
-          <MenuItem label="Language" onPress={() => Alert.alert('Language', 'English (default). Multi-language support coming soon.')} />
-          <MenuItem label="Currency" onPress={() => Alert.alert('Currency', 'Prices shown in USD. Currency switching coming soon.')} />
+        <Section title="LEGAL & POLICIES">
+          <MenuItem icon="shield-checkmark-outline" label="Privacy Policy" onPress={() => navigation.navigate('Content', { slug: 'sample-page', title: 'Privacy Policy' })} />
+          <MenuItem icon="document-text-outline" label="Terms & Conditions" onPress={() => navigation.navigate('Content', { slug: 'sample-page', title: 'Terms & Conditions' })} />
         </Section>
 
         <TouchableOpacity onPress={handleVersionPress} activeOpacity={1}>
@@ -128,67 +105,28 @@ export default function MoreScreen() {
           </Text>
         </TouchableOpacity>
 
-        {/* ═══ ADMIN SERVER SETTINGS (hidden) ═══ */}
+        {/* Admin Panel (hidden) */}
         {showAdmin && (
           <View style={styles.adminSection}>
-            <Text style={[textStyles.label, { color: colors.shared.warning, textAlign: 'center' }]}>
-              SERVER SETTINGS (ADMIN)
-            </Text>
-
+            <Text style={[textStyles.label, { color: colors.shared.warning, textAlign: 'center' }]}>SERVER SETTINGS (ADMIN)</Text>
             <Text style={styles.adminLabel}>Environment</Text>
             <View style={styles.envButtons}>
               {Object.keys(ENVIRONMENTS).map((key) => (
                 <TouchableOpacity
                   key={key}
                   style={[styles.envButton, activeEnvKey === key && styles.envButtonActive]}
-                  onPress={() => {
-                    setEnvironment(key);
-                    Alert.alert('Environment Changed', `Switched to ${ENVIRONMENTS[key].name}. Cache cleared.`);
-                  }}
+                  onPress={() => { setEnvironment(key); Alert.alert('Environment Changed', `Switched to ${ENVIRONMENTS[key].name}.`); }}
                 >
-                  <Text style={[styles.envButtonText, activeEnvKey === key && styles.envButtonTextActive]}>
-                    {ENVIRONMENTS[key].name}
-                  </Text>
+                  <Text style={[styles.envButtonText, activeEnvKey === key && styles.envButtonTextActive]}>{ENVIRONMENTS[key].name}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-
             <Text style={styles.adminLabel}>WC Consumer Key</Text>
-            <TextInput
-              style={styles.adminInput}
-              value={env.wcConsumerKey}
-              onChangeText={(text) => updateCredentials({ wcConsumerKey: text })}
-              placeholder="ck_..."
-              placeholderTextColor={colors.hub.textMuted}
-              autoCapitalize="none"
-            />
-
+            <TextInput style={styles.adminInput} value={env.wcConsumerKey} onChangeText={(t) => updateCredentials({ wcConsumerKey: t })} placeholder="ck_..." placeholderTextColor={colors.hub.textMuted} autoCapitalize="none" />
             <Text style={styles.adminLabel}>WC Consumer Secret</Text>
-            <TextInput
-              style={styles.adminInput}
-              value={env.wcConsumerSecret}
-              onChangeText={(text) => updateCredentials({ wcConsumerSecret: text })}
-              placeholder="cs_..."
-              placeholderTextColor={colors.hub.textMuted}
-              autoCapitalize="none"
-              secureTextEntry
-            />
-
-            <Text style={styles.adminLabel}>POS API Key</Text>
-            <TextInput
-              style={styles.adminInput}
-              value={env.posApiKey}
-              onChangeText={(text) => updateCredentials({ posApiKey: text })}
-              placeholder="pos_..."
-              placeholderTextColor={colors.hub.textMuted}
-              autoCapitalize="none"
-              secureTextEntry
-            />
-
+            <TextInput style={styles.adminInput} value={env.wcConsumerSecret} onChangeText={(t) => updateCredentials({ wcConsumerSecret: t })} placeholder="cs_..." placeholderTextColor={colors.hub.textMuted} autoCapitalize="none" secureTextEntry />
             <TouchableOpacity style={styles.closeAdmin} onPress={() => setShowAdmin(false)}>
-              <Text style={{ color: colors.shared.error, fontFamily: 'Montserrat-SemiBold', fontSize: 12 }}>
-                Close Admin Panel
-              </Text>
+              <Text style={{ color: colors.shared.error, fontFamily: 'Montserrat-SemiBold', fontSize: 13 }}>Close Admin Panel</Text>
             </TouchableOpacity>
           </View>
         )}
@@ -206,11 +144,14 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 
-function MenuItem({ label, onPress }: { label: string; onPress: () => void }) {
+function MenuItem({ icon, label, onPress }: { icon: string; label: string; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.menuItem} onPress={onPress} activeOpacity={0.7}>
-      <Text style={styles.menuLabel}>{label}</Text>
-      <Text style={styles.menuArrow}>›</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+        <Ionicons name={icon as any} size={20} color={colors.shared.gold} />
+        <Text style={styles.menuLabel}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.hub.textMuted} />
     </TouchableOpacity>
   );
 }
@@ -218,134 +159,28 @@ function MenuItem({ label, onPress }: { label: string; onPress: () => void }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.hub.primary },
   scroll: { paddingBottom: 60 },
-  header: {
-    backgroundColor: colors.hub.primary,
-    paddingHorizontal: spacing.lg,
-    paddingTop: spacing.md,
-    paddingBottom: spacing.lg,
-  },
-  statusRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
+  header: { backgroundColor: colors.hub.primary, paddingHorizontal: spacing.lg, paddingTop: spacing.md, paddingBottom: spacing.lg },
+  statusRow: { flexDirection: 'row', alignItems: 'center', marginTop: 8 },
   statusDot: { width: 8, height: 8, borderRadius: 4, marginRight: 8 },
   online: { backgroundColor: colors.shared.success },
   offline: { backgroundColor: colors.shared.error },
-  statusText: {
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 12,
-    color: 'rgba(245,242,237,0.7)',
-  },
-  syncBar: {
-    backgroundColor: colors.shared.warning,
-    marginTop: 10,
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-  },
-  syncText: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 11,
-    color: colors.shared.white,
-    textAlign: 'center',
-  },
-  cartBar: {
-    backgroundColor: 'rgba(255,255,255,0.1)',
-    marginTop: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-    borderRadius: 4,
-  },
-  cartText: {
-    fontFamily: 'Montserrat-Medium',
-    fontSize: 12,
-    color: colors.shared.parchment,
-  },
+  statusText: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(245,242,237,0.7)' },
+  syncBar: { backgroundColor: colors.shared.warning, marginTop: 10, paddingVertical: 8, paddingHorizontal: 12, borderRadius: 6 },
+  syncText: { fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: colors.shared.white, textAlign: 'center' },
+  cartBar: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: 'rgba(255,255,255,0.1)', marginTop: 8, paddingVertical: 6, paddingHorizontal: 12, borderRadius: 6 },
+  cartText: { fontFamily: 'Montserrat-Medium', fontSize: 13, color: colors.shared.parchment },
   section: { marginTop: spacing.lg, paddingHorizontal: spacing.lg },
-  sectionTitle: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 10,
-    letterSpacing: 2,
-    color: colors.hub.textMuted,
-    textTransform: 'uppercase',
-    marginBottom: 12,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.hub.border,
-  },
-  menuLabel: { fontFamily: 'Montserrat-Regular', fontSize: 15, color: colors.hub.text },
-  menuArrow: { fontSize: 20, color: colors.hub.textMuted },
-  version: {
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 11,
-    color: colors.hub.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.xl,
-    lineHeight: 18,
-  },
-  adminSection: {
-    margin: spacing.lg,
-    padding: spacing.lg,
-    backgroundColor: '#1a1a1a',
-    borderWidth: 1,
-    borderColor: colors.shared.warning,
-  },
-  adminLabel: {
-    fontFamily: 'Montserrat-SemiBold',
-    fontSize: 10,
-    color: colors.shared.warning,
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginTop: 16,
-    marginBottom: 6,
-  },
-  adminInput: {
-    backgroundColor: '#2a2a2a',
-    color: colors.shared.white,
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 13,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: '#444',
-  },
-  envButtons: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
-  },
-  envButton: {
-    flex: 1,
-    paddingVertical: 10,
-    borderWidth: 1,
-    borderColor: '#444',
-    alignItems: 'center',
-  },
-  envButtonActive: {
-    borderColor: colors.shared.success,
-    backgroundColor: 'rgba(22,163,74,0.15)',
-  },
-  envButtonText: {
-    fontFamily: 'Montserrat-Medium',
-    fontSize: 11,
-    color: '#888',
-    textTransform: 'uppercase',
-    letterSpacing: 1,
-  },
-  envButtonTextActive: {
-    color: colors.shared.success,
-  },
-  closeAdmin: {
-    marginTop: spacing.lg,
-    alignItems: 'center',
-    paddingVertical: 10,
-    borderTopWidth: 1,
-    borderTopColor: '#333',
-  },
+  sectionTitle: { fontFamily: 'Montserrat-SemiBold', fontSize: 11, letterSpacing: 2, color: colors.hub.textMuted, textTransform: 'uppercase', marginBottom: 12 },
+  menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border },
+  menuLabel: { fontFamily: 'Montserrat-Regular', fontSize: 16, color: colors.hub.text },
+  version: { fontFamily: 'Montserrat-Regular', fontSize: 12, color: colors.hub.textMuted, textAlign: 'center', marginTop: spacing.xl, lineHeight: 18 },
+  adminSection: { margin: spacing.lg, padding: spacing.lg, backgroundColor: '#1a1a1a', borderWidth: 1, borderColor: colors.shared.warning, borderRadius: 8 },
+  adminLabel: { fontFamily: 'Montserrat-SemiBold', fontSize: 11, color: colors.shared.warning, textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 6 },
+  adminInput: { backgroundColor: '#2a2a2a', color: colors.shared.white, fontFamily: 'Montserrat-Regular', fontSize: 14, paddingHorizontal: 12, paddingVertical: 10, borderWidth: 1, borderColor: '#444', borderRadius: 6 },
+  envButtons: { flexDirection: 'row', gap: 8, marginTop: 4 },
+  envButton: { flex: 1, paddingVertical: 10, borderWidth: 1, borderColor: '#444', alignItems: 'center', borderRadius: 6 },
+  envButtonActive: { borderColor: colors.shared.success, backgroundColor: 'rgba(22,163,74,0.15)' },
+  envButtonText: { fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 1 },
+  envButtonTextActive: { color: colors.shared.success },
+  closeAdmin: { marginTop: spacing.lg, alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#333' },
 });

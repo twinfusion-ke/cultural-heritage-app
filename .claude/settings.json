@@ -16,7 +16,8 @@
       "Bash(node -e \":*)",
       "Bash(npx yt-dlp:*)",
       "Bash(npx --yes yt-dlp@latest --version)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Read(//c/xampp/htdocs/cultural-heritage-app/**)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"

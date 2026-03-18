@@ -42,8 +42,7 @@ export const DEFAULT_ENV = 'production';
 export function getApiUrls(baseDomain: string, apiPath?: string) {
   const protocol = baseDomain.startsWith('localhost') ? 'http' : 'https';
   const base = `${protocol}://${baseDomain}`;
-  const apiHost = baseDomain.startsWith('localhost') ? 'http://localhost' : `${protocol}://${baseDomain.split('/')[0]}`;
-  const api = `${apiHost}${apiPath || '/app-api'}`;
+  const api = `${base}${apiPath || '/app-api'}`;
 
   return {
     /** Custom PHP API — single endpoint, no auth required */

@@ -1,9 +1,8 @@
 /**
- * Navigation — Full app with redesigned layout
+ * Navigation — Tab bar visible on ALL screens
  *
- * Bottom tabs: Home | Exhibitions | Favorites | More
- * Stack screens: Product detail, Cart, Content, etc.
- * Native vector icons, safe area insets, dynamic theming.
+ * Detail screens are nested inside each tab's stack so the
+ * bottom tab bar remains visible everywhere.
  */
 
 import React from 'react';
@@ -18,6 +17,9 @@ import MarketScreen from '../screens/market/MarketScreen';
 import VaultScreen from '../screens/vault/VaultScreen';
 import GalleryScreen from '../screens/gallery/GalleryScreen';
 import MoreScreen from '../screens/more/MoreScreen';
+import FavoritesScreen from '../screens/favorites/FavoritesScreen';
+
+// Shared detail screens
 import CartScreen from '../screens/cart/CartScreen';
 import ContentScreen from '../screens/content/ContentScreen';
 import PostDetailScreen from '../screens/content/PostDetailScreen';
@@ -28,11 +30,9 @@ import AboutScreen from '../screens/about/AboutScreen';
 import ContactScreen from '../screens/contact/ContactScreen';
 import LegacyScreen from '../screens/legacy/LegacyScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
-import FavoritesScreen from '../screens/favorites/FavoritesScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
-import { useCartStore } from '../stores/cartStore';
-import { divisionThemes, routeToDivision, ACTIVE_TAB_GOLD } from '../theme';
+import { ACTIVE_TAB_GOLD } from '../theme';
 import { colors } from '../theme';
 
 const Tab = createBottomTabNavigator();
@@ -48,6 +48,78 @@ const TAB_CONFIG: Record<string, { active: string; inactive: string }> = {
   Favorites: { active: 'heart', inactive: 'heart-outline' },
   More: { active: 'menu', inactive: 'menu-outline' },
 };
+
+/** Shared detail screens added to every tab stack */
+function addSharedScreens(S: any) {
+  return (
+    <>
+      <S.Screen name="Cart" component={CartScreen} options={{ animation: 'slide_from_bottom' }} />
+      <S.Screen name="ProductDetail" component={ProductDetailScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Content" component={ContentScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="PostDetail" component={PostDetailScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="ExhibitionDetail" component={ExhibitionDetailScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Search" component={SearchScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Blog" component={BlogScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="About" component={AboutScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Contact" component={ContactScreen} options={{ animation: 'slide_from_right' }} />
+      <S.Screen name="Legacy" component={LegacyScreen} options={{ animation: 'slide_from_right' }} />
+    </>
+  );
+}
+
+function HomeStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="HomeMain" component={HomeScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
+
+function MarketStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MarketMain" component={MarketScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
+
+function VaultStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="VaultMain" component={VaultScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
+
+function GalleryStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="GalleryMain" component={GalleryScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
+
+function FavoritesStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="FavoritesMain" component={FavoritesScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
+
+function MoreStack() {
+  return (
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="MoreMain" component={MoreScreen} />
+      {addSharedScreens(Stack)}
+    </Stack.Navigator>
+  );
+}
 
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
@@ -74,9 +146,7 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
             <View>
               <Ionicons name={iconName as any} size={22} color={focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.6)'} />
               {showBadge && (
-                <View style={styles.badge}>
-                  <Text style={styles.badgeText}>{favCount}</Text>
-                </View>
+                <View style={styles.badge}><Text style={styles.badgeText}>{favCount}</Text></View>
               )}
             </View>
             {focused && <View style={styles.activeIndicator} />}
@@ -90,34 +160,16 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   );
 }
 
-function TabsNavigator() {
-  return (
-    <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Market" component={MarketScreen} />
-      <Tab.Screen name="Vault" component={VaultScreen} />
-      <Tab.Screen name="Gallery" component={GalleryScreen} />
-      <Tab.Screen name="Favorites" component={FavoritesScreen} />
-      <Tab.Screen name="More" component={MoreScreen} />
-    </Tab.Navigator>
-  );
-}
-
 export default function RootNavigator() {
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Tabs" component={TabsNavigator} />
-      <Stack.Screen name="Cart" component={CartScreen} options={{ presentation: 'modal', animation: 'slide_from_bottom' }} />
-      <Stack.Screen name="ProductDetail" component={ProductDetailScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="Content" component={ContentScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="ExhibitionDetail" component={ExhibitionDetailScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="Search" component={SearchScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="Blog" component={BlogScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="About" component={AboutScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="Contact" component={ContactScreen} options={{ animation: 'slide_from_right' }} />
-      <Stack.Screen name="Legacy" component={LegacyScreen} options={{ animation: 'slide_from_right' }} />
-    </Stack.Navigator>
+    <Tab.Navigator tabBar={(props) => <CustomTabBar {...props} />} screenOptions={{ headerShown: false }}>
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="Market" component={MarketStack} />
+      <Tab.Screen name="Vault" component={VaultStack} />
+      <Tab.Screen name="Gallery" component={GalleryStack} />
+      <Tab.Screen name="Favorites" component={FavoritesStack} />
+      <Tab.Screen name="More" component={MoreStack} />
+    </Tab.Navigator>
   );
 }
 
@@ -126,9 +178,6 @@ const styles = StyleSheet.create({
   tabItem: { flex: 1, alignItems: 'center', justifyContent: 'center', height: TAB_CONTENT_HEIGHT },
   activeIndicator: { width: 20, height: 2, backgroundColor: ACTIVE_TAB_GOLD, marginTop: 2, borderRadius: 1 },
   tabLabel: { fontSize: 9, letterSpacing: 0.5, fontFamily: 'Montserrat-Medium', marginTop: 2 },
-  badge: {
-    position: 'absolute', top: -4, right: -8, backgroundColor: colors.shared.error,
-    borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',
-  },
+  badge: { position: 'absolute', top: -4, right: -8, backgroundColor: colors.shared.error, borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center' },
   badgeText: { fontFamily: 'Montserrat-Bold', fontSize: 9, color: '#fff' },
 });

@@ -1,11 +1,11 @@
 /**
- * Gallery Screen — Tab 4: Art Gallery + Exhibitions
+ * Gallery Screen — Clean gallery white, museum feel
  *
- * Exhibitions grouped by status (Now Showing / Upcoming / Past),
- * art collection grid with QuickView + add-to-cart, and gallery journal.
+ * Minimal styling, generous whitespace, art-focused layout.
+ * Exhibitions + artworks + journal in single scrollable view.
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -13,8 +13,11 @@ import {
   ScrollView,
   ActivityIndicator,
   Linking,
+  TouchableOpacity,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider, AppHeader } from '../../components';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
 import { useCartStore } from '../../stores/cartStore';
@@ -30,7 +33,6 @@ export default function GalleryScreen() {
   const { data: posts } = useGalleryPosts(3);
   const addItem = useCartStore((s) => s.addItem);
 
-  // Group exhibitions by status
   const nowShowing: AppExhibition[] = [];
   const upcoming: AppExhibition[] = [];
   const past: AppExhibition[] = [];
@@ -43,249 +45,126 @@ export default function GalleryScreen() {
   });
 
   function handleAddToCart(p: AppProduct) {
-    addItem({
-      productId: p.id,
-      name: p.name,
-      price: p.price,
-      imageUrl: p.images?.[0]?.src || '',
-      site: 'gallery',
-    });
+    addItem({ productId: p.id, name: p.name, price: p.price, imageUrl: p.images?.[0]?.src || '', site: 'gallery' });
   }
 
   return (
-    <ScreenContainer
-      site="gallery"
-      scrollable
-      refreshing={isRefetching}
-      onRefresh={refetch}
-    >
+    <View style={styles.root}>
       <AppHeader backgroundColor={colors.gallery.primary} />
 
-      {/* ═══ EXHIBITIONS ═══ */}
-      <View style={styles.section}>
-        <Text style={[textStyles.label, styles.sectionLabel]}>EXHIBITIONS</Text>
-        <Text style={[textStyles.h1, styles.sectionTitle]}>Now Showing</Text>
-        <Divider color={colors.shared.gold} />
-
-        {exhLoading ? (
-          <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: spacing.lg }} />
-        ) : nowShowing.length > 0 ? (
-          nowShowing.map((exh) => (
-            <ExhibitionCard
-              key={exh.id}
-              title={exh.title}
-              imageUrl={exh.image || undefined}
-              startDate={exh.start_date}
-              endDate={exh.end_date}
-              excerpt={exh.excerpt?.replace(/<[^>]+>/g, '')}
-              onPress={() => navigation.navigate('ExhibitionDetail', {
-                title: exh.title,
-                content: exh.content,
-                imageUrl: exh.image,
-                startDate: exh.start_date,
-                endDate: exh.end_date,
-                excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
-              })}
-            />
-          ))
-        ) : (
-          <Text style={styles.emptyText}>No exhibitions currently showing</Text>
-        )}
-      </View>
-
-      {/* Upcoming */}
-      {upcoming.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[textStyles.label, styles.sectionLabel]}>COMING SOON</Text>
-          <Text style={[textStyles.h1, styles.sectionTitle]}>Upcoming</Text>
-          <Divider color={colors.status.upcoming} />
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.md }}>
-            {upcoming.map((exh) => (
-              <View key={exh.id} style={styles.upcomingCard}>
-                <ExhibitionCard
-                  title={exh.title}
-                  imageUrl={exh.image || undefined}
-                  startDate={exh.start_date}
-                  endDate={exh.end_date}
-                  onPress={() => navigation.navigate('ExhibitionDetail', {
-                    title: exh.title,
-                    content: exh.content,
-                    imageUrl: exh.image,
-                    startDate: exh.start_date,
-                    endDate: exh.end_date,
-                    excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
-                  })}
-                />
-              </View>
-            ))}
-          </ScrollView>
+      <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
+        {/* Gallery Header */}
+        <View style={styles.galleryHeader}>
+          <View style={styles.headerLine} />
+          <Text style={[textStyles.label, { color: colors.shared.gold, letterSpacing: 3 }]}>THE ART GALLERY</Text>
+          <Text style={[textStyles.h1, { color: '#fff', textAlign: 'center', marginTop: 8 }]}>Contemporary &{'\n'}Traditional Art</Text>
+          <Text style={styles.gallerySubtitle}>Three halls of African art, rotating exhibitions, and a curated collection</Text>
         </View>
-      )}
 
-      {/* Past */}
-      {past.length > 0 && (
+        {/* Exhibitions */}
         <View style={styles.section}>
-          <Text style={[textStyles.label, styles.sectionLabel]}>ARCHIVE</Text>
-          <Text style={[textStyles.h1, styles.sectionTitle]}>Past Exhibitions</Text>
-          <Divider color={colors.status.past} />
-
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.md }}>
-            {past.map((exh) => (
-              <View key={exh.id} style={styles.upcomingCard}>
-                <ExhibitionCard
-                  title={exh.title}
-                  imageUrl={exh.image || undefined}
-                  startDate={exh.start_date}
-                  endDate={exh.end_date}
-                  onPress={() => navigation.navigate('ExhibitionDetail', {
-                    title: exh.title,
-                    content: exh.content,
-                    imageUrl: exh.image,
-                    startDate: exh.start_date,
-                    endDate: exh.end_date,
-                    excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
-                  })}
-                />
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      )}
-
-      {/* ═══ ART COLLECTION ═══ */}
-      {products && products.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[textStyles.label, styles.sectionLabel]}>THE COLLECTION</Text>
-          <Text style={[textStyles.h1, styles.sectionTitle]}>Featured Artworks</Text>
+          <Text style={[textStyles.label, styles.sectionLabel]}>EXHIBITIONS</Text>
+          <Text style={[textStyles.h1, styles.sectionTitle]}>Now Showing</Text>
           <Divider color={colors.shared.gold} />
 
-          <View style={styles.productGrid}>
-            {products.map((item) => {
-              const artist = item.attributes?.find((a) => a.name.toLowerCase() === 'artist')?.options?.[0];
-              return (
-                <ProductCard
-                  key={item.id}
-                  name={item.name}
-                  price={`$${item.price}`}
-                  imageUrl={item.images?.[0]?.src || ''}
-                  site="gallery"
-                  subtitle={artist}
-                  onPress={() => navigation.navigate('ProductDetail', { product: item, site: 'gallery' })}
-                  onAddToCart={() => handleAddToCart(item)}
-                />
-              );
-            })}
+          {exhLoading ? (
+            <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: spacing.lg }} />
+          ) : nowShowing.length > 0 ? (
+            nowShowing.map((exh) => (
+              <ExhibitionCard key={exh.id} title={exh.title} imageUrl={exh.image || undefined}
+                startDate={exh.start_date} endDate={exh.end_date} excerpt={exh.excerpt?.replace(/<[^>]+>/g, '')}
+                onPress={() => navigation.navigate('ExhibitionDetail', { title: exh.title, content: exh.content, imageUrl: exh.image, startDate: exh.start_date, endDate: exh.end_date, excerpt: exh.excerpt?.replace(/<[^>]+>/g, '') })}
+              />
+            ))
+          ) : (
+            <Text style={styles.emptyText}>No exhibitions currently showing</Text>
+          )}
+        </View>
+
+        {/* Upcoming */}
+        {upcoming.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[textStyles.label, styles.sectionLabel]}>COMING SOON</Text>
+            <Text style={[textStyles.h1, styles.sectionTitle]}>Upcoming</Text>
+            <Divider color={colors.status.upcoming} />
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: spacing.md }}>
+              {upcoming.map((exh) => (
+                <View key={exh.id} style={styles.upcomingCard}>
+                  <ExhibitionCard title={exh.title} imageUrl={exh.image || undefined} startDate={exh.start_date} endDate={exh.end_date}
+                    onPress={() => navigation.navigate('ExhibitionDetail', { title: exh.title, content: exh.content, imageUrl: exh.image, startDate: exh.start_date, endDate: exh.end_date, excerpt: exh.excerpt?.replace(/<[^>]+>/g, '') })}
+                  />
+                </View>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Art Collection */}
+        {products && products.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[textStyles.label, styles.sectionLabel]}>THE COLLECTION</Text>
+            <Text style={[textStyles.h1, styles.sectionTitle]}>Featured Artworks</Text>
+            <Divider color={colors.shared.gold} />
+            <View style={styles.productGrid}>
+              {products.map((item) => {
+                const artist = item.attributes?.find((a) => a.name.toLowerCase() === 'artist')?.options?.[0];
+                return (
+                  <ProductCard key={item.id} name={item.name} price={`$${item.price}`} imageUrl={item.images?.[0]?.src || ''} site="gallery" subtitle={artist}
+                    onPress={() => navigation.navigate('ProductDetail', { product: item, site: 'gallery' })}
+                    onAddToCart={() => handleAddToCart(item)}
+                  />
+                );
+              })}
+            </View>
+          </View>
+        )}
+
+        {/* Gallery Journal */}
+        {posts && posts.length > 0 && (
+          <View style={styles.section}>
+            <Text style={[textStyles.label, styles.sectionLabel]}>ART JOURNAL</Text>
+            <Text style={[textStyles.h1, styles.sectionTitle]}>Gallery Stories</Text>
+            <Divider color={colors.shared.gold} />
+            {posts.map((post) => (
+              <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
+                onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
+              />
+            ))}
+          </View>
+        )}
+
+        {/* Visit CTA */}
+        <View style={styles.visitCta}>
+          <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center' }]}>PLAN YOUR VISIT</Text>
+          <Text style={[textStyles.h1, { color: '#FAFAF8', textAlign: 'center', marginTop: 8 }]}>Visit the Gallery</Text>
+          <Divider color={colors.shared.gold} />
+          <Text style={styles.visitDesc}>Our exhibitions are best experienced in person. Three halls of contemporary and traditional African art await.</Text>
+          <View style={styles.visitBtns}>
+            <Button title="Get Directions" onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')} variant="primary" color={colors.shared.gold} textColor={colors.gallery.primary} />
+            <Button title="Call Gallery" onPress={() => Linking.openURL('tel:+255786454999')} variant="outline" color={colors.shared.parchment} />
           </View>
         </View>
-      )}
-
-      {/* ═══ GALLERY JOURNAL ═══ */}
-      {posts && posts.length > 0 && (
-        <View style={styles.section}>
-          <Text style={[textStyles.label, styles.sectionLabel]}>ART JOURNAL</Text>
-          <Text style={[textStyles.h1, styles.sectionTitle]}>Gallery Stories</Text>
-          <Divider color={colors.shared.gold} />
-
-          {posts.map((post) => (
-            <BlogCard
-              key={post.id}
-              title={post.title}
-              excerpt={post.excerpt}
-              imageUrl={post.image || undefined}
-              date={post.date}
-              accentColor={colors.shared.gold}
-              onPress={() => navigation.navigate('PostDetail', {
-                title: post.title,
-                content: post.content,
-                imageUrl: post.image,
-                date: post.date,
-              })}
-            />
-          ))}
-        </View>
-      )}
-
-      {/* ═══ VISIT CTA ═══ */}
-      <View style={[styles.section, styles.visitCta]}>
-        <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center' }]}>
-          PLAN YOUR VISIT
-        </Text>
-        <Text style={[textStyles.h1, { color: '#FAFAF8', textAlign: 'center', marginTop: 8 }]}>
-          Visit the Gallery
-        </Text>
-        <Divider color={colors.shared.gold} />
-        <Text style={styles.visitDesc}>
-          Our exhibitions are best experienced in person. Three halls of contemporary and traditional African art await.
-        </Text>
-        <View style={styles.visitCtas}>
-          <Button
-            title="Get Directions"
-            onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')}
-            variant="primary"
-            color={colors.shared.gold}
-            textColor={colors.gallery.primary}
-          />
-          <Button
-            title="Call Gallery"
-            onPress={() => Linking.openURL('tel:+255786454999')}
-            variant="outline"
-            color={colors.shared.parchment}
-          />
-        </View>
-      </View>
-
-    </ScreenContainer>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  section: {
-    paddingHorizontal: spacing.lg,
-    paddingVertical: spacing['2xl'],
-    backgroundColor: colors.gallery.background,
+  root: { flex: 1, backgroundColor: colors.gallery.background },
+  scroll: { flex: 1 },
+  galleryHeader: {
+    backgroundColor: colors.gallery.primary, paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl, alignItems: 'center',
   },
-  sectionLabel: {
-    color: colors.gallery.textMuted,
-    textAlign: 'center',
-    marginBottom: spacing.xs,
-  },
-  sectionTitle: {
-    color: colors.gallery.text,
-    textAlign: 'center',
-  },
-  emptyText: {
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 13,
-    color: colors.gallery.textMuted,
-    textAlign: 'center',
-    marginTop: spacing.lg,
-  },
-  upcomingCard: {
-    width: 280,
-    marginRight: spacing.md,
-  },
-  productGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
-    marginTop: spacing.md,
-  },
-  visitCta: {
-    backgroundColor: colors.gallery.primary,
-    alignItems: 'center',
-  },
-  visitDesc: {
-    fontFamily: 'Montserrat-Regular',
-    fontSize: 13,
-    color: 'rgba(250,250,248,0.6)',
-    textAlign: 'center',
-    lineHeight: 22,
-    maxWidth: 300,
-  },
-  visitCtas: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: spacing.lg,
-  },
+  headerLine: { width: 1, height: 30, backgroundColor: colors.shared.gold, marginBottom: 16, opacity: 0.4 },
+  gallerySubtitle: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(250,250,248,0.5)', textAlign: 'center', marginTop: 12 },
+  section: { paddingHorizontal: spacing.lg, paddingVertical: spacing['2xl'], backgroundColor: colors.gallery.background },
+  sectionLabel: { color: colors.gallery.textMuted, textAlign: 'center', marginBottom: spacing.xs },
+  sectionTitle: { color: colors.gallery.text, textAlign: 'center' },
+  emptyText: { fontFamily: 'Montserrat-Regular', fontSize: 14, color: colors.gallery.textMuted, textAlign: 'center', marginTop: spacing.lg },
+  upcomingCard: { width: 280, marginRight: spacing.md },
+  productGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: spacing.md },
+  visitCta: { backgroundColor: colors.gallery.primary, alignItems: 'center', padding: spacing.lg, paddingVertical: spacing.xl },
+  visitDesc: { fontFamily: 'Montserrat-Regular', fontSize: 14, color: 'rgba(250,250,248,0.5)', textAlign: 'center', lineHeight: 22, maxWidth: 300 },
+  visitBtns: { flexDirection: 'row', gap: 12, marginTop: spacing.lg },
 });

@@ -22,20 +22,6 @@ const CURRENCIES = [
   { code: 'TZS', symbol: 'TSh', rate: 2650 },
 ];
 
-/** Hook to format prices in the active currency */
-export function useFormatPrice() {
-  const code = useUIStore((s) => s.currency);
-  const cur = CURRENCIES.find((c) => c.code === code) || CURRENCIES[0];
-
-  return function formatPrice(usdValue: string | number): string {
-    const usd = typeof usdValue === 'string' ? parseFloat(usdValue.replace(/[^0-9.]/g, '')) : usdValue;
-    if (isNaN(usd) || usd === 0) return `${cur.symbol}0`;
-    const val = usd * cur.rate;
-    if (cur.code === 'USD') return `$${val.toFixed(2)}`;
-    return `${cur.symbol} ${Math.round(val).toLocaleString('en')}`;
-  };
-}
-
 export default function CurrencySwitch() {
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);

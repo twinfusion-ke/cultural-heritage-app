@@ -10,7 +10,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated } from '
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, textStyles, shadows } from '../theme';
-import { useFormatPrice } from './CurrencySwitch';
+import useFormatPrice from '../hooks/useFormatPrice';
 import type { SiteKey } from '../config/environment';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 24 * 2 - 10) / 2;

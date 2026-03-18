@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../stores/cartStore';
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { colors, textStyles, spacing } from '../../theme';
-import { useFormatPrice } from '../../components/CurrencySwitch';
+import useFormatPrice from '../../hooks/useFormatPrice';
 import type { AppProduct } from '../../api/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');

@@ -34,7 +34,7 @@ import { BlogCard, Divider } from '../../components';
 import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
-import { useFormatPrice } from '../../components/CurrencySwitch';
+import useFormatPrice from '../../hooks/useFormatPrice';
 import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
 

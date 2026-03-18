@@ -23,6 +23,9 @@ import ContentScreen from '../screens/content/ContentScreen';
 import PostDetailScreen from '../screens/content/PostDetailScreen';
 import ExhibitionDetailScreen from '../screens/content/ExhibitionDetailScreen';
 import SearchScreen from '../screens/search/SearchScreen';
+import BlogScreen from '../screens/blog/BlogScreen';
+import AboutScreen from '../screens/about/AboutScreen';
+import ContactScreen from '../screens/contact/ContactScreen';
 
 import { divisionThemes, routeToDivision, ACTIVE_TAB_GOLD } from '../theme';
 
@@ -124,6 +127,9 @@ export default function RootNavigator() {
       <Stack.Screen name="PostDetail" component={PostDetailScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="ExhibitionDetail" component={ExhibitionDetailScreen} options={{ animation: 'slide_from_right' }} />
       <Stack.Screen name="Search" component={SearchScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Blog" component={BlogScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="About" component={AboutScreen} options={{ animation: 'slide_from_right' }} />
+      <Stack.Screen name="Contact" component={ContactScreen} options={{ animation: 'slide_from_right' }} />
     </Stack.Navigator>
   );
 }

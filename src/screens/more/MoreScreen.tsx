@@ -90,12 +90,12 @@ export default function MoreScreen() {
 
         {/* Discover */}
         <Section title="DISCOVER">
-          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Cultural Heritage' })} />
+          <MenuItem label="About Cultural Heritage" onPress={() => navigation.navigate('About')} />
+          <MenuItem label="Heritage Journal" onPress={() => navigation.navigate('Blog')} />
           <MenuItem label="Our Legacy" onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })} />
-          <MenuItem label="Experience" onPress={() => navigation.navigate('Content', { slug: 'experience', title: 'Experience' })} />
           <MenuItem label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
-          <MenuItem label="Contact Us" onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us' })} />
-          <MenuItem label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'The Cultural Heritage Letter' })} />
+          <MenuItem label="Contact Us" onPress={() => navigation.navigate('Contact')} />
+          <MenuItem label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })} />
           <MenuItem label="WhatsApp" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
         </Section>
 

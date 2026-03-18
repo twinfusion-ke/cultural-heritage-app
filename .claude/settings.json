@@ -16,6 +16,9 @@
       "Bash(node -e \":*)",
       "Bash(npx yt-dlp:*)",
       "Bash(npx --yes yt-dlp@latest --version)"
+    ],
+    "additionalDirectories": [
+      "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"
     ]
   }
 }

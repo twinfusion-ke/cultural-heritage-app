@@ -17,7 +17,6 @@ import {
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors, textStyles, spacing } from '../theme';
 
 const { width: SCREEN_W, height: SCREEN_H } = Dimensions.get('window');
@@ -104,11 +103,8 @@ export default function HeroCarousel({
               cachePolicy="disk"
               transition={300}
             />
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.15)', 'rgba(0,0,0,0.75)']}
-              locations={[0, 0.4, 1]}
-              style={StyleSheet.absoluteFillObject}
-            />
+            <View style={styles.gradientTop} />
+            <View style={styles.gradientBottom} />
             <View style={styles.slideContent}>
               {item.label && (
                 <View style={[styles.labelBadge, { backgroundColor: item.labelColor || colors.shared.gold }]}>
@@ -151,6 +147,8 @@ export default function HeroCarousel({
 const styles = StyleSheet.create({
   container: { position: 'relative' },
   slide: { position: 'relative', justifyContent: 'flex-end' },
+  gradientTop: { position: 'absolute', top: 0, left: 0, right: 0, height: '40%', backgroundColor: 'rgba(0,0,0,0.1)' },
+  gradientBottom: { position: 'absolute', bottom: 0, left: 0, right: 0, height: '60%', backgroundColor: 'rgba(0,0,0,0.6)' },
   slideContent: {
     padding: spacing.lg,
     paddingBottom: 40,

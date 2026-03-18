@@ -562,21 +562,21 @@ switch ($action) {
 
     // ── Sliders (managed from WP options or fallback to defaults) ─────
     case 'sliders':
-        $hp = get_prefix(1);
-        $stmt = $pdo->prepare("SELECT option_value FROM {$hp}options WHERE option_name = 'ch_app_sliders'");
+        $slider_prefix = get_table_prefix('hub');
+        $stmt = $pdo->prepare("SELECT option_value FROM {$slider_prefix}options WHERE option_name = 'ch_app_sliders'");
         $stmt->execute();
         $saved = $stmt->fetchColumn();
 
         if ($saved) {
             echo $saved;
         } else {
-            // Default slides using theme hero images
+            // Default slides using real images from all 4 theme directories
             echo json_encode([
                 [
                     'id' => 1,
                     'image' => $base_url . '/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg',
                     'title' => 'Cultural Heritage Centre',
-                    'subtitle' => 'Where Art, Heritage & Discovery Converge',
+                    'subtitle' => 'Where Art, Heritage & Discovery Converge — Arusha, Tanzania',
                     'label' => 'EST. 1994',
                     'label_color' => '#C5A059',
                     'cta' => 'Explore',
@@ -605,8 +605,27 @@ switch ($action) {
                     'id' => 4,
                     'image' => $base_url . '/wp-content/themes/ch-gallery/assets/images/gallery-hero.jpg',
                     'title' => 'The Art Gallery',
-                    'subtitle' => 'Three halls of contemporary and traditional African art with rotating exhibitions',
+                    'subtitle' => 'Contemporary and traditional African art with rotating exhibitions',
                     'label' => 'EXHIBITIONS & ART',
+                    'label_color' => '#C5A059',
+                    'cta' => 'View Gallery',
+                    'tab' => 'Gallery',
+                ],
+                [
+                    'id' => 5,
+                    'image' => $base_url . '/wp-content/themes/ch-main-hub/assets/images/experience-1.jpg',
+                    'title' => 'Experience Africa',
+                    'subtitle' => 'Discover centuries of craftsmanship, culture, and artistic heritage',
+                    'label' => 'THE EXPERIENCE',
+                    'label_color' => '#C5A059',
+                    'cta' => 'Learn More',
+                ],
+                [
+                    'id' => 6,
+                    'image' => $base_url . '/wp-content/themes/ch-gallery/assets/images/baluba-beaded-ceremonial-mask.jpg',
+                    'title' => 'Ceremonial Art',
+                    'subtitle' => 'Ancient masks and ceremonial pieces from across the African continent',
+                    'label' => 'GALLERY COLLECTION',
                     'label_color' => '#C5A059',
                     'cta' => 'View Gallery',
                     'tab' => 'Gallery',

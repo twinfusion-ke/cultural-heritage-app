@@ -10,7 +10,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated } from '
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, textStyles, shadows } from '../theme';
-import { useCurrency } from './CurrencySwitch';
 import type { SiteKey } from '../config/environment';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 24 * 2 - 10) / 2;
@@ -36,7 +35,6 @@ export default function ProductCard({
   name, price, imageUrl, site, onPress, onAddToCart, saleBadge, subtitle,
 }: ProductCardProps) {
   const accent = accentMap[site] || colors.shared.gold;
-  const { formatPrice } = useCurrency();
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(30)).current;
   const scale = useRef(new Animated.Value(0.95)).current;
@@ -77,7 +75,7 @@ export default function ProductCard({
         <View style={styles.info}>
           {subtitle && <Text style={[textStyles.caption, { color: colors.hub.textMuted }]} numberOfLines={1}>{subtitle}</Text>}
           <Text style={[textStyles.h3, styles.name]} numberOfLines={2}>{name}</Text>
-          <Text style={[textStyles.price, { color: accent }]}>{formatPrice(price.replace(/[^0-9.]/g, ''))}</Text>
+          <Text style={[textStyles.price, { color: accent }]}>{price}</Text>
         </View>
       </TouchableOpacity>
     </Animated.View>

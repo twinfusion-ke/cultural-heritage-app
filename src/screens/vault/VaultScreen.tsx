@@ -28,7 +28,6 @@ import { useJewelryProducts } from '../../api/jewelry';
 import { useCartStore } from '../../stores/cartStore';
 import { useEnvStore } from '../../stores/envStore';
 import { colors, textStyles, spacing } from '../../theme';
-import { useCurrency } from '../../components/CurrencySwitch';
 import type { AppProduct } from '../../api/types';
 
 const { width: SCREEN_W } = Dimensions.get('window');
@@ -44,7 +43,6 @@ export default function VaultScreen() {
   const { data: products, isLoading, refetch, isFetching } = useJewelryProducts({ page, perPage: 12 });
   const addItem = useCartStore((s) => s.addItem);
   const [showConsult, setShowConsult] = useState(false);
-  const { formatPrice } = useCurrency();
 
   useEffect(() => {
     if (products) {
@@ -85,7 +83,7 @@ export default function VaultScreen() {
                 <View style={styles.vaultInfo}>
                   {subtitle ? <Text style={styles.vaultSubtitle}>{subtitle}</Text> : null}
                   <Text style={styles.vaultName} numberOfLines={2}>{item.name}</Text>
-                  <Text style={styles.vaultPrice}>{formatPrice(item.price)}</Text>
+                  <Text style={styles.vaultPrice}>${item.price}</Text>
                 </View>
                 <TouchableOpacity style={styles.vaultAddBtn}
                   onPress={() => addItem({ productId: item.id, name: item.name, price: item.price, imageUrl: item.images?.[0]?.src || '', site: 'jewelry' })}>

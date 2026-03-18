@@ -105,9 +105,25 @@ function get_featured_image(PDO $pdo, string $prefix, int $post_id): ?string {
     $stmt->execute([$post_id]);
     $row = $stmt->fetch();
     if ($row && $row['url']) {
-        global $base_url, $site_blog_ids;
-        // For multisite, uploads are in /wp-content/uploads/sites/{blog_id}/
+        // If it's already a full URL (external image), return as-is
+        if (str_starts_with($row['url'], 'http://') || str_starts_with($row['url'], 'https://')) {
+            return $row['url'];
+        }
+        global $base_url;
         return $base_url . '/wp-content/uploads/' . $row['url'];
+    }
+    // Also check the attachment's guid (full URL stored by WP)
+    $stmt2 = $pdo->prepare("
+        SELECT p2.guid
+        FROM {$prefix}postmeta pm
+        JOIN {$prefix}posts p2 ON p2.ID = pm.meta_value
+        WHERE pm.post_id = ? AND pm.meta_key = '_thumbnail_id'
+        LIMIT 1
+    ");
+    $stmt2->execute([$post_id]);
+    $row2 = $stmt2->fetch();
+    if ($row2 && $row2['guid'] && (str_starts_with($row2['guid'], 'http://') || str_starts_with($row2['guid'], 'https://'))) {
+        return $row2['guid'];
     }
     return null;
 }
@@ -130,8 +146,12 @@ function get_product_images(PDO $pdo, string $prefix, int $product_id): array {
             $stmt2->execute([(int)$img_id]);
             $url = $stmt2->fetchColumn();
             if ($url) {
-                global $base_url;
-                $images[] = ['src' => $base_url . '/wp-content/uploads/' . $url, 'alt' => ''];
+                if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                    $images[] = ['src' => $url, 'alt' => ''];
+                } else {
+                    global $base_url;
+                    $images[] = ['src' => $base_url . '/wp-content/uploads/' . $url, 'alt' => ''];
+                }
             }
         }
     }

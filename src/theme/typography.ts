@@ -37,65 +37,65 @@ export const textStyles = {
   /** Hero headline — 48px Cormorant */
   heroTitle: {
     fontFamily: fonts.heading.regular,
-    fontSize: 48,
-    lineHeight: 52,
+    fontSize: 49,
+    lineHeight: 54,
     letterSpacing: -0.5,
   },
-  /** Section heading — 32px Cormorant */
+  /** Section heading — 33px Cormorant */
   h1: {
     fontFamily: fonts.heading.regular,
-    fontSize: 32,
-    lineHeight: 38,
+    fontSize: 33,
+    lineHeight: 40,
   },
-  /** Card title — 24px Cormorant */
+  /** Card title — 25px Cormorant */
   h2: {
     fontFamily: fonts.heading.regular,
-    fontSize: 24,
-    lineHeight: 30,
+    fontSize: 25,
+    lineHeight: 32,
   },
-  /** Subtitle — 20px Cormorant */
+  /** Subtitle — 21px Cormorant */
   h3: {
     fontFamily: fonts.heading.regular,
-    fontSize: 20,
-    lineHeight: 26,
+    fontSize: 21,
+    lineHeight: 28,
   },
-  /** Body text — 15px Montserrat */
+  /** Body text — 16px Montserrat */
   body: {
     fontFamily: fonts.body.regular,
-    fontSize: 15,
-    lineHeight: 24,
+    fontSize: 16,
+    lineHeight: 25,
   },
-  /** Small body — 13px Montserrat */
+  /** Small body — 14px Montserrat */
   bodySmall: {
     fontFamily: fonts.body.regular,
-    fontSize: 13,
-    lineHeight: 20,
+    fontSize: 14,
+    lineHeight: 21,
   },
-  /** Eyebrow / label — 10px Montserrat SemiBold, uppercase */
+  /** Eyebrow / label — 11px Montserrat SemiBold, uppercase */
   label: {
     fontFamily: fonts.body.semiBold,
-    fontSize: 10,
-    lineHeight: 14,
+    fontSize: 11,
+    lineHeight: 15,
     letterSpacing: 2.5,
     textTransform: 'uppercase' as const,
   },
-  /** Button text — 12px Montserrat SemiBold, uppercase */
+  /** Button text — 13px Montserrat SemiBold, uppercase */
   button: {
     fontFamily: fonts.body.semiBold,
-    fontSize: 12,
+    fontSize: 13,
     letterSpacing: 1.5,
     textTransform: 'uppercase' as const,
   },
-  /** Price display — 16px Montserrat SemiBold */
+  /** Price display — 17px Montserrat SemiBold */
   price: {
     fontFamily: fonts.body.semiBold,
-    fontSize: 16,
-    lineHeight: 20,
+    fontSize: 17,
+    lineHeight: 22,
   },
-  /** Caption — 11px Montserrat */
+  /** Caption — 12px Montserrat */
   caption: {
     fontFamily: fonts.body.regular,
-    fontSize: 11,
-    lineHeight: 16,
+    fontSize: 12,
+    lineHeight: 17,
   },
 } as const;

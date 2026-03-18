@@ -12,7 +12,8 @@
       "Bash(mysql -u root --password=\"\" -e \"SHOW DATABASES LIKE ''cultural%'';\")",
       "Bash(/c/xampp/mysql/bin/mysql -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
       "Bash(/c/xampp/mysql/bin/mysql.exe -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
-      "Bash(node deploy-api.js)"
+      "Bash(node deploy-api.js)",
+      "Bash(node -e \":*)"
     ]
   }
 }

@@ -17,6 +17,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
+import { FadeIn } from '../../components/animated';
 import { ScreenContainer, ProductCard, Button, AppHeader } from '../../components';
 import { useMarketProducts, useMarketCategories } from '../../api/market';
 import { useCartStore } from '../../stores/cartStore';
@@ -53,6 +54,7 @@ export default function MarketScreen() {
       <AppHeader backgroundColor={colors.market.primary} />
 
       {/* Market Title Bar */}
+      <FadeIn delay={100} slideUp={15}>
       <View style={styles.titleBar}>
         <View>
           <Text style={styles.titleLabel}>THE MARKET</Text>
@@ -60,6 +62,7 @@ export default function MarketScreen() {
         </View>
         <Ionicons name="basket" size={24} color={colors.market.accent} />
       </View>
+      </FadeIn>
 
       {/* Category Chips */}
       <View style={styles.categoriesContainer}>

@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { appApi } from '../../api/appApi';
 import { cacheSet, cacheGet } from '../../db/contentCache';
 import { Divider } from '../../components';
+import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import HtmlRenderer from '../../components/HtmlRenderer';
 import { colors, textStyles, spacing } from '../../theme';
@@ -105,6 +106,7 @@ export default function AboutScreen({ navigation }: any) {
         </View>
 
         {/* Divisions */}
+        <FadeIn delay={200} slideUp={25}>
         <View style={styles.divisionsSection}>
           <Text style={[textStyles.label, { color: colors.hub.textMuted, textAlign: 'center' }]}>OUR DIVISIONS</Text>
           <Divider />
@@ -120,6 +122,7 @@ export default function AboutScreen({ navigation }: any) {
             </View>
           ))}
         </View>
+        </FadeIn>
 
         {/* Page Content */}
         {isLoading ? (
@@ -129,6 +132,7 @@ export default function AboutScreen({ navigation }: any) {
         ) : null}
 
         {/* Contact CTA */}
+        <FadeIn delay={400} slideUp={25}>
         <View style={styles.ctaSection}>
           <Text style={[textStyles.h2, { color: '#fff', textAlign: 'center' }]}>Visit Us</Text>
           <Text style={styles.ctaText}>Dodoma Road, Arusha, Tanzania</Text>
@@ -148,6 +152,7 @@ export default function AboutScreen({ navigation }: any) {
             </TouchableOpacity>
           </View>
         </View>
+        </FadeIn>
       </ScrollView>
     </View>
   );

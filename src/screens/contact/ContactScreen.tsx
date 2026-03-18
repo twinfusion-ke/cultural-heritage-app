@@ -16,6 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Divider } from '../../components';
+import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 
@@ -41,6 +42,7 @@ export default function ContactScreen({ navigation }: any) {
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Location Card */}
+        <FadeIn delay={100} slideUp={30}>
         <View style={styles.locationCard}>
           <Ionicons name="location" size={28} color={colors.shared.gold} />
           <Text style={[textStyles.h2, { color: colors.hub.text, marginTop: 12 }]}>Find Us</Text>
@@ -59,8 +61,10 @@ export default function ContactScreen({ navigation }: any) {
             <Text style={styles.mapBtnText}>Get Directions</Text>
           </TouchableOpacity>
         </View>
+        </FadeIn>
 
         {/* Quick Actions */}
+        <FadeIn delay={250} slideUp={30}>
         <View style={styles.actionsSection}>
           <Text style={[textStyles.label, { color: colors.hub.textMuted, marginBottom: 16 }]}>GET IN TOUCH</Text>
 
@@ -93,8 +97,10 @@ export default function ContactScreen({ navigation }: any) {
             onPress={() => Linking.openURL('https://twinfusion.co.ke/cultural-heritage')}
           />
         </View>
+        </FadeIn>
 
         {/* Divisions Contact */}
+        <FadeIn delay={400} slideUp={30}>
         <View style={styles.divisionsSection}>
           <Text style={[textStyles.label, { color: colors.hub.textMuted, marginBottom: 16 }]}>OUR DIVISIONS</Text>
 
@@ -117,6 +123,7 @@ export default function ContactScreen({ navigation }: any) {
             icon="color-palette-outline"
           />
         </View>
+        </FadeIn>
 
         <View style={{ height: 40 }} />
       </ScrollView>

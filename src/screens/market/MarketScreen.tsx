@@ -5,7 +5,7 @@
  * pull-to-refresh, QuickView modal, and add-to-cart.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -15,8 +15,8 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, ProductCard, Button, AppHeader } from '../../components';
-import ProductQuickView from '../../components/ProductQuickView';
 import { useMarketProducts, useMarketCategories } from '../../api/market';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
@@ -27,7 +27,7 @@ export default function MarketScreen() {
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState<AppProduct[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
+  const navigation = useNavigation<any>();
 
   const { data: products, isLoading, refetch, isRefetching, isFetching } = useMarketProducts({
     category: selectedCategory,
@@ -143,7 +143,7 @@ export default function MarketScreen() {
               imageUrl={item.images?.[0]?.src || ''}
               site="market"
               saleBadge={item.on_sale}
-              onPress={() => setSelectedProduct(item)}
+              onPress={() => navigation.navigate('ProductDetail', { product: item, site: 'market' })}
               onAddToCart={() => handleAddToCart(item)}
             />
           )}
@@ -170,13 +170,6 @@ export default function MarketScreen() {
         />
       )}
 
-      {/* Quick View Modal */}
-      <ProductQuickView
-        product={selectedProduct}
-        site="market"
-        visible={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
     </ScreenContainer>
   );
 }

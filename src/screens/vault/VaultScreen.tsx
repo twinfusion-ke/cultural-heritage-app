@@ -15,18 +15,18 @@ import {
   Linking,
   ActivityIndicator,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, ProductCard, Button, Divider, AppHeader } from '../../components';
-import ProductQuickView from '../../components/ProductQuickView';
 import { useJewelryProducts } from '../../api/jewelry';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
 import type { AppProduct } from '../../api/types';
 
 export default function VaultScreen() {
+  const navigation = useNavigation<any>();
   const [page, setPage] = useState(1);
   const [allProducts, setAllProducts] = useState<AppProduct[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
 
   const { data: products, isLoading, refetch, isRefetching, isFetching } = useJewelryProducts({
     page,
@@ -118,7 +118,7 @@ export default function VaultScreen() {
                 site="jewelry"
                 subtitle={subtitle}
                 saleBadge={item.on_sale}
-                onPress={() => setSelectedProduct(item)}
+                onPress={() => navigation.navigate('ProductDetail', { product: item, site: 'jewelry' })}
                 onAddToCart={() => handleAddToCart(item)}
               />
             );
@@ -164,13 +164,6 @@ export default function VaultScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* Quick View Modal */}
-      <ProductQuickView
-        product={selectedProduct}
-        site="jewelry"
-        visible={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
     </ScreenContainer>
   );
 }

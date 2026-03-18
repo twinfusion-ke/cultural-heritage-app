@@ -16,7 +16,6 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider, AppHeader } from '../../components';
-import ProductQuickView from '../../components/ProductQuickView';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
 import { useCartStore } from '../../stores/cartStore';
 import { getExhibitionStatus } from '../../utils/dates';
@@ -30,7 +29,6 @@ export default function GalleryScreen() {
   const { data: products } = useGalleryProducts({ perPage: 6 });
   const { data: posts } = useGalleryPosts(3);
   const addItem = useCartStore((s) => s.addItem);
-  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
 
   // Group exhibitions by status
   const nowShowing: AppExhibition[] = [];
@@ -173,7 +171,7 @@ export default function GalleryScreen() {
                   imageUrl={item.images?.[0]?.src || ''}
                   site="gallery"
                   subtitle={artist}
-                  onPress={() => setSelectedProduct(item)}
+                  onPress={() => navigation.navigate('ProductDetail', { product: item, site: 'gallery' })}
                   onAddToCart={() => handleAddToCart(item)}
                 />
               );
@@ -237,13 +235,6 @@ export default function GalleryScreen() {
         </View>
       </View>
 
-      {/* Quick View Modal */}
-      <ProductQuickView
-        product={selectedProduct}
-        site="gallery"
-        visible={!!selectedProduct}
-        onClose={() => setSelectedProduct(null)}
-      />
     </ScreenContainer>
   );
 }

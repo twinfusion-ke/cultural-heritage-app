@@ -68,5 +68,6 @@ export const routeToDivision: Record<string, DivisionKey> = {
   Market: 'market',
   Vault: 'vault',
   Gallery: 'gallery',
+  Favorites: 'hub',
   More: 'hub',
 };

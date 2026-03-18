@@ -634,6 +634,45 @@ switch ($action) {
         }
         break;
 
+    // ── Form Submission (sends email via WordPress) ───────────────────
+    case 'submit_form':
+        $to = 'twinfusion2023@gmail.com';
+        $form_type = $_GET['form_type'] ?? $_POST['form_type'] ?? 'enquiry';
+        $name = $_GET['name'] ?? $_POST['name'] ?? '';
+        $email = $_GET['email'] ?? $_POST['email'] ?? '';
+
+        $type_labels = [
+            'booking' => 'Exhibition Booking',
+            'visit' => 'Visit Request',
+            'contact' => 'Contact Form',
+            'consultation' => 'Private Consultation',
+            'enquiry' => 'General Enquiry',
+        ];
+
+        $subject = ($type_labels[$form_type] ?? 'App Form') . ' from ' . ($name ?: 'App User');
+
+        $body = "New {$subject}\n\n";
+        $body .= "Submitted via Cultural Heritage Mobile App\n";
+        $body .= "────────────────────────────────\n\n";
+
+        $skip_keys = ['action', 'form_type', '_t'];
+        foreach (array_merge($_GET, $_POST) as $key => $value) {
+            if (in_array($key, $skip_keys) || empty($value)) continue;
+            $label = ucfirst(str_replace('_', ' ', $key));
+            $body .= "{$label}: {$value}\n";
+        }
+
+        $body .= "\n────────────────────────────────\n";
+        $body .= "Sent from Cultural Heritage App\n";
+
+        $headers = "From: Cultural Heritage App <noreply@twinfusion.co.ke>\r\n";
+        if ($email) $headers .= "Reply-To: {$name} <{$email}>\r\n";
+
+        $sent = @mail($to, $subject, $body, $headers);
+
+        echo json_encode(['success' => $sent, 'message' => $sent ? 'Form submitted successfully' : 'Email sending failed, please try WhatsApp']);
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

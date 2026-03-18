@@ -55,9 +55,28 @@ function useFadeIn(delay: number = 0) {
 export default function HomeScreen() {
   const navigation = useNavigation<any>();
   const { data: posts, isLoading: postsLoading, refetch, isRefetching } = useHubPosts(4);
-  const { data: marketProducts } = useMarketProducts({ perPage: 2 });
-  const { data: jewelryProducts } = useJewelryProducts({ perPage: 2 });
-  const { data: galleryProducts } = useGalleryProducts({ perPage: 2 });
+  // Fetch more products and randomize which 2 show each time
+  const { data: marketAll } = useMarketProducts({ perPage: 8 });
+  const { data: jewelryAll } = useJewelryProducts({ perPage: 8 });
+  const { data: galleryAll } = useGalleryProducts({ perPage: 8 });
+
+  const marketProducts = React.useMemo(() => {
+    if (!marketAll || marketAll.length <= 2) return marketAll;
+    const shuffled = [...marketAll].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [marketAll]);
+
+  const jewelryProducts = React.useMemo(() => {
+    if (!jewelryAll || jewelryAll.length <= 2) return jewelryAll;
+    const shuffled = [...jewelryAll].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [jewelryAll]);
+
+  const galleryProducts = React.useMemo(() => {
+    if (!galleryAll || galleryAll.length <= 2) return galleryAll;
+    const shuffled = [...galleryAll].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 2);
+  }, [galleryAll]);
   const urls = useEnvStore((s) => s.urls);
   const baseUrl = urls.hub.base;
   const addItem = useCartStore((s) => s.addItem);

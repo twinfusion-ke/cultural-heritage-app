@@ -4,7 +4,7 @@
  * Shows contact details for all 4 divisions with action buttons.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -17,6 +17,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Divider } from '../../components';
 import { FadeIn } from '../../components/animated';
+import FormModal from '../../components/FormModal';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 
@@ -27,6 +28,7 @@ const MAP_URL = 'https://maps.google.com/?q=-3.3869,36.6830';
 
 export default function ContactScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
+  const [showForm, setShowForm] = useState(false);
 
   return (
     <View style={[styles.container]}>
@@ -125,6 +127,29 @@ export default function ContactScreen({ navigation }: any) {
         </View>
         </FadeIn>
 
+        {/* Contact Form CTA */}
+        <FadeIn delay={500} slideUp={25}>
+          <View style={styles.formCta}>
+            <Ionicons name="mail-outline" size={28} color={colors.shared.gold} />
+            <Text style={[textStyles.h2, { color: colors.hub.text, marginTop: 12, textAlign: 'center' }]}>Send Us a Message</Text>
+            <Text style={styles.formCtaDesc}>Have a question or feedback? Fill out the form and we'll get back to you within 24 hours.</Text>
+            <TouchableOpacity style={styles.formCtaBtn} onPress={() => setShowForm(true)}>
+              <Ionicons name="chatbubble-outline" size={16} color="#fff" />
+              <Text style={styles.formCtaBtnText}>Open Contact Form</Text>
+            </TouchableOpacity>
+          </View>
+        </FadeIn>
+
+        {/* Contact Form Modal */}
+        <FormModal
+          visible={showForm}
+          onClose={() => setShowForm(false)}
+          title="Contact Us"
+          subtitle="We'd love to hear from you. Fill in the form below."
+          formType="contact"
+          accentColor={colors.hub.accent}
+        />
+
         <View style={{ height: 40 }} />
       </ScrollView>
     </View>
@@ -210,4 +235,8 @@ const styles = StyleSheet.create({
   divisionIcon: { width: 40, height: 40, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
   divisionName: { fontFamily: 'Montserrat-SemiBold', fontSize: 15, color: colors.hub.text },
   divisionDesc: { fontFamily: 'Montserrat-Regular', fontSize: 12, color: colors.hub.textMuted, marginTop: 2 },
+  formCta: { marginHorizontal: spacing.lg, marginTop: spacing.xl, padding: spacing.lg, backgroundColor: colors.shared.white, borderRadius: 12, alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 4 },
+  formCtaDesc: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: colors.hub.textMuted, textAlign: 'center', marginTop: 8, lineHeight: 20 },
+  formCtaBtn: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: colors.hub.primary, paddingHorizontal: 24, paddingVertical: 14, borderRadius: 8, marginTop: 16 },
+  formCtaBtnText: { fontFamily: 'Montserrat-SemiBold', fontSize: 13, color: '#fff', letterSpacing: 0.5 },
 });

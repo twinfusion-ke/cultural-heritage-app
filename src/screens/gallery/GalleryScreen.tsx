@@ -5,7 +5,7 @@
  * Exhibitions + artworks + journal in single scrollable view.
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -19,6 +19,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { ScreenContainer, ExhibitionCard, ProductCard, BlogCard, Button, Divider, AppHeader } from '../../components';
+import FormModal from '../../components/FormModal';
 import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/gallery';
 import { useCartStore } from '../../stores/cartStore';
 import { getExhibitionStatus } from '../../utils/dates';
@@ -32,6 +33,7 @@ export default function GalleryScreen() {
   const { data: products } = useGalleryProducts({ perPage: 6 });
   const { data: posts } = useGalleryPosts(3);
   const addItem = useCartStore((s) => s.addItem);
+  const [showBooking, setShowBooking] = useState(false);
 
   const nowShowing: AppExhibition[] = [];
   const upcoming: AppExhibition[] = [];
@@ -140,10 +142,24 @@ export default function GalleryScreen() {
           <Divider color={colors.shared.gold} />
           <Text style={styles.visitDesc}>Our exhibitions are best experienced in person. Three halls of contemporary and traditional African art await.</Text>
           <View style={styles.visitBtns}>
-            <Button title="Get Directions" onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')} variant="primary" color={colors.shared.gold} textColor={colors.gallery.primary} />
-            <Button title="Call Gallery" onPress={() => Linking.openURL('tel:+255786454999')} variant="outline" color={colors.shared.parchment} />
+            <Button title="Book Exhibition Visit" onPress={() => setShowBooking(true)} variant="primary" color={colors.shared.gold} textColor={colors.gallery.primary} />
+            <Button title="Get Directions" onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')} variant="outline" color={colors.shared.parchment} />
           </View>
+          <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL('tel:+255786454999')}>
+            <Ionicons name="call-outline" size={16} color="rgba(255,255,255,0.6)" />
+            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Call +255 786 454 999</Text>
+          </TouchableOpacity>
         </View>
+
+        {/* Booking Form Modal */}
+        <FormModal
+          visible={showBooking}
+          onClose={() => setShowBooking(false)}
+          title="Book Exhibition Visit"
+          subtitle="Reserve your spot for a guided gallery experience."
+          formType="booking"
+          accentColor={colors.shared.gold}
+        />
       </ScrollView>
     </View>
   );
@@ -167,4 +183,5 @@ const styles = StyleSheet.create({
   visitCta: { backgroundColor: colors.gallery.primary, alignItems: 'center', padding: spacing.lg, paddingVertical: spacing.xl },
   visitDesc: { fontFamily: 'Montserrat-Regular', fontSize: 14, color: 'rgba(250,250,248,0.5)', textAlign: 'center', lineHeight: 22, maxWidth: 300 },
   visitBtns: { flexDirection: 'row', gap: 12, marginTop: spacing.lg },
+  callBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 16 },
 });

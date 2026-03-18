@@ -23,6 +23,7 @@ import HeroCarousel, { type SliderItem } from '../../components/HeroCarousel';
 import YouTubeCard from '../../components/YouTubeCard';
 import { FadeIn } from '../../components/animated';
 import { Button, Divider, AppHeader } from '../../components';
+import FormModal from '../../components/FormModal';
 import { useJewelryProducts } from '../../api/jewelry';
 import { useCartStore } from '../../stores/cartStore';
 import { useEnvStore } from '../../stores/envStore';
@@ -41,6 +42,7 @@ export default function VaultScreen() {
 
   const { data: products, isLoading, refetch, isFetching } = useJewelryProducts({ page, perPage: 12 });
   const addItem = useCartStore((s) => s.addItem);
+  const [showConsult, setShowConsult] = useState(false);
 
   useEffect(() => {
     if (products) {
@@ -127,7 +129,7 @@ export default function VaultScreen() {
         {/* Consultation CTA */}
         <View style={styles.consultBar}>
           <TouchableOpacity style={styles.consultBtn}
-            onPress={() => Linking.openURL('https://wa.me/255786454999?text=I%20would%20like%20a%20private%20consultation')}>
+            onPress={() => setShowConsult(true)}>
             <Ionicons name="diamond" size={16} color={colors.vault.primary} />
             <Text style={styles.consultText}>Book Private Consultation</Text>
           </TouchableOpacity>
@@ -172,6 +174,15 @@ export default function VaultScreen() {
             <Text style={styles.bottomCtaText}>Book Now via WhatsApp</Text>
           </TouchableOpacity>
         </View>
+        {/* Consultation Form Modal */}
+        <FormModal
+          visible={showConsult}
+          onClose={() => setShowConsult(false)}
+          title="Private Consultation"
+          subtitle="Meet our gemologists for an exclusive viewing of our finest pieces."
+          formType="consultation"
+          accentColor={colors.vault.accent}
+        />
       </ScrollView>
     </View>
   );

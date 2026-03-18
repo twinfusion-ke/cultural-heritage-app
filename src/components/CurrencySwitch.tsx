@@ -26,7 +26,7 @@ const CURRENCIES = [
 ];
 
 export function useCurrency() {
-  const currencyCode = useUIStore((s) => (s as any).currency || 'USD');
+  const currencyCode = useUIStore((s) => s.currency);
   const currency = CURRENCIES.find((c) => c.code === currencyCode) || CURRENCIES[0];
 
   function formatPrice(usdPrice: string | number): string {
@@ -43,8 +43,8 @@ export function useCurrency() {
 export default function CurrencySwitch() {
   const insets = useSafeAreaInsets();
   const [expanded, setExpanded] = useState(false);
-  const currencyCode = useUIStore((s) => (s as any).currency || 'USD');
-  const setCurrency = (code: string) => useUIStore.setState({ currency: code } as any);
+  const currencyCode = useUIStore((s) => s.currency);
+  const setCurrency = useUIStore((s) => s.setCurrency);
 
   const expandAnim = useRef(new Animated.Value(0)).current;
   const current = CURRENCIES.find((c) => c.code === currencyCode) || CURRENCIES[0];

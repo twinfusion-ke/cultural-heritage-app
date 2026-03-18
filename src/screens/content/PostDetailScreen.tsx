@@ -24,6 +24,7 @@ import AppHeader from '../../components/AppHeader';
 import HtmlRenderer from '../../components/HtmlRenderer';
 import { FadeIn } from '../../components/animated';
 import { Divider } from '../../components';
+import { useQuery } from '@tanstack/react-query';
 import { appApi } from '../../api/appApi';
 import { colors, textStyles, spacing } from '../../theme';
 import { readingTime } from '../../utils/dates';
@@ -49,7 +50,18 @@ function wrapPostHtml(html: string): string {
 }
 
 export default function PostDetailScreen({ route, navigation }: any) {
-  const { title, content, imageUrl, date, category } = route.params;
+  const { title, content: passedContent, imageUrl, date, category, postId, site } = route.params;
+
+  // If content is missing, fetch the full post from API
+  const { data: fetchedPost } = useQuery({
+    queryKey: ['post-detail', postId || title],
+    queryFn: () => appApi('posts', { site: site || 'hub', per_page: 1, search: title }),
+    enabled: !passedContent && !!title,
+    staleTime: 1000 * 60 * 10,
+  });
+
+  const content = passedContent || (Array.isArray(fetchedPost) ? fetchedPost[0]?.content : fetchedPost?.content) || '';
+  const heroImage = imageUrl || (Array.isArray(fetchedPost) ? fetchedPost[0]?.image : fetchedPost?.image) || null;
 
   const formattedDate = date ? new Date(date).toLocaleDateString('en-US', {
     year: 'numeric', month: 'long', day: 'numeric',
@@ -121,8 +133,8 @@ export default function PostDetailScreen({ route, navigation }: any) {
 
       <ScrollView style={styles.scroll} showsVerticalScrollIndicator={false}>
         {/* Hero Image */}
-        {imageUrl && (
-          <Image source={{ uri: imageUrl }} style={styles.heroImage} contentFit="cover" cachePolicy="disk" transition={300} />
+        {heroImage && (
+          <Image source={{ uri: heroImage }} style={styles.heroImage} contentFit="cover" cachePolicy="disk" transition={300} />
         )}
 
         {/* Meta */}

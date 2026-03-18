@@ -15,7 +15,8 @@
       "Bash(node deploy-api.js)",
       "Bash(node -e \":*)",
       "Bash(npx yt-dlp:*)",
-      "Bash(npx --yes yt-dlp@latest --version)"
+      "Bash(npx --yes yt-dlp@latest --version)",
+      "Bash(git commit:*)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"

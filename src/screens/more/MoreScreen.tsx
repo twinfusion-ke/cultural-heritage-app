@@ -80,7 +80,7 @@ export default function MoreScreen() {
           <MenuItem icon="information-circle-outline" label="About Us" onPress={() => navigation.navigate('About')} />
           <MenuItem icon="time-outline" label="Our Legacy" onPress={() => navigation.navigate('Legacy')} />
           <MenuItem icon="newspaper-outline" label="Heritage Journal" onPress={() => navigation.navigate('Blog')} />
-          <MenuItem icon="map-outline" label="Plan Your Visit" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
+          <MenuItem icon="map-outline" label="Plan Your Visit" onPress={() => navigation.navigate('Visit')} />
           <MenuItem icon="call-outline" label="Contact Us" onPress={() => navigation.navigate('Contact')} />
           <MenuItem icon="mail-outline" label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })} />
           <MenuItem icon="logo-whatsapp" label="WhatsApp Us" onPress={() => Linking.openURL('https://wa.me/255786454999')} />

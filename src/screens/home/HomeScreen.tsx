@@ -212,7 +212,7 @@ export default function HomeScreen() {
       <View style={styles.linksSection}>
         <QuickLink label="About Cultural Heritage" icon="information-circle-outline" onPress={() => navigation.navigate('About')} />
         <QuickLink label="Our Legacy (1994–2024)" icon="time-outline" onPress={() => navigation.navigate('Legacy')} />
-        <QuickLink label="Plan Your Visit" icon="map-outline" onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })} />
+        <QuickLink label="Plan Your Visit" icon="map-outline" onPress={() => navigation.navigate('Visit')} />
         <QuickLink label="Contact Us" icon="call-outline" onPress={() => navigation.navigate('Contact')} />
       </View>
 

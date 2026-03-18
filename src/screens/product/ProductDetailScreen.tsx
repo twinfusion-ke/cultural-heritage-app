@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../stores/cartStore';
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { colors, textStyles, spacing } from '../../theme';
+import { useCurrency } from '../../components/CurrencySwitch';
 import type { AppProduct } from '../../api/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -48,6 +49,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
 
   const addItem = useCartStore((s) => s.addItem);
   const cartCount = useCartStore((s) => s.getItemCount());
+  const { formatPrice } = useCurrency();
   const toggle = useFavoritesStore((s) => s.toggle);
   const isFav = useFavoritesStore((s) => s.isFavorite(product.id, site));
 
@@ -159,11 +161,11 @@ export default function ProductDetailScreen({ route, navigation }: any) {
           <View style={styles.priceRow}>
             {product.on_sale && product.regular_price ? (
               <>
-                <Text style={[styles.price, { color: accent }]}>${product.sale_price || product.price}</Text>
-                <Text style={styles.oldPrice}>${product.regular_price}</Text>
+                <Text style={[styles.price, { color: accent }]}>{formatPrice(product.sale_price || product.price)}</Text>
+                <Text style={styles.oldPrice}>{formatPrice(product.regular_price)}</Text>
               </>
             ) : (
-              <Text style={[styles.price, { color: accent }]}>${product.price}</Text>
+              <Text style={[styles.price, { color: accent }]}>{formatPrice(product.price)}</Text>
             )}
           </View>
 
@@ -229,7 +231,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
         >
           <Ionicons name="bag-add-outline" size={18} color={site === 'jewelry' ? '#fff' : colors.hub.primary} />
           <Text style={[styles.addToCartText, { color: site === 'jewelry' ? '#fff' : colors.hub.primary }]}>
-            Add to Cart — ${(parseFloat(product.price || '0') * quantity).toFixed(2)}
+            Add to Cart — {formatPrice(String(parseFloat(product.price || '0') * quantity))}
           </Text>
         </TouchableOpacity>
       </View>

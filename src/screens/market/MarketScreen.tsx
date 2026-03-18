@@ -134,7 +134,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     backgroundColor: colors.market.background,
   },
-  titleLabel: { fontFamily: 'Montserrat-SemiBold', fontSize: 11, color: colors.market.accent, letterSpacing: 2, marginBottom: 2 },
+  titleLabel: { fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: colors.market.accent, letterSpacing: 2.5, marginBottom: 4 },
   categoriesContainer: { backgroundColor: colors.market.background, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.market.border },
   categoriesList: { paddingHorizontal: spacing.lg, paddingVertical: spacing.sm, gap: 8 },
   categoryChip: { paddingHorizontal: 16, paddingVertical: 8, borderWidth: 1, borderColor: colors.market.border, backgroundColor: colors.shared.white, borderRadius: 20 },

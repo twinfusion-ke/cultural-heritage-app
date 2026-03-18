@@ -22,6 +22,7 @@ import { useQuery } from '@tanstack/react-query';
 import { appApi } from '../../api/appApi';
 import { cacheSet, cacheGet } from '../../db/contentCache';
 import { Divider } from '../../components';
+import AppHeader from '../../components/AppHeader';
 import HtmlRenderer from '../../components/HtmlRenderer';
 import { colors, textStyles, spacing } from '../../theme';
 import { useEnvStore } from '../../stores/envStore';
@@ -73,7 +74,8 @@ export default function AboutScreen({ navigation }: any) {
   ];
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container]}>
+      <AppHeader backgroundColor={colors.hub.primary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={20} color={colors.shared.parchment} />

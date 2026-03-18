@@ -152,7 +152,7 @@ function MenuItem({ icon, label, onPress }: { icon: string; label: string; onPre
         <Ionicons name={icon as any} size={20} color={colors.shared.gold} />
         <Text style={styles.menuLabel}>{label}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={18} color={colors.hub.textMuted} />
+      <Ionicons name="chevron-forward" size={18} color="rgba(245,242,237,0.5)" />
     </TouchableOpacity>
   );
 }
@@ -173,7 +173,7 @@ const styles = StyleSheet.create({
   section: { marginTop: spacing.lg, paddingHorizontal: spacing.lg },
   sectionTitle: { fontFamily: 'Montserrat-SemiBold', fontSize: 11, letterSpacing: 2, color: colors.hub.textMuted, textTransform: 'uppercase', marginBottom: 12 },
   menuItem: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 15, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border },
-  menuLabel: { fontFamily: 'Montserrat-Regular', fontSize: 16, color: colors.hub.text },
+  menuLabel: { fontFamily: 'Montserrat-Regular', fontSize: 16, color: colors.shared.parchment },
   version: { fontFamily: 'Montserrat-Regular', fontSize: 12, color: colors.hub.textMuted, textAlign: 'center', marginTop: spacing.xl, lineHeight: 18 },
   adminSection: { margin: spacing.lg, padding: spacing.lg, backgroundColor: '#1a1a1a', borderWidth: 1, borderColor: colors.shared.warning, borderRadius: 8 },
   adminLabel: { fontFamily: 'Montserrat-SemiBold', fontSize: 11, color: colors.shared.warning, textTransform: 'uppercase', letterSpacing: 1, marginTop: 16, marginBottom: 6 },

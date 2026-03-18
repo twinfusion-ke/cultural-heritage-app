@@ -16,6 +16,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Divider } from '../../components';
+import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 
 const PHONE = '+255786454999';
@@ -27,7 +28,8 @@ export default function ContactScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container]}>
+      <AppHeader backgroundColor={colors.hub.primary} />
       <View style={styles.header}>
         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
           <Ionicons name="arrow-back" size={20} color={colors.shared.parchment} />

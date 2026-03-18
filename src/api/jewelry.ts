@@ -1,27 +1,15 @@
 /**
  * Jewelry / Vault API — Luxury Products
  *
- * Fetches tanzanite and fine jewelry from The Vault sub-site.
+ * Uses the custom PHP API. No WooCommerce keys needed.
  * All data cached to SQLite for offline browsing.
  */
 
-import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { useEnvStore } from '../stores/envStore';
+import { appApi } from './appApi';
 import { cacheSet, cacheGet } from '../db/contentCache';
-import type { WCProduct, WCCategory } from '../types/woocommerce';
-import type { WPPost } from '../types/wordpress';
-
-function useJewelryUrls() {
-  return useEnvStore((s) => s.urls.jewelry);
-}
-
-function useWcAuth() {
-  const env = useEnvStore((s) => s.env);
-  return env.wcConsumerKey
-    ? { consumer_key: env.wcConsumerKey, consumer_secret: env.wcConsumerSecret }
-    : {};
-}
+import type { AppProduct, AppCategory } from './types';
+import type { AppPost } from './hub';
 
 /** Fetch Jewelry products with filters */
 export function useJewelryProducts(params?: {
@@ -29,41 +17,24 @@ export function useJewelryProducts(params?: {
   page?: number;
   category?: number;
   search?: string;
-  minPrice?: string;
-  maxPrice?: string;
-  orderby?: string;
-  order?: string;
-  attribute?: string;
-  attributeTerm?: string;
 }) {
-  const urls = useJewelryUrls();
-  const auth = useWcAuth();
   const cacheParams = JSON.stringify(params || {});
 
-  return useQuery<WCProduct[]>({
+  return useQuery<AppProduct[]>({
     queryKey: ['jewelry', 'products', params],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(`${urls.wc}/products`, {
-          params: {
-            per_page: params?.perPage || 12,
-            page: params?.page || 1,
-            category: params?.category,
-            search: params?.search,
-            min_price: params?.minPrice,
-            max_price: params?.maxPrice,
-            orderby: params?.orderby || 'date',
-            order: params?.order || 'desc',
-            attribute: params?.attribute,
-            attribute_term: params?.attributeTerm,
-            status: 'publish',
-            ...auth,
-          },
+        const data = await appApi<AppProduct[]>('products', {
+          site: 'jewelry',
+          per_page: params?.perPage || 12,
+          page: params?.page || 1,
+          category: params?.category,
+          search: params?.search,
         });
         await cacheSet('jewelry', 'products', data, cacheParams);
         return data;
       } catch (error: any) {
-        const cached = await cacheGet<WCProduct[]>('jewelry', 'products', cacheParams);
+        const cached = await cacheGet<AppProduct[]>('jewelry', 'products', cacheParams);
         if (cached) return cached.data;
         throw error;
       }
@@ -74,20 +45,15 @@ export function useJewelryProducts(params?: {
 
 /** Fetch Jewelry categories */
 export function useJewelryCategories() {
-  const urls = useJewelryUrls();
-  const auth = useWcAuth();
-
-  return useQuery<WCCategory[]>({
+  return useQuery<AppCategory[]>({
     queryKey: ['jewelry', 'categories'],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(`${urls.wc}/products/categories`, {
-          params: { per_page: 50, ...auth },
-        });
+        const data = await appApi<AppCategory[]>('categories', { site: 'jewelry' });
         await cacheSet('jewelry', 'categories', data);
         return data;
       } catch (error: any) {
-        const cached = await cacheGet<WCCategory[]>('jewelry', 'categories');
+        const cached = await cacheGet<AppCategory[]>('jewelry', 'categories');
         if (cached) return cached.data;
         throw error;
       }
@@ -96,22 +62,17 @@ export function useJewelryCategories() {
   });
 }
 
-/** Fetch single Jewelry product (for detail + deep-zoom) */
+/** Fetch single Jewelry product */
 export function useJewelryProduct(id: number) {
-  const urls = useJewelryUrls();
-  const auth = useWcAuth();
-
-  return useQuery<WCProduct>({
+  return useQuery<AppProduct | null>({
     queryKey: ['jewelry', 'product', id],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(`${urls.wc}/products/${id}`, {
-          params: auth,
-        });
-        await cacheSet('jewelry', 'products', data, `id-${id}`);
+        const data = await appApi<AppProduct | null>('product', { site: 'jewelry', id });
+        if (data) await cacheSet('jewelry', 'products', data, `id-${id}`);
         return data;
       } catch (error: any) {
-        const cached = await cacheGet<WCProduct>('jewelry', 'products', `id-${id}`);
+        const cached = await cacheGet<AppProduct>('jewelry', 'products', `id-${id}`);
         if (cached) return cached.data;
         throw error;
       }
@@ -122,19 +83,15 @@ export function useJewelryProduct(id: number) {
 
 /** Fetch Jewelry blog posts (Gem Journal) */
 export function useJewelryPosts(perPage: number = 10) {
-  const urls = useJewelryUrls();
-
-  return useQuery<WPPost[]>({
+  return useQuery<AppPost[]>({
     queryKey: ['jewelry', 'posts', perPage],
     queryFn: async () => {
       try {
-        const { data } = await axios.get(`${urls.rest}/posts`, {
-          params: { per_page: perPage, _embed: true },
-        });
+        const data = await appApi<AppPost[]>('posts', { site: 'jewelry', per_page: perPage });
         await cacheSet('jewelry', 'posts', data, `${perPage}`);
         return data;
       } catch (error: any) {
-        const cached = await cacheGet<WPPost[]>('jewelry', 'posts', `${perPage}`);
+        const cached = await cacheGet<AppPost[]>('jewelry', 'posts', `${perPage}`);
         if (cached) return cached.data;
         throw error;
       }

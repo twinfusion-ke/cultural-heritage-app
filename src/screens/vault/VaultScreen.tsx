@@ -20,13 +20,13 @@ import ProductQuickView from '../../components/ProductQuickView';
 import { useJewelryProducts } from '../../api/jewelry';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
-import type { WCProduct } from '../../types/woocommerce';
+import type { AppProduct } from '../../api/types';
 
 export default function VaultScreen() {
   const [page, setPage] = useState(1);
-  const [allProducts, setAllProducts] = useState<WCProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<AppProduct[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
 
   const { data: products, isLoading, refetch, isRefetching, isFetching } = useJewelryProducts({
     page,
@@ -48,12 +48,12 @@ export default function VaultScreen() {
     }
   }, [products, page]);
 
-  function handleAddToCart(product: WCProduct) {
+  function handleAddToCart(p: AppProduct) {
     addItem({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.images?.[0]?.src || '',
+      productId: p.id,
+      name: p.name,
+      price: p.price,
+      imageUrl: p.images?.[0]?.src || '',
       site: 'jewelry',
     });
   }

@@ -1,8 +1,7 @@
 /**
  * Home Screen — Tab 1: Cultural Heritage Centre
  *
- * All content fetched from the live production Hub API.
- * No hardcoded text — everything comes from your WordPress pages and posts.
+ * All content fetched from the custom PHP API.
  */
 
 import React from 'react';
@@ -17,6 +16,7 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { useHubPosts } from '../../api/hub';
 import { BlogCard, Divider } from '../../components';
@@ -45,7 +45,7 @@ export default function HomeScreen() {
           />
         }
       >
-      {/* ═══ HERO ═══ */}
+      {/* HERO */}
       <View style={styles.hero}>
         <Image
           source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
@@ -69,7 +69,7 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* ═══ THREE PILLARS — Navigate to other tabs ═══ */}
+      {/* THREE PILLARS */}
       <View style={styles.pillarsSection}>
         <Text style={[textStyles.label, styles.sectionLabel]}>OUR WORLD</Text>
         <Divider />
@@ -129,7 +129,7 @@ export default function HomeScreen() {
         </TouchableOpacity>
       </View>
 
-      {/* ═══ HERITAGE STORIES — Real blog posts from API ═══ */}
+      {/* HERITAGE STORIES */}
       <View style={styles.section}>
         <Text style={[textStyles.label, styles.sectionLabel]}>THE JOURNAL</Text>
         <Text style={[textStyles.h1, styles.sectionTitle]}>Heritage Stories</Text>
@@ -138,51 +138,52 @@ export default function HomeScreen() {
         {postsLoading ? (
           <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: 24 }} />
         ) : posts && posts.length > 0 ? (
-          posts.map((post) => {
-            const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-            return (
-              <BlogCard
-                key={post.id}
-                title={post.title.rendered}
-                excerpt={post.excerpt.rendered}
-                imageUrl={imageUrl}
-                date={post.date}
-                accentColor={colors.shared.gold}
-                onPress={() => navigation.navigate('PostDetail', {
-                  title: post.title.rendered,
-                  content: post.content.rendered,
-                  imageUrl,
-                  date: post.date,
-                })}
-              />
-            );
-          })
+          posts.map((post) => (
+            <BlogCard
+              key={post.id}
+              title={post.title}
+              excerpt={post.excerpt}
+              imageUrl={post.image || undefined}
+              date={post.date}
+              accentColor={colors.shared.gold}
+              onPress={() => navigation.navigate('PostDetail', {
+                title: post.title,
+                content: post.content,
+                imageUrl: post.image,
+                date: post.date,
+              })}
+            />
+          ))
         ) : (
           <Text style={styles.emptyText}>Stories loading...</Text>
         )}
       </View>
 
-      {/* ═══ QUICK LINKS ═══ */}
+      {/* QUICK LINKS */}
       <View style={styles.linksSection}>
         <QuickLink
+          label="About Cultural Heritage"
+          icon="information-circle-outline"
+          onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Cultural Heritage' })}
+        />
+        <QuickLink
           label="Our Legacy"
+          icon="time-outline"
           onPress={() => navigation.navigate('Content', { slug: 'our-legacy', title: 'Our Legacy' })}
         />
         <QuickLink
-          label="Experience"
-          onPress={() => navigation.navigate('Content', { slug: 'experience', title: 'Experience' })}
-        />
-        <QuickLink
-          label="Plan Your Visit"
-          onPress={() => navigation.navigate('Content', { slug: 'visit', title: 'Plan Your Visit' })}
+          label="Newsletter"
+          icon="mail-outline"
+          onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })}
         />
         <QuickLink
           label="Contact Us"
-          onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us' })}
+          icon="call-outline"
+          onPress={() => navigation.navigate('Content', { slug: 'contact', title: 'Contact Us', site: 'market' })}
         />
       </View>
 
-      {/* ═══ CONTACT BAR ═══ */}
+      {/* CONTACT BAR */}
       <View style={styles.contactBar}>
         <Text style={[textStyles.label, { color: colors.shared.gold, textAlign: 'center', marginBottom: 16 }]}>
           VISIT US
@@ -191,13 +192,16 @@ export default function HomeScreen() {
         <Text style={styles.contactText}>Mon–Sat 8am–8pm · Sun 10am–7pm</Text>
         <View style={styles.contactButtons}>
           <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('tel:+255786454999')}>
-            <Text style={styles.contactBtnText}>📞  Call</Text>
+            <Ionicons name="call-outline" size={16} color={colors.shared.parchment} />
+            <Text style={styles.contactBtnText}>Call</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://wa.me/255786454999')}>
-            <Text style={styles.contactBtnText}>💬  WhatsApp</Text>
+            <Ionicons name="logo-whatsapp" size={16} color={colors.shared.parchment} />
+            <Text style={styles.contactBtnText}>WhatsApp</Text>
           </TouchableOpacity>
           <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')}>
-            <Text style={styles.contactBtnText}>📍  Directions</Text>
+            <Ionicons name="navigate-outline" size={16} color={colors.shared.parchment} />
+            <Text style={styles.contactBtnText}>Directions</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -206,11 +210,14 @@ export default function HomeScreen() {
   );
 }
 
-function QuickLink({ label, onPress }: { label: string; onPress: () => void }) {
+function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPress: () => void }) {
   return (
     <TouchableOpacity style={styles.quickLink} onPress={onPress} activeOpacity={0.7}>
-      <Text style={styles.quickLinkText}>{label}</Text>
-      <Text style={styles.quickLinkArrow}>›</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+        <Ionicons name={icon as any} size={20} color={colors.shared.gold} />
+        <Text style={styles.quickLinkText}>{label}</Text>
+      </View>
+      <Ionicons name="chevron-forward" size={18} color={colors.shared.gold} />
     </TouchableOpacity>
   );
 }
@@ -242,7 +249,7 @@ const styles = StyleSheet.create({
   sectionLabel: { color: colors.hub.textMuted, textAlign: 'center', marginBottom: 4 },
   pillarCard: {
     height: 160, marginTop: 12, overflow: 'hidden',
-    justifyContent: 'flex-end',
+    justifyContent: 'flex-end', borderRadius: 4,
   },
   pillarOverlay: {
     ...StyleSheet.absoluteFillObject,
@@ -270,7 +277,6 @@ const styles = StyleSheet.create({
     borderBottomColor: colors.hub.border,
   },
   quickLinkText: { fontFamily: 'Montserrat-Medium', fontSize: 15, color: colors.hub.text },
-  quickLinkArrow: { fontSize: 22, color: colors.shared.gold },
   contactBar: {
     backgroundColor: colors.hub.primary, padding: spacing.lg, paddingVertical: spacing.xl,
   },
@@ -284,6 +290,7 @@ const styles = StyleSheet.create({
   contactBtn: {
     borderWidth: 1, borderColor: 'rgba(245,242,237,0.2)',
     paddingHorizontal: 16, paddingVertical: 10,
+    flexDirection: 'row', alignItems: 'center', gap: 6,
   },
   contactBtnText: {
     fontFamily: 'Montserrat-Medium', fontSize: 12, color: colors.shared.parchment,

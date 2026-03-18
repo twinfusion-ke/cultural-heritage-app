@@ -28,7 +28,7 @@ interface EnvState {
 export const useEnvStore = create<EnvState>((set, get) => ({
   activeEnvKey: DEFAULT_ENV,
   env: ENVIRONMENTS[DEFAULT_ENV],
-  urls: getApiUrls(ENVIRONMENTS[DEFAULT_ENV].baseDomain),
+  urls: getApiUrls(ENVIRONMENTS[DEFAULT_ENV].baseDomain, ENVIRONMENTS[DEFAULT_ENV].apiPath),
   loaded: false,
 
   loadFromStorage: async () => {
@@ -44,7 +44,7 @@ export const useEnvStore = create<EnvState>((set, get) => ({
       set({
         activeEnvKey: savedKey,
         env,
-        urls: getApiUrls(env.baseDomain),
+        urls: getApiUrls(env.baseDomain, env.apiPath),
         loaded: true,
       });
     } catch {
@@ -61,7 +61,7 @@ export const useEnvStore = create<EnvState>((set, get) => ({
     set({
       activeEnvKey: key,
       env,
-      urls: getApiUrls(env.baseDomain),
+      urls: getApiUrls(env.baseDomain, env.apiPath),
     });
   },
 
@@ -77,7 +77,7 @@ export const useEnvStore = create<EnvState>((set, get) => ({
 
     set({
       env: updated,
-      urls: getApiUrls(updated.baseDomain),
+      urls: getApiUrls(updated.baseDomain, updated.apiPath),
     });
   },
 }));

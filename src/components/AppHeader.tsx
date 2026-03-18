@@ -1,14 +1,13 @@
 /**
  * AppHeader — Branded header with logo, cart, and WhatsApp
  *
- * Uses useSafeAreaInsets() to apply paddingTop equal to insets.top,
- * so the header sits perfectly below the system status bar while
- * its background color bleeds edge-to-edge into the status bar area.
+ * Uses native Ionicons instead of emoji for proper Android feel.
  */
 
 import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Linking } from 'react-native';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useEnvStore } from '../stores/envStore';
@@ -56,7 +55,7 @@ export default function AppHeader({
             onPress={() => navigation.navigate('Search')}
             style={styles.actionBtn}
           >
-            <Text style={styles.actionIcon}>🔍</Text>
+            <Ionicons name="search-outline" size={20} color="rgba(255,255,255,0.8)" />
           </TouchableOpacity>
 
           {/* WhatsApp */}
@@ -64,7 +63,7 @@ export default function AppHeader({
             onPress={() => Linking.openURL('https://wa.me/255786454999')}
             style={styles.actionBtn}
           >
-            <Text style={styles.actionIcon}>💬</Text>
+            <Ionicons name="logo-whatsapp" size={20} color="rgba(255,255,255,0.8)" />
           </TouchableOpacity>
 
           {/* Cart */}
@@ -73,7 +72,7 @@ export default function AppHeader({
               onPress={() => navigation.navigate('Cart')}
               style={styles.actionBtn}
             >
-              <Text style={styles.actionIcon}>🛒</Text>
+              <Ionicons name="bag-outline" size={20} color="rgba(255,255,255,0.8)" />
               {cartCount > 0 && (
                 <View style={styles.cartBadge}>
                   <Text style={styles.cartBadgeText}>{cartCount}</Text>
@@ -88,9 +87,7 @@ export default function AppHeader({
 }
 
 const styles = StyleSheet.create({
-  headerOuter: {
-    // Background bleeds into status bar; paddingTop = insets.top (applied inline)
-  },
+  headerOuter: {},
   headerInner: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -105,16 +102,13 @@ const styles = StyleSheet.create({
   actions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
+    gap: 2,
   },
   actionBtn: {
-    width: 36,
-    height: 36,
+    width: 38,
+    height: 38,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  actionIcon: {
-    fontSize: 18,
   },
   offlineDot: {
     width: 8,

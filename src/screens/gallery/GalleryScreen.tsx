@@ -21,8 +21,8 @@ import { useExhibitions, useGalleryProducts, useGalleryPosts } from '../../api/g
 import { useCartStore } from '../../stores/cartStore';
 import { getExhibitionStatus } from '../../utils/dates';
 import { colors, textStyles, spacing } from '../../theme';
-import type { Exhibition } from '../../types/exhibition';
-import type { WCProduct } from '../../types/woocommerce';
+import type { AppExhibition } from '../../api/types';
+import type { AppProduct } from '../../api/types';
 
 export default function GalleryScreen() {
   const navigation = useNavigation<any>();
@@ -30,28 +30,26 @@ export default function GalleryScreen() {
   const { data: products } = useGalleryProducts({ perPage: 6 });
   const { data: posts } = useGalleryPosts(3);
   const addItem = useCartStore((s) => s.addItem);
-  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
 
   // Group exhibitions by status
-  const nowShowing: Exhibition[] = [];
-  const upcoming: Exhibition[] = [];
-  const past: Exhibition[] = [];
+  const nowShowing: AppExhibition[] = [];
+  const upcoming: AppExhibition[] = [];
+  const past: AppExhibition[] = [];
 
   exhibitions?.forEach((exh) => {
-    const start = exh.meta?._ch_exhibition_start_date || '';
-    const end = exh.meta?._ch_exhibition_end_date || '';
-    const status = getExhibitionStatus(start, end);
+    const status = getExhibitionStatus(exh.start_date || '', exh.end_date || '');
     if (status === 'Now Showing') nowShowing.push(exh);
     else if (status === 'Upcoming') upcoming.push(exh);
     else past.push(exh);
   });
 
-  function handleAddToCart(product: WCProduct) {
+  function handleAddToCart(p: AppProduct) {
     addItem({
-      productId: product.id,
-      name: product.name,
-      price: product.price,
-      imageUrl: product.images?.[0]?.src || '',
+      productId: p.id,
+      name: p.name,
+      price: p.price,
+      imageUrl: p.images?.[0]?.src || '',
       site: 'gallery',
     });
   }
@@ -74,27 +72,24 @@ export default function GalleryScreen() {
         {exhLoading ? (
           <ActivityIndicator size="large" color={colors.shared.gold} style={{ marginTop: spacing.lg }} />
         ) : nowShowing.length > 0 ? (
-          nowShowing.map((exh) => {
-            const imageUrl = exh._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-            return (
-              <ExhibitionCard
-                key={exh.id}
-                title={exh.title.rendered}
-                imageUrl={imageUrl}
-                startDate={exh.meta._ch_exhibition_start_date}
-                endDate={exh.meta._ch_exhibition_end_date}
-                excerpt={exh.excerpt?.rendered?.replace(/<[^>]+>/g, '')}
-                onPress={() => navigation.navigate('ExhibitionDetail', {
-                  title: exh.title.rendered,
-                  content: exh.content.rendered,
-                  imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
-                  startDate: exh.meta._ch_exhibition_start_date,
-                  endDate: exh.meta._ch_exhibition_end_date,
-                  excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
-                })}
-              />
-            );
-          })
+          nowShowing.map((exh) => (
+            <ExhibitionCard
+              key={exh.id}
+              title={exh.title}
+              imageUrl={exh.image || undefined}
+              startDate={exh.start_date}
+              endDate={exh.end_date}
+              excerpt={exh.excerpt?.replace(/<[^>]+>/g, '')}
+              onPress={() => navigation.navigate('ExhibitionDetail', {
+                title: exh.title,
+                content: exh.content,
+                imageUrl: exh.image,
+                startDate: exh.start_date,
+                endDate: exh.end_date,
+                excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
+              })}
+            />
+          ))
         ) : (
           <Text style={styles.emptyText}>No exhibitions currently showing</Text>
         )}
@@ -111,16 +106,17 @@ export default function GalleryScreen() {
             {upcoming.map((exh) => (
               <View key={exh.id} style={styles.upcomingCard}>
                 <ExhibitionCard
-                  title={exh.title.rendered}
-                  startDate={exh.meta._ch_exhibition_start_date}
-                  endDate={exh.meta._ch_exhibition_end_date}
+                  title={exh.title}
+                  imageUrl={exh.image || undefined}
+                  startDate={exh.start_date}
+                  endDate={exh.end_date}
                   onPress={() => navigation.navigate('ExhibitionDetail', {
-                    title: exh.title.rendered,
-                    content: exh.content.rendered,
-                    imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
-                    startDate: exh.meta._ch_exhibition_start_date,
-                    endDate: exh.meta._ch_exhibition_end_date,
-                    excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                    title: exh.title,
+                    content: exh.content,
+                    imageUrl: exh.image,
+                    startDate: exh.start_date,
+                    endDate: exh.end_date,
+                    excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
                   })}
                 />
               </View>
@@ -140,16 +136,17 @@ export default function GalleryScreen() {
             {past.map((exh) => (
               <View key={exh.id} style={styles.upcomingCard}>
                 <ExhibitionCard
-                  title={exh.title.rendered}
-                  startDate={exh.meta._ch_exhibition_start_date}
-                  endDate={exh.meta._ch_exhibition_end_date}
+                  title={exh.title}
+                  imageUrl={exh.image || undefined}
+                  startDate={exh.start_date}
+                  endDate={exh.end_date}
                   onPress={() => navigation.navigate('ExhibitionDetail', {
-                    title: exh.title.rendered,
-                    content: exh.content.rendered,
-                    imageUrl: exh._embedded?.['wp:featuredmedia']?.[0]?.source_url,
-                    startDate: exh.meta._ch_exhibition_start_date,
-                    endDate: exh.meta._ch_exhibition_end_date,
-                    excerpt: exh.excerpt?.rendered?.replace(/<[^>]+>/g, ''),
+                    title: exh.title,
+                    content: exh.content,
+                    imageUrl: exh.image,
+                    startDate: exh.start_date,
+                    endDate: exh.end_date,
+                    excerpt: exh.excerpt?.replace(/<[^>]+>/g, ''),
                   })}
                 />
               </View>
@@ -192,25 +189,22 @@ export default function GalleryScreen() {
           <Text style={[textStyles.h1, styles.sectionTitle]}>Gallery Stories</Text>
           <Divider color={colors.shared.gold} />
 
-          {posts.map((post) => {
-            const imageUrl = post._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-            return (
-              <BlogCard
-                key={post.id}
-                title={post.title.rendered}
-                excerpt={post.excerpt.rendered}
-                imageUrl={imageUrl}
-                date={post.date}
-                accentColor={colors.shared.gold}
-                onPress={() => navigation.navigate('PostDetail', {
-                  title: post.title.rendered,
-                  content: post.content.rendered,
-                  imageUrl: imageUrl,
-                  date: post.date,
-                })}
-              />
-            );
-          })}
+          {posts.map((post) => (
+            <BlogCard
+              key={post.id}
+              title={post.title}
+              excerpt={post.excerpt}
+              imageUrl={post.image || undefined}
+              date={post.date}
+              accentColor={colors.shared.gold}
+              onPress={() => navigation.navigate('PostDetail', {
+                title: post.title,
+                content: post.content,
+                imageUrl: post.image,
+                date: post.date,
+              })}
+            />
+          ))}
         </View>
       )}
 

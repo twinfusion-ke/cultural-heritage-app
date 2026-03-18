@@ -1,11 +1,10 @@
 /**
  * SearchScreen — Global search across all sites
  *
- * Searches products (Market, Vault, Gallery) and pages (Hub).
- * Results grouped by site with accent-colored headers.
+ * Uses the custom PHP API for unified search.
  */
 
-import React, { useState, useCallback } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -17,103 +16,24 @@ import {
   Keyboard,
   StatusBar,
 } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Image } from 'expo-image';
 import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import { useEnvStore } from '../../stores/envStore';
-import { useCartStore } from '../../stores/cartStore';
+import { appApi } from '../../api/appApi';
 import { colors, textStyles, spacing } from '../../theme';
-import type { WCProduct } from '../../types/woocommerce';
-import type { WPPost } from '../../types/wordpress';
-
-type SearchResult = {
-  type: 'product' | 'page' | 'post';
-  site: string;
-  siteName: string;
-  id: number;
-  title: string;
-  price?: string;
-  imageUrl?: string;
-  excerpt?: string;
-  slug?: string;
-  raw?: any;
-};
+import type { AppSearchResult } from '../../api/types';
 
 export default function SearchScreen({ navigation }: any) {
   const insets = useSafeAreaInsets();
   const [query, setQuery] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
-  const urls = useEnvStore((s) => s.urls);
-  const env = useEnvStore((s) => s.env);
-  const addItem = useCartStore((s) => s.addItem);
 
-  const auth = env.wcConsumerKey
-    ? { consumer_key: env.wcConsumerKey, consumer_secret: env.wcConsumerSecret }
-    : {};
-
-  const { data: results, isLoading } = useQuery<SearchResult[]>({
+  const { data: results, isLoading } = useQuery<AppSearchResult[]>({
     queryKey: ['search', searchTerm],
     queryFn: async () => {
       if (!searchTerm || searchTerm.length < 2) return [];
-
-      const searches = await Promise.allSettled([
-        // Hub pages
-        axios.get(`${urls.hub.rest}/pages`, { params: { search: searchTerm, per_page: 5 } }),
-        // Hub posts
-        axios.get(`${urls.hub.rest}/posts`, { params: { search: searchTerm, per_page: 5, _embed: true } }),
-        // Market products
-        axios.get(`${urls.market.wc}/products`, { params: { search: searchTerm, per_page: 5, ...auth } }).catch(() => ({ data: [] })),
-        // Jewelry products
-        axios.get(`${urls.jewelry.wc}/products`, { params: { search: searchTerm, per_page: 5, ...auth } }).catch(() => ({ data: [] })),
-        // Gallery products
-        axios.get(`${urls.gallery.wc}/products`, { params: { search: searchTerm, per_page: 5, ...auth } }).catch(() => ({ data: [] })),
-        // Gallery posts
-        axios.get(`${urls.gallery.rest}/posts`, { params: { search: searchTerm, per_page: 5, _embed: true } }),
-      ]);
-
-      const all: SearchResult[] = [];
-
-      // Hub pages
-      if (searches[0].status === 'fulfilled') {
-        for (const p of searches[0].value.data) {
-          all.push({ type: 'page', site: 'hub', siteName: 'Cultural Heritage', id: p.id, title: p.title.rendered, slug: p.slug, excerpt: p.excerpt?.rendered?.replace(/<[^>]+>/g, '').slice(0, 100) });
-        }
-      }
-      // Hub posts
-      if (searches[1].status === 'fulfilled') {
-        for (const p of searches[1].value.data) {
-          const img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-          all.push({ type: 'post', site: 'hub', siteName: 'Heritage Stories', id: p.id, title: p.title.rendered, imageUrl: img, excerpt: p.excerpt?.rendered?.replace(/<[^>]+>/g, '').slice(0, 100), raw: p });
-        }
-      }
-      // Market products
-      if (searches[2].status === 'fulfilled') {
-        for (const p of (searches[2].value as any).data || []) {
-          all.push({ type: 'product', site: 'market', siteName: 'The Market', id: p.id, title: p.name, price: p.price, imageUrl: p.images?.[0]?.src, raw: p });
-        }
-      }
-      // Jewelry products
-      if (searches[3].status === 'fulfilled') {
-        for (const p of (searches[3].value as any).data || []) {
-          all.push({ type: 'product', site: 'jewelry', siteName: 'The Vault', id: p.id, title: p.name, price: p.price, imageUrl: p.images?.[0]?.src, raw: p });
-        }
-      }
-      // Gallery products
-      if (searches[4].status === 'fulfilled') {
-        for (const p of (searches[4].value as any).data || []) {
-          all.push({ type: 'product', site: 'gallery', siteName: 'Art Gallery', id: p.id, title: p.name, price: p.price, imageUrl: p.images?.[0]?.src, raw: p });
-        }
-      }
-      // Gallery posts
-      if (searches[5].status === 'fulfilled') {
-        for (const p of searches[5].value.data) {
-          const img = p._embedded?.['wp:featuredmedia']?.[0]?.source_url;
-          all.push({ type: 'post', site: 'gallery', siteName: 'Gallery Journal', id: p.id, title: p.title.rendered, imageUrl: img, excerpt: p.excerpt?.rendered?.replace(/<[^>]+>/g, '').slice(0, 100), raw: p });
-        }
-      }
-
-      return all;
+      return appApi<AppSearchResult[]>('search', { q: searchTerm });
     },
     enabled: searchTerm.length >= 2,
     staleTime: 1000 * 60 * 2,
@@ -124,19 +44,17 @@ export default function SearchScreen({ navigation }: any) {
     setSearchTerm(query.trim());
   }
 
-  function handleResultPress(item: SearchResult) {
+  function handleResultPress(item: AppSearchResult) {
     if (item.type === 'page') {
-      navigation.navigate('Content', { slug: item.slug, title: item.title });
+      navigation.navigate('Content', { slug: item.slug, title: item.title, site: item.site });
     } else if (item.type === 'post') {
       navigation.navigate('PostDetail', {
         title: item.title,
-        content: item.raw?.content?.rendered || '',
-        imageUrl: item.imageUrl,
-        date: item.raw?.date,
+        content: '',
+        imageUrl: item.image,
+        date: '',
       });
-    }
-    // Products: navigate to the relevant tab
-    else if (item.type === 'product') {
+    } else if (item.type === 'product') {
       const tabMap: Record<string, string> = { market: 'Market', jewelry: 'Vault', gallery: 'Gallery' };
       navigation.navigate(tabMap[item.site] || 'Market');
     }
@@ -153,33 +71,34 @@ export default function SearchScreen({ navigation }: any) {
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="light-content" backgroundColor="transparent" translucent />
 
-      {/* Search Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backText}>← Back</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Ionicons name="arrow-back" size={20} color={colors.shared.parchment} />
+          <Text style={styles.backText}>Back</Text>
         </TouchableOpacity>
         <Text style={[textStyles.h3, { color: colors.shared.parchment }]}>Search</Text>
         <View style={{ width: 50 }} />
       </View>
 
-      {/* Search Input */}
       <View style={styles.searchBar}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Search products, pages, articles..."
-          placeholderTextColor={colors.hub.textMuted}
-          value={query}
-          onChangeText={setQuery}
-          onSubmitEditing={handleSearch}
-          returnKeyType="search"
-          autoFocus
-        />
+        <View style={styles.searchInputWrap}>
+          <Ionicons name="search" size={18} color={colors.hub.textMuted} />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search products, pages, articles..."
+            placeholderTextColor={colors.hub.textMuted}
+            value={query}
+            onChangeText={setQuery}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+            autoFocus
+          />
+        </View>
         <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
           <Text style={styles.searchBtnText}>Search</Text>
         </TouchableOpacity>
       </View>
 
-      {/* Results */}
       {isLoading ? (
         <View style={styles.centerContainer}>
           <ActivityIndicator size="large" color={colors.shared.gold} />
@@ -187,8 +106,8 @@ export default function SearchScreen({ navigation }: any) {
         </View>
       ) : searchTerm && results && results.length === 0 ? (
         <View style={styles.centerContainer}>
-          <Text style={styles.emptyIcon}>🔍</Text>
-          <Text style={[textStyles.h2, { color: colors.hub.text, textAlign: 'center' }]}>
+          <Ionicons name="search-outline" size={48} color={colors.hub.textMuted} />
+          <Text style={[textStyles.h2, { color: colors.hub.text, textAlign: 'center', marginTop: 16 }]}>
             No results found
           </Text>
           <Text style={styles.emptyDesc}>
@@ -202,9 +121,9 @@ export default function SearchScreen({ navigation }: any) {
           contentContainerStyle={styles.resultsList}
           renderItem={({ item }) => (
             <TouchableOpacity style={styles.resultItem} onPress={() => handleResultPress(item)} activeOpacity={0.7}>
-              {item.imageUrl && (
+              {item.image && (
                 <Image
-                  source={{ uri: item.imageUrl }}
+                  source={{ uri: item.image }}
                   style={styles.resultImage}
                   contentFit="cover"
                   cachePolicy="disk"
@@ -212,7 +131,7 @@ export default function SearchScreen({ navigation }: any) {
               )}
               <View style={styles.resultInfo}>
                 <Text style={[styles.resultSite, { color: siteAccents[item.site] || colors.shared.gold }]}>
-                  {item.siteName.toUpperCase()} · {item.type.toUpperCase()}
+                  {item.site_name.toUpperCase()} · {item.type.toUpperCase()}
                 </Text>
                 <Text style={styles.resultTitle} numberOfLines={2}>
                   {item.title?.replace(/<[^>]+>/g, '')}
@@ -244,12 +163,16 @@ const styles = StyleSheet.create({
   searchBar: {
     flexDirection: 'row', paddingHorizontal: spacing.md, paddingBottom: spacing.md, gap: 8,
   },
+  searchInputWrap: {
+    flex: 1, backgroundColor: colors.shared.white, flexDirection: 'row', alignItems: 'center',
+    paddingHorizontal: 12, borderRadius: 8,
+  },
   searchInput: {
-    flex: 1, backgroundColor: colors.shared.white, fontFamily: 'Montserrat-Regular',
-    fontSize: 14, color: colors.hub.text, paddingHorizontal: 14, paddingVertical: 12,
+    flex: 1, fontFamily: 'Montserrat-Regular',
+    fontSize: 14, color: colors.hub.text, paddingVertical: 12, marginLeft: 8,
   },
   searchBtn: {
-    backgroundColor: colors.shared.gold, paddingHorizontal: 20, justifyContent: 'center',
+    backgroundColor: colors.shared.gold, paddingHorizontal: 20, justifyContent: 'center', borderRadius: 8,
   },
   searchBtnText: {
     fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: colors.hub.primary,
@@ -261,7 +184,6 @@ const styles = StyleSheet.create({
   loadingText: {
     fontFamily: 'Montserrat-Regular', fontSize: 13, color: colors.hub.textMuted, marginTop: spacing.md,
   },
-  emptyIcon: { fontSize: 48, marginBottom: spacing.md },
   emptyDesc: {
     fontFamily: 'Montserrat-Regular', fontSize: 14, color: colors.hub.textMuted,
     textAlign: 'center', marginTop: spacing.sm, lineHeight: 22,
@@ -273,7 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', paddingHorizontal: spacing.lg, paddingVertical: spacing.md,
     borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border,
   },
-  resultImage: { width: 64, height: 64, backgroundColor: '#F5F5F5', marginRight: 12 },
+  resultImage: { width: 64, height: 64, backgroundColor: '#F5F5F5', marginRight: 12, borderRadius: 4 },
   resultInfo: { flex: 1, justifyContent: 'center' },
   resultSite: {
     fontFamily: 'Montserrat-SemiBold', fontSize: 9, letterSpacing: 1.5, marginBottom: 2,

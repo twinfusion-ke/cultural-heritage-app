@@ -17,10 +17,11 @@ import {
   Dimensions,
 } from 'react-native';
 import { Image } from 'expo-image';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../stores/cartStore';
 import { colors, textStyles, spacing } from '../theme';
-import type { WCProduct } from '../types/woocommerce';
+import type { AppProduct } from '../api/types';
 import type { SiteKey } from '../config/environment';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -40,7 +41,7 @@ const accentMap: Record<string, string> = {
 };
 
 interface ProductQuickViewProps {
-  product: WCProduct | null;
+  product: AppProduct | null;
   site: SiteKey;
   visible: boolean;
   onClose: () => void;
@@ -97,7 +98,7 @@ export default function ProductQuickView({
           <View style={styles.handleRow}>
             <View style={styles.handle} />
             <TouchableOpacity onPress={onClose} style={styles.closeBtn}>
-              <Text style={styles.closeText}>✕</Text>
+              <Ionicons name="close" size={22} color={colors.hub.textMuted} />
             </TouchableOpacity>
           </View>
 
@@ -118,7 +119,7 @@ export default function ProductQuickView({
               <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.thumbStrip}>
                 {product.images.map((img, i) => (
                   <Image
-                    key={img.id || i}
+                    key={i}
                     source={{ uri: img.src }}
                     style={[styles.thumb, i === 0 && { borderColor: accent, borderWidth: 2 }]}
                     contentFit="cover"
@@ -157,8 +158,8 @@ export default function ProductQuickView({
               {/* Attributes */}
               {attrs.length > 0 && (
                 <View style={styles.attrsSection}>
-                  {attrs.map((attr) => (
-                    <View key={attr.id || attr.name} style={styles.attrRow}>
+                  {attrs.map((attr, i) => (
+                    <View key={i} style={styles.attrRow}>
                       <Text style={styles.attrLabel}>{attr.name}</Text>
                       <Text style={styles.attrValue}>{attr.options.join(', ')}</Text>
                     </View>
@@ -173,7 +174,6 @@ export default function ProductQuickView({
                 </Text>
               ) : null}
 
-              {/* SKU */}
               {product.sku ? (
                 <Text style={styles.sku}>SKU: {product.sku}</Text>
               ) : null}
@@ -187,13 +187,15 @@ export default function ProductQuickView({
               onPress={handleAddToCart}
               disabled={product.stock_status === 'outofstock'}
             >
+              <Ionicons name="bag-add-outline" size={18} color={site === 'jewelry' ? '#fff' : colors.hub.primary} />
               <Text style={[styles.cartBtnText, { color: site === 'jewelry' ? '#fff' : colors.hub.primary }]}>
                 Add to Cart
               </Text>
             </TouchableOpacity>
 
             <TouchableOpacity style={styles.waBtn} onPress={handleWhatsApp}>
-              <Text style={styles.waBtnText}>💬 Enquire</Text>
+              <Ionicons name="logo-whatsapp" size={18} color="#25D366" />
+              <Text style={styles.waBtnText}>Enquire</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -238,10 +240,6 @@ const styles = StyleSheet.create({
     height: 32,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  closeText: {
-    fontSize: 18,
-    color: colors.hub.textMuted,
   },
   mainImage: {
     width: SCREEN_WIDTH,
@@ -343,6 +341,9 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 14,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   cartBtnText: {
     fontFamily: 'Montserrat-SemiBold',
@@ -356,6 +357,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.hub.border,
     alignItems: 'center',
+    flexDirection: 'row',
+    gap: 6,
   },
   waBtnText: {
     fontFamily: 'Montserrat-Medium',

@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx expo:*)",
+      "Bash(npx tsc:*)",
+      "Bash(echo \"ANDROID_HOME=$ANDROID_HOME\")",
+      "Bash(echo \"ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT\")",
+      "Bash(taskkill //F //IM node.exe)",
+      "Bash(npx eas:*)",
+      "Bash(taskkill //F //PID 25868 //PID 24060 //PID 15476 //PID 30724)",
+      "Bash(mysql -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
+      "Bash(mysql -u root --password=\"\" -e \"SHOW DATABASES LIKE ''cultural%'';\")",
+      "Bash(/c/xampp/mysql/bin/mysql -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
+      "Bash(/c/xampp/mysql/bin/mysql.exe -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")"
+    ]
+  }
+}

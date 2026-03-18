@@ -20,14 +20,14 @@ import ProductQuickView from '../../components/ProductQuickView';
 import { useMarketProducts, useMarketCategories } from '../../api/market';
 import { useCartStore } from '../../stores/cartStore';
 import { colors, textStyles, spacing } from '../../theme';
-import type { WCProduct } from '../../types/woocommerce';
+import type { AppProduct } from '../../api/types';
 
 export default function MarketScreen() {
   const [selectedCategory, setSelectedCategory] = useState<number | undefined>();
   const [page, setPage] = useState(1);
-  const [allProducts, setAllProducts] = useState<WCProduct[]>([]);
+  const [allProducts, setAllProducts] = useState<AppProduct[]>([]);
   const [hasMore, setHasMore] = useState(true);
-  const [selectedProduct, setSelectedProduct] = useState<WCProduct | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<AppProduct | null>(null);
 
   const { data: products, isLoading, refetch, isRefetching, isFetching } = useMarketProducts({
     category: selectedCategory,
@@ -37,7 +37,6 @@ export default function MarketScreen() {
   const { data: categories } = useMarketCategories();
   const addItem = useCartStore((s) => s.addItem);
 
-  // Merge products when new page loads
   React.useEffect(() => {
     if (products) {
       if (page === 1) {
@@ -53,7 +52,7 @@ export default function MarketScreen() {
     }
   }, [products, page]);
 
-  function handleAddToCart(product: WCProduct) {
+  function handleAddToCart(product: AppProduct) {
     addItem({
       productId: product.id,
       name: product.name,
@@ -155,7 +154,6 @@ export default function MarketScreen() {
           }
           ListEmptyComponent={
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyIcon}>🛍</Text>
               <Text style={[textStyles.h2, styles.emptyTitle]}>Products Coming Soon</Text>
               <Text style={styles.emptyDesc}>
                 Our artisans are preparing their finest handcrafts for you.
@@ -200,6 +198,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.market.border,
     backgroundColor: colors.shared.white,
+    borderRadius: 20,
   },
   categoryActive: {
     backgroundColor: colors.market.primary,
@@ -239,10 +238,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: spacing['3xl'],
     paddingHorizontal: spacing.xl,
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: spacing.md,
   },
   emptyTitle: {
     color: colors.market.text,

@@ -1,12 +1,14 @@
 /**
  * Navigation — Full app with all screens
  *
- * Custom bottom tab bar uses useSafeAreaInsets() for bottom padding,
+ * Custom bottom tab bar with native vector icons.
+ * Uses useSafeAreaInsets() for bottom padding,
  * and dynamically themes based on the active tab's division.
  */
 
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import { createBottomTabNavigator, type BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -27,14 +29,14 @@ import { divisionThemes, routeToDivision, ACTIVE_TAB_GOLD } from '../theme';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
-const TAB_CONTENT_HEIGHT = 50;
+const TAB_CONTENT_HEIGHT = 56;
 
-const TAB_ICONS: Record<string, string> = {
-  Home: '\u{1F3DB}',    // 🏛
-  Market: '\u{1F6CD}',  // 🛍
-  Vault: '\u{1F48E}',   // 💎
-  Gallery: '\u{1F5BC}', // 🖼
-  More: '\u{2261}',     // ≡
+const TAB_ICONS: Record<string, { active: string; inactive: string }> = {
+  Home: { active: 'home', inactive: 'home-outline' },
+  Market: { active: 'basket', inactive: 'basket-outline' },
+  Vault: { active: 'diamond', inactive: 'diamond-outline' },
+  Gallery: { active: 'color-palette', inactive: 'color-palette-outline' },
+  More: { active: 'menu', inactive: 'menu-outline' },
 };
 
 /** Custom Tab Bar — applies insets.bottom and dynamic theme color */
@@ -54,7 +56,8 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
     ]}>
       {state.routes.map((route, index) => {
         const focused = state.index === index;
-        const icon = TAB_ICONS[route.name] || '\u{2022}';
+        const icons = TAB_ICONS[route.name] || { active: 'ellipsis-horizontal', inactive: 'ellipsis-horizontal-outline' };
+        const iconName = focused ? icons.active : icons.inactive;
 
         return (
           <TouchableOpacity
@@ -78,13 +81,15 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
               });
             }}
           >
-            <Text style={[styles.tabIcon, { opacity: focused ? 1 : 0.5 }]}>
-              {icon}
-            </Text>
+            <Ionicons
+              name={iconName as any}
+              size={22}
+              color={focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.4)'}
+            />
             {focused && <View style={styles.activeIndicator} />}
             <Text style={[
               styles.tabLabel,
-              { color: focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.5)' },
+              { color: focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.4)' },
             ]}>
               {route.name}
             </Text>
@@ -134,9 +139,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     height: TAB_CONTENT_HEIGHT,
-  },
-  tabIcon: {
-    fontSize: 20,
   },
   activeIndicator: {
     width: 20,

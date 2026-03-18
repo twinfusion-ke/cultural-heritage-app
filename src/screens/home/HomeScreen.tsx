@@ -21,7 +21,7 @@ import {
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import VideoHero from '../../components/VideoHero';
+import WebView from 'react-native-webview';
 import { useHubPosts } from '../../api/hub';
 import { useMarketProducts } from '../../api/market';
 import { useJewelryProducts } from '../../api/jewelry';
@@ -72,14 +72,28 @@ export default function HomeScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.shared.gold} colors={[colors.shared.gold]} />
         }
       >
-      {/* ═══ VIDEO HERO ═══ */}
-      <VideoHero
-        videoId="z_kLkxaQHNg"
-        fallbackImage={`${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg`}
-        height={400}
-        overlayColor="rgba(14,56,44,0.72)"
-      >
-        <Animated.View style={[{ alignItems: 'center', paddingHorizontal: 32 }, heroAnim]}>
+      {/* ═══ HERO WITH VIDEO ═══ */}
+      <View style={styles.hero}>
+        <WebView
+          source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;overflow:hidden}body{background:#0e382c}iframe{position:fixed;top:50%;left:50%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:none}</style></head><body><iframe src="https://www.youtube.com/embed/z_kLkxaQHNg?autoplay=1&mute=1&loop=1&playlist=z_kLkxaQHNg&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3" allow="autoplay;encrypted-media" allowfullscreen></iframe></body></html>` }}
+          style={StyleSheet.absoluteFillObject}
+          allowsInlineMediaPlayback
+          mediaPlaybackRequiresUserAction={false}
+          javaScriptEnabled
+          scrollEnabled={false}
+          nestedScrollEnabled={false}
+          overScrollMode="never"
+          androidLayerType="hardware"
+          onError={() => {}}
+        />
+        <Image
+          source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
+          style={[StyleSheet.absoluteFillObject, { zIndex: -1 }]}
+          contentFit="cover"
+          cachePolicy="disk"
+        />
+        <View style={styles.heroOverlay} />
+        <Animated.View style={[styles.heroContent, heroAnim]}>
           <Text style={styles.heroEyebrow}>ARUSHA, TANZANIA — EST. 1994</Text>
           <Image
             source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/logo-white.png` }}
@@ -90,7 +104,7 @@ export default function HomeScreen() {
           <Divider color={colors.shared.gold} width={60} marginVertical={16} />
           <Text style={styles.heroTagline}>Where Art, Heritage & Discovery Converge</Text>
         </Animated.View>
-      </VideoHero>
+      </View>
 
       {/* ═══ THE MARKET ═══ */}
       <Animated.View style={marketAnim}>
@@ -258,6 +272,9 @@ function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPr
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.hub.background },
+  hero: { height: 400, justifyContent: 'flex-end', alignItems: 'center', paddingBottom: 36 },
+  heroOverlay: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(14,56,44,0.72)' },
+  heroContent: { alignItems: 'center', paddingHorizontal: 32, zIndex: 1 },
   heroEyebrow: { fontFamily: 'Montserrat-SemiBold', fontSize: 10, letterSpacing: 3, color: colors.shared.gold, textTransform: 'uppercase', marginBottom: 16 },
   heroLogo: { width: 260, height: 117 },
   heroTagline: { fontFamily: 'Montserrat-Regular', fontSize: 13, color: 'rgba(245,242,237,0.6)', textAlign: 'center', letterSpacing: 0.5 },

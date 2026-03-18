@@ -21,7 +21,7 @@ import {
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
-import WebView from 'react-native-webview';
+
 import { useHubPosts } from '../../api/hub';
 import { useMarketProducts } from '../../api/market';
 import { useJewelryProducts } from '../../api/jewelry';
@@ -72,25 +72,14 @@ export default function HomeScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.shared.gold} colors={[colors.shared.gold]} />
         }
       >
-      {/* ═══ HERO WITH VIDEO ═══ */}
+      {/* ═══ HERO ═══ */}
       <View style={styles.hero}>
-        <WebView
-          source={{ html: `<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><style>*{margin:0;padding:0;overflow:hidden}body{background:#0e382c}iframe{position:fixed;top:50%;left:50%;min-width:100%;min-height:100%;transform:translate(-50%,-50%);border:none}</style></head><body><iframe src="https://www.youtube.com/embed/z9wh0prnkpo?autoplay=1&mute=1&loop=1&playlist=z9wh0prnkpo&controls=0&showinfo=0&rel=0&modestbranding=1&playsinline=1&iv_load_policy=3" allow="autoplay;encrypted-media" allowfullscreen></iframe></body></html>` }}
-          style={StyleSheet.absoluteFillObject}
-          allowsInlineMediaPlayback
-          mediaPlaybackRequiresUserAction={false}
-          javaScriptEnabled
-          scrollEnabled={false}
-          nestedScrollEnabled={false}
-          overScrollMode="never"
-          androidLayerType="hardware"
-          onError={() => {}}
-        />
         <Image
           source={{ uri: `${baseUrl}/wp-content/themes/ch-main-hub/assets/images/hero-centre.jpg` }}
-          style={[StyleSheet.absoluteFillObject, { zIndex: -1 }]}
+          style={StyleSheet.absoluteFillObject}
           contentFit="cover"
           cachePolicy="disk"
+          transition={400}
         />
         <View style={styles.heroOverlay} />
         <Animated.View style={[styles.heroContent, heroAnim]}>

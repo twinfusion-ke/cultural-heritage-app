@@ -13,7 +13,9 @@
       "Bash(/c/xampp/mysql/bin/mysql -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
       "Bash(/c/xampp/mysql/bin/mysql.exe -u root -e \"SHOW DATABASES LIKE ''cultural%'';\")",
       "Bash(node deploy-api.js)",
-      "Bash(node -e \":*)"
+      "Bash(node -e \":*)",
+      "Bash(npx yt-dlp:*)",
+      "Bash(npx --yes yt-dlp@latest --version)"
     ]
   }
 }

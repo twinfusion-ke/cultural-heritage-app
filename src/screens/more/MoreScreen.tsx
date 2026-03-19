@@ -26,6 +26,7 @@ import { useCartStore } from '../../stores/cartStore';
 import { useAuthStore } from '../../stores/authStore';
 import { triggerSync } from '../../services/syncService';
 import { ENVIRONMENTS } from '../../config/environment';
+import { CURRENCIES } from '../../utils/currency';
 
 export default function MoreScreen() {
   const navigation = useNavigation<any>();
@@ -41,6 +42,8 @@ export default function MoreScreen() {
   const itemCount = useCartStore((s) => s.getItemCount());
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const activeCurrency = useUIStore((s) => s.currency);
+  const setCurrencyVal = useUIStore((s) => s.setCurrency);
 
   function handleVersionPress() {
     const count = versionPressCount + 1;
@@ -114,6 +117,22 @@ export default function MoreScreen() {
           <MenuItem icon="diamond-outline" label="Tanzanite Guide" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About Tanzanite', site: 'jewelry' })} />
           <MenuItem icon="color-palette-outline" label="About the Gallery" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About the Gallery', site: 'gallery' })} />
           <MenuItem icon="basket-outline" label="About the Market" onPress={() => navigation.navigate('Content', { slug: 'about', title: 'About the Market', site: 'market' })} />
+        </Section>
+
+        {/* Currency */}
+        <Section title="CURRENCY">
+          <View style={styles.currencyRow}>
+            {CURRENCIES.map((c) => (
+              <TouchableOpacity
+                key={c.code}
+                style={[styles.currencyBtn, activeCurrency === c.code && styles.currencyBtnActive]}
+                onPress={() => setCurrencyVal(c.code)}
+              >
+                <Text style={[styles.currencyCode, activeCurrency === c.code && styles.currencyCodeActive]}>{c.code}</Text>
+                <Text style={[styles.currencyLabel, activeCurrency === c.code && styles.currencyLabelActive]}>{c.symbol}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
         </Section>
 
         {/* Legal */}
@@ -207,6 +226,13 @@ const styles = StyleSheet.create({
   envButtonText: { fontFamily: 'Montserrat-Medium', fontSize: 12, color: '#888', textTransform: 'uppercase', letterSpacing: 1 },
   envButtonTextActive: { color: colors.shared.success },
   closeAdmin: { marginTop: spacing.lg, alignItems: 'center', paddingVertical: 10, borderTopWidth: 1, borderTopColor: '#333' },
+  currencyRow: { flexDirection: 'row', gap: 10 },
+  currencyBtn: { flex: 1, paddingVertical: 14, borderWidth: 1, borderColor: colors.hub.border, borderRadius: 8, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.05)' },
+  currencyBtnActive: { borderColor: colors.shared.gold, backgroundColor: 'rgba(197,160,89,0.15)' },
+  currencyCode: { fontFamily: 'Montserrat-Bold', fontSize: 16, color: 'rgba(245,242,237,0.5)' },
+  currencyCodeActive: { color: colors.shared.gold },
+  currencyLabel: { fontFamily: 'Montserrat-Regular', fontSize: 11, color: 'rgba(245,242,237,0.3)', marginTop: 2 },
+  currencyLabelActive: { color: 'rgba(245,242,237,0.7)' },
   profileCard: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.hub.border },
   profileAvatar: { width: 44, height: 44, borderRadius: 22, backgroundColor: colors.shared.gold, alignItems: 'center', justifyContent: 'center' },
   profileInitial: { fontFamily: 'Montserrat-Bold', fontSize: 18, color: colors.hub.primary },

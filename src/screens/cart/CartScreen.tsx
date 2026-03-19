@@ -23,7 +23,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore, type CartItem } from '../../stores/cartStore';
 import { useUIStore } from '../../stores/uiStore';
 import { addToOutbox } from '../../db/outbox';
+import { Ionicons } from '@expo/vector-icons';
+import AppHeader from '../../components/AppHeader';
 import { Button, Divider } from '../../components';
+import { formatPrice } from '../../utils/currency';
 import { colors, textStyles, spacing } from '../../theme';
 import type { SiteKey } from '../../config/environment';
 

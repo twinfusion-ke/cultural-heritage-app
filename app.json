@@ -2,7 +2,7 @@
   "expo": {
     "name": "Cultural Heritage",
     "slug": "cultural-heritage",
-    "version": "1.1.0",
+    "version": "2.0.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -16,12 +16,14 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.twinfusion.culturalheritage",
       "infoPlist": {
-        "NSLocationWhenInUseUsageDescription": "We use your location to provide directions to the Cultural Heritage Centre."
+        "NSCameraUsageDescription": "Scan QR codes on artworks to view details and reserve items.",
+        "NSLocationWhenInUseUsageDescription": "Tag your location when scanning artworks at the Cultural Heritage Centre.",
+        "NSMicrophoneUsageDescription": "Record audio feedback about artworks."
       }
     },
     "android": {
       "package": "com.twinfusion.culturalheritage",
-      "versionCode": 3,
+      "versionCode": 4,
       "adaptiveIcon": {
         "backgroundColor": "#0e382c",
         "foregroundImage": "./assets/android-icon-foreground.png",
@@ -31,7 +33,10 @@
       "permissions": [
         "INTERNET",
         "ACCESS_NETWORK_STATE",
-        "ACCESS_FINE_LOCATION"
+        "ACCESS_FINE_LOCATION",
+        "CAMERA",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED"
       ]
     },
     "web": {
@@ -39,7 +44,20 @@
     },
     "plugins": [
       "expo-font",
-      "expo-navigation-bar"
+      "expo-navigation-bar",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Scan QR codes on artworks to view details and reserve items."
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Tag your location when scanning artworks."
+        }
+      ],
+      "expo-av"
     ],
     "updates": {
       "url": "https://u.expo.dev/5fb06408-5628-413c-9cf0-d869d8b69511"

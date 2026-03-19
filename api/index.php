@@ -1030,6 +1030,134 @@ switch ($action) {
         echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
         break;
 
+    // ── Reserve: Lock inventory for 2 hours ────────────────────────────
+    case 'reserve':
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ch_app_reservations (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT NOT NULL,
+            product_id INT NOT NULL,
+            site VARCHAR(20) NOT NULL,
+            reserve_code VARCHAR(32) NOT NULL,
+            status ENUM('active','expired','completed','cancelled') DEFAULT 'active',
+            expires_at DATETIME NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX(user_id), INDEX(reserve_code), INDEX(status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        $prod_id = (int)($_GET['product_id'] ?? $_POST['product_id'] ?? 0);
+        $res_site = $_GET['site'] ?? $_POST['site'] ?? 'gallery';
+
+        if (!$token || !$prod_id) { echo json_encode(['error' => 'Token and product_id required']); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if (!$uid) { echo json_encode(['error' => 'Please login to reserve']); break; }
+
+        // Check if already reserved
+        $stmt = $pdo->prepare("SELECT id FROM ch_app_reservations WHERE product_id = ? AND site = ? AND status = 'active' AND expires_at > NOW()");
+        $stmt->execute([$prod_id, $res_site]);
+        if ($stmt->fetch()) { echo json_encode(['error' => 'This item is already reserved by another visitor']); break; }
+
+        // Lock WooCommerce stock
+        $rp = get_table_prefix($res_site);
+        $pdo->prepare("UPDATE {$rp}postmeta SET meta_value = '0' WHERE post_id = ? AND meta_key = '_stock'")->execute([$prod_id]);
+        $pdo->prepare("UPDATE {$rp}postmeta SET meta_value = 'outofstock' WHERE post_id = ? AND meta_key = '_stock_status'")->execute([$prod_id]);
+        // Set stock managed
+        $pdo->prepare("INSERT INTO {$rp}postmeta (post_id, meta_key, meta_value) VALUES (?, '_manage_stock', 'yes') ON DUPLICATE KEY UPDATE meta_value = 'yes'")->execute([$prod_id]);
+
+        $code = strtoupper(substr(md5(uniqid()), 0, 8));
+        $expires = date('Y-m-d H:i:s', strtotime('+2 hours'));
+
+        $stmt = $pdo->prepare("INSERT INTO ch_app_reservations (user_id, product_id, site, reserve_code, expires_at) VALUES (?, ?, ?, ?, ?)");
+        $stmt->execute([$uid, $prod_id, $res_site, $code, $expires]);
+
+        echo json_encode(['success' => true, 'code' => $code, 'expires_at' => $expires, 'message' => 'Item reserved for 2 hours']);
+        break;
+
+    // ── Reservations: Get user's active reservations ─────────────────────
+    case 'reservations':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode([]); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if (!$uid) { echo json_encode([]); break; }
+
+        // Expire old reservations and restore stock
+        $expired = $pdo->prepare("SELECT * FROM ch_app_reservations WHERE status = 'active' AND expires_at < NOW()");
+        $expired->execute();
+        foreach ($expired->fetchAll() as $exp) {
+            $ep = get_table_prefix($exp['site']);
+            $pdo->prepare("UPDATE {$ep}postmeta SET meta_value = '1' WHERE post_id = ? AND meta_key = '_stock'")->execute([$exp['product_id']]);
+            $pdo->prepare("UPDATE {$ep}postmeta SET meta_value = 'instock' WHERE post_id = ? AND meta_key = '_stock_status'")->execute([$exp['product_id']]);
+            $pdo->prepare("UPDATE ch_app_reservations SET status = 'expired' WHERE id = ?")->execute([$exp['id']]);
+        }
+
+        $stmt = $pdo->prepare("SELECT r.*, p.post_title as product_name FROM ch_app_reservations r LEFT JOIN wp_posts p ON p.ID = r.product_id WHERE r.user_id = ? AND r.status = 'active' ORDER BY r.created_at DESC");
+        $stmt->execute([$uid]);
+        $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // Get product images
+        foreach ($reservations as &$r) {
+            $rp = get_table_prefix($r['site']);
+            $r['image'] = get_featured_image($pdo, $rp, (int)$r['product_id']);
+            // Get product name from correct site table
+            $stmt2 = $pdo->prepare("SELECT post_title FROM {$rp}posts WHERE ID = ?");
+            $stmt2->execute([$r['product_id']]);
+            $r['product_name'] = $stmt2->fetchColumn() ?: $r['product_name'];
+        }
+
+        echo json_encode($reservations);
+        break;
+
+    // ── Master QR: Generate checkout code ────────────────────────────────
+    case 'master_qr':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode(['error' => 'Auth required']); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if (!$uid) { echo json_encode(['error' => 'Session expired']); break; }
+
+        $stmt = $pdo->prepare("SELECT r.reserve_code, r.product_id, r.site FROM ch_app_reservations r WHERE r.user_id = ? AND r.status = 'active' AND r.expires_at > NOW()");
+        $stmt->execute([$uid]);
+        $items = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        if (empty($items)) { echo json_encode(['error' => 'No active reservations']); break; }
+
+        $master_code = 'CH-' . strtoupper(substr(md5($uid . time()), 0, 10));
+        $qr_data = json_encode(['master' => $master_code, 'user_id' => (int)$uid, 'items' => $items, 'generated' => date('Y-m-d H:i:s')]);
+
+        echo json_encode(['master_code' => $master_code, 'qr_data' => $qr_data, 'item_count' => count($items)]);
+        break;
+
+    // ── Staff: Lookup reservation by code ────────────────────────────────
+    case 'staff_lookup':
+        $code = $_GET['code'] ?? $_POST['code'] ?? '';
+        if (!$code) { echo json_encode(['error' => 'Code required']); break; }
+
+        // Try master code format
+        if (str_starts_with($code, 'CH-') || str_starts_with($code, '{')) {
+            $data = json_decode($code, true) ?: json_decode(urldecode($code), true);
+            if ($data && isset($data['user_id'])) {
+                $stmt = $pdo->prepare("SELECT r.*, u.name, u.email, u.phone FROM ch_app_reservations r JOIN ch_app_users u ON r.user_id = u.id WHERE r.user_id = ? AND r.status = 'active'");
+                $stmt->execute([$data['user_id']]);
+                echo json_encode(['reservations' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'customer' => ['name' => $data['user_id']]]);
+                break;
+            }
+        }
+
+        // Try single reserve code
+        $stmt = $pdo->prepare("SELECT r.*, u.name, u.email, u.phone FROM ch_app_reservations r JOIN ch_app_users u ON r.user_id = u.id WHERE r.reserve_code = ?");
+        $stmt->execute([$code]);
+        $res = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode(['reservations' => $res]);
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

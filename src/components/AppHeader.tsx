@@ -50,6 +50,14 @@ export default function AppHeader({
             <View style={styles.offlineDot} />
           )}
 
+          {/* Scanner */}
+          <TouchableOpacity
+            onPress={() => navigation.navigate('Scanner')}
+            style={styles.actionBtn}
+          >
+            <Ionicons name="qr-code-outline" size={20} color="rgba(255,255,255,0.8)" />
+          </TouchableOpacity>
+
           {/* Search */}
           <TouchableOpacity
             onPress={() => navigation.navigate('Search')}

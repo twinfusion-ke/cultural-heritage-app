@@ -34,6 +34,7 @@ import VisitScreen from '../screens/visit/VisitScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
 import ChatScreen from '../screens/chat/ChatScreen';
 import CompareScreen from '../screens/compare/CompareScreen';
+import ScannerScreen from '../screens/scanner/ScannerScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { useCartStore } from '../stores/cartStore';
@@ -72,6 +73,7 @@ function addSharedScreens(S: any) {
       <S.Screen name="Auth" component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
       <S.Screen name="Chat" component={ChatScreen} options={{ animation: 'slide_from_right' }} />
       <S.Screen name="Compare" component={CompareScreen} options={{ animation: 'slide_from_bottom' }} />
+      <S.Screen name="Scanner" component={ScannerScreen} options={{ animation: 'slide_from_bottom' }} />
     </>
   );
 }

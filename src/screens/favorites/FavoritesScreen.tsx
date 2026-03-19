@@ -16,6 +16,8 @@ import { useNavigation } from '@react-navigation/native';
 import AppHeader from '../../components/AppHeader';
 import { useFavoritesStore, type FavoriteItem } from '../../stores/favoritesStore';
 import { useCartStore } from '../../stores/cartStore';
+import { formatPrice, useCurrencyCode } from '../../utils/currency';
+import { appApi } from '../../api/appApi';
 import { colors, textStyles, spacing } from '../../theme';
 
 const accentMap: Record<string, string> = {
@@ -35,6 +37,22 @@ export default function FavoritesScreen() {
   const items = useFavoritesStore((s) => s.items);
   const toggle = useFavoritesStore((s) => s.toggle);
   const addItem = useCartStore((s) => s.addItem);
+  useCurrencyCode();
+
+  async function handleProductPress(item: FavoriteItem) {
+    try {
+      const product = await appApi('product', { site: item.site, id: item.productId });
+      if (product) {
+        navigation.navigate('ProductDetail', { product, site: item.site });
+      }
+    } catch {
+      // Fallback: navigate with minimal data
+      navigation.navigate('ProductDetail', {
+        product: { id: item.productId, name: item.name, price: item.price, images: item.imageUrl ? [{ src: item.imageUrl, alt: '' }] : [], attributes: [], description: '', short_description: '', slug: '', regular_price: item.price, sale_price: '', on_sale: false, stock_status: 'instock', sku: '', categories: [], date: '' },
+        site: item.site,
+      });
+    }
+  }
 
   function handleAddToCart(item: FavoriteItem) {
     addItem({
@@ -80,7 +98,7 @@ export default function FavoritesScreen() {
           const accent = accentMap[item.site] || colors.shared.gold;
           return (
             <View style={styles.card}>
-              <TouchableOpacity activeOpacity={0.9} style={styles.cardInner}>
+              <TouchableOpacity activeOpacity={0.9} style={styles.cardInner} onPress={() => handleProductPress(item)}>
                 {item.imageUrl ? (
                   <Image source={{ uri: item.imageUrl }} style={styles.cardImage} contentFit="cover" cachePolicy="disk" />
                 ) : (
@@ -93,7 +111,7 @@ export default function FavoritesScreen() {
                     {(siteNames[item.site] || '').toUpperCase()}
                   </Text>
                   <Text style={styles.cardName} numberOfLines={2}>{item.name}</Text>
-                  <Text style={[styles.cardPrice, { color: accent }]}>${item.price}</Text>
+                  <Text style={[styles.cardPrice, { color: accent }]}>{formatPrice(item.price)}</Text>
                 </View>
               </TouchableOpacity>
 

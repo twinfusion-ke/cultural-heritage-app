@@ -109,6 +109,7 @@ export default function MoreScreen() {
           <MenuItem icon="map-outline" label="Plan Your Visit" onPress={() => navigation.navigate('Visit')} />
           <MenuItem icon="call-outline" label="Contact Us" onPress={() => navigation.navigate('Contact')} />
           <MenuItem icon="mail-outline" label="Newsletter" onPress={() => navigation.navigate('Content', { slug: 'newsletter', title: 'Newsletter' })} />
+          <MenuItem icon="chatbubbles-outline" label="Messages" onPress={() => navigation.navigate('Chat')} />
           <MenuItem icon="logo-whatsapp" label="WhatsApp Us" onPress={() => Linking.openURL('https://wa.me/255786454999')} />
         </Section>
 

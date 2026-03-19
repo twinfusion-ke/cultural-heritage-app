@@ -32,6 +32,7 @@ import LegacyScreen from '../screens/legacy/LegacyScreen';
 import ProductDetailScreen from '../screens/product/ProductDetailScreen';
 import VisitScreen from '../screens/visit/VisitScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
+import ChatScreen from '../screens/chat/ChatScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
 import { useCartStore } from '../stores/cartStore';
@@ -68,6 +69,7 @@ function addSharedScreens(S: any) {
       <S.Screen name="Legacy" component={LegacyScreen} options={{ animation: 'slide_from_right' }} />
       <S.Screen name="Visit" component={VisitScreen} options={{ animation: 'slide_from_right' }} />
       <S.Screen name="Auth" component={AuthScreen} options={{ animation: 'slide_from_bottom' }} />
+      <S.Screen name="Chat" component={ChatScreen} options={{ animation: 'slide_from_right' }} />
     </>
   );
 }

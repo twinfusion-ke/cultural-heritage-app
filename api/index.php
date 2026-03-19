@@ -890,6 +890,91 @@ switch ($action) {
         echo json_encode(['site' => $fav_site, 'products' => $products]);
         break;
 
+    // ── Chat: Create tables + send message ─────────────────────────────
+    case 'chat_send':
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ch_app_messages (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            user_id INT,
+            user_name VARCHAR(100),
+            user_email VARCHAR(150),
+            message TEXT NOT NULL,
+            reply TEXT,
+            replied_by VARCHAR(100),
+            replied_at DATETIME,
+            is_read TINYINT(1) DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            INDEX(user_id), INDEX(is_read)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        $message = $_GET['message'] ?? $_POST['message'] ?? '';
+        if (!$message) { echo json_encode(['error' => 'Message is required']); break; }
+
+        $user_id = null; $user_name = 'Guest'; $user_email = '';
+        if ($token) {
+            $stmt = $pdo->prepare("SELECT s.user_id, u.name, u.email FROM ch_app_sessions s JOIN ch_app_users u ON s.user_id = u.id WHERE s.token = ? AND s.expires_at > NOW()");
+            $stmt->execute([$token]);
+            $u = $stmt->fetch();
+            if ($u) { $user_id = $u['user_id']; $user_name = $u['name']; $user_email = $u['email']; }
+        }
+        if (!$user_id) {
+            $user_name = $_GET['name'] ?? $_POST['name'] ?? 'Guest';
+            $user_email = $_GET['email'] ?? $_POST['email'] ?? '';
+        }
+
+        $stmt = $pdo->prepare("INSERT INTO ch_app_messages (user_id, user_name, user_email, message) VALUES (?, ?, ?, ?)");
+        $stmt->execute([$user_id, $user_name, $user_email, $message]);
+
+        // Email notification to admin
+        @mail('twinfusion2023@gmail.com', "App Chat: {$user_name}", "From: {$user_name} ({$user_email})\n\n{$message}\n\n---\nReply from WordPress Admin > App Messages", "From: Cultural Heritage App <noreply@twinfusion.co.ke>\r\nReply-To: {$user_email}");
+
+        echo json_encode(['success' => true, 'id' => (int)$pdo->lastInsertId()]);
+        break;
+
+    // ── Chat: Get messages for user ──────────────────────────────────────
+    case 'chat_messages':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode([]); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if (!$uid) { echo json_encode([]); break; }
+
+        $stmt = $pdo->prepare("SELECT id, message, reply, replied_by, replied_at, is_read, created_at FROM ch_app_messages WHERE user_id = ? ORDER BY created_at DESC LIMIT 50");
+        $stmt->execute([$uid]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        break;
+
+    // ── Chat: Mark as read ───────────────────────────────────────────────
+    case 'chat_read':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode(['success' => false]); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if ($uid) {
+            $pdo->prepare("UPDATE ch_app_messages SET is_read = 1 WHERE user_id = ? AND reply IS NOT NULL AND is_read = 0")->execute([$uid]);
+        }
+        echo json_encode(['success' => true]);
+        break;
+
+    // ── Chat: Unread count ───────────────────────────────────────────────
+    case 'chat_unread':
+        $token = $_GET['token'] ?? $_POST['token'] ?? '';
+        if (!$token) { echo json_encode(['count' => 0]); break; }
+
+        $stmt = $pdo->prepare("SELECT user_id FROM ch_app_sessions WHERE token = ? AND expires_at > NOW()");
+        $stmt->execute([$token]);
+        $uid = $stmt->fetchColumn();
+        if (!$uid) { echo json_encode(['count' => 0]); break; }
+
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM ch_app_messages WHERE user_id = ? AND reply IS NOT NULL AND is_read = 0");
+        $stmt->execute([$uid]);
+        echo json_encode(['count' => (int)$stmt->fetchColumn()]);
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

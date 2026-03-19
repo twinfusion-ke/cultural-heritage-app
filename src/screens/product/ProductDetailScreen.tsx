@@ -21,6 +21,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../stores/cartStore';
+import Toast from '../../components/Toast';
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { colors, textStyles, spacing } from '../../theme';
 import { formatPrice, useCurrencyCode } from '../../utils/currency';
@@ -46,6 +47,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
   const { product, site } = route.params as { product: AppProduct; site: string };
   const [quantity, setQuantity] = useState(1);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
+  const [showToast, setShowToast] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
   const cartCount = useCartStore((s) => s.getItemCount());
@@ -67,7 +69,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
         site: site as any,
       });
     }
-    navigation.goBack();
+    setShowToast(true);
   }
 
   function handleToggleFavorite() {
@@ -95,6 +97,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <Toast message={`${quantity}x ${product.name} added to cart!`} visible={showToast} onHide={() => setShowToast(false)} />
 
       {/* Top Bar */}
       <View style={styles.topBar}>

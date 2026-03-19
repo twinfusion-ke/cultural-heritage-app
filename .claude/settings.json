@@ -17,7 +17,8 @@
       "Bash(npx yt-dlp:*)",
       "Bash(npx --yes yt-dlp@latest --version)",
       "Bash(git commit:*)",
-      "Read(//c/xampp/htdocs/cultural-heritage-app/**)"
+      "Read(//c/xampp/htdocs/cultural-heritage-app/**)",
+      "WebFetch(domain:expo.dev)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"

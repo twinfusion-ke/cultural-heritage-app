@@ -34,7 +34,7 @@ import { BlogCard, Divider } from '../../components';
 import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
-import { formatPrice } from '../../utils/currency';
+import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
 
@@ -81,6 +81,7 @@ export default function HomeScreen() {
   const urls = useEnvStore((s) => s.urls);
   const baseUrl = urls.hub.base;
   const addItem = useCartStore((s) => s.addItem);
+  useCurrencyCode();
 
   // Fetch slider data from API
   const { data: slidesData } = useQuery<any[]>({

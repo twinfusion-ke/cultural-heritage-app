@@ -23,7 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../stores/cartStore';
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { colors, textStyles, spacing } from '../../theme';
-import { formatPrice } from '../../utils/currency';
+import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import type { AppProduct } from '../../api/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -49,6 +49,7 @@ export default function ProductDetailScreen({ route, navigation }: any) {
 
   const addItem = useCartStore((s) => s.addItem);
   const cartCount = useCartStore((s) => s.getItemCount());
+  useCurrencyCode();
   const toggle = useFavoritesStore((s) => s.toggle);
   const isFav = useFavoritesStore((s) => s.isFavorite(product.id, site));
 

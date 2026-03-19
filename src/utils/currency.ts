@@ -1,8 +1,8 @@
 /**
- * Currency formatting utility
+ * Currency formatting
  *
- * NOT a hook — a plain function that reads from the store.
- * Safe to call anywhere without hook rules.
+ * formatPrice is a plain function.
+ * Components must also call useCurrencyCode() to re-render on change.
  */
 
 import { useUIStore } from '../stores/uiStore';
@@ -13,7 +13,12 @@ const RATES: Record<string, { symbol: string; rate: number }> = {
   TZS: { symbol: 'TSh', rate: 2650 },
 };
 
-/** Format a USD price string into the active currency */
+/** Call this in any component that shows prices — triggers re-render on currency change */
+export function useCurrencyCode(): string {
+  return useUIStore((s) => s.currency);
+}
+
+/** Format a USD price into the active currency */
 export function formatPrice(usdValue: string | number): string {
   const code = useUIStore.getState().currency || 'USD';
   const cur = RATES[code] || RATES.USD;
@@ -24,7 +29,6 @@ export function formatPrice(usdValue: string | number): string {
   return `${cur.symbol} ${Math.round(val).toLocaleString('en')}`;
 }
 
-/** Get list of available currencies */
 export const CURRENCIES = [
   { code: 'USD', symbol: '$', label: 'US Dollar' },
   { code: 'KES', symbol: 'KSh', label: 'Kenya Shilling' },

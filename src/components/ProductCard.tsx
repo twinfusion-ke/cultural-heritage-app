@@ -10,7 +10,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Dimensions, Animated } from '
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, textStyles, shadows } from '../theme';
-import { formatPrice } from '../utils/currency';
+import { formatPrice, useCurrencyCode } from '../utils/currency';
 import type { SiteKey } from '../config/environment';
 
 const CARD_WIDTH = (Dimensions.get('window').width - 24 * 2 - 10) / 2;
@@ -36,6 +36,7 @@ export default function ProductCard({
   name, price, imageUrl, site, onPress, onAddToCart, saleBadge, subtitle,
 }: ProductCardProps) {
   const accent = accentMap[site] || colors.shared.gold;
+  useCurrencyCode(); // subscribe to currency changes
   const opacity = useRef(new Animated.Value(0)).current;
   const translateY = useRef(new Animated.Value(30)).current;
   const scale = useRef(new Animated.Value(0.95)).current;

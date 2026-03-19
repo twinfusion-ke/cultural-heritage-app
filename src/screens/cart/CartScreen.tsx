@@ -26,7 +26,7 @@ import { addToOutbox } from '../../db/outbox';
 import { Ionicons } from '@expo/vector-icons';
 import AppHeader from '../../components/AppHeader';
 import { Button, Divider } from '../../components';
-import { formatPrice } from '../../utils/currency';
+import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import { colors, textStyles, spacing } from '../../theme';
 import type { SiteKey } from '../../config/environment';
 
@@ -52,6 +52,7 @@ export default function CartScreen({ navigation }: any) {
   const getTotal = useCartStore((s) => s.getTotal);
   const clearCart = useCartStore((s) => s.clearCart);
   const isOnline = useUIStore((s) => s.isOnline);
+  useCurrencyCode();
 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -143,11 +144,11 @@ export default function CartScreen({ navigation }: any) {
 
   if (items.length === 0) {
     return (
-      <View style={[styles.emptyContainer, { paddingTop: insets.top }]}>
-        <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+      <View style={styles.emptyContainer}>
+        <AppHeader backgroundColor={colors.hub.primary} />
         <View style={styles.emptyContent}>
-          <Text style={styles.emptyIcon}>🛒</Text>
-          <Text style={[textStyles.h1, { color: colors.hub.text, textAlign: 'center' }]}>
+          <Ionicons name="bag-outline" size={56} color={colors.hub.border} />
+          <Text style={[textStyles.h1, { color: colors.hub.text, textAlign: 'center', marginTop: 16 }]}>
             Your Cart is Empty
           </Text>
           <Text style={styles.emptyDesc}>
@@ -167,15 +168,16 @@ export default function CartScreen({ navigation }: any) {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
+    <View style={styles.container}>
+      <AppHeader backgroundColor={colors.hub.primary} />
 
       {/* Header */}
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <Text style={styles.backButton}>← Back</Text>
+        <TouchableOpacity onPress={() => navigation.goBack()} style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Ionicons name="arrow-back" size={20} color={colors.hub.text} />
+          <Text style={styles.backButton}>Back</Text>
         </TouchableOpacity>
-        <Text style={[textStyles.h2, { color: colors.hub.text }]}>Cart</Text>
+        <Text style={[textStyles.h2, { color: colors.hub.text }]}>Cart ({items.length})</Text>
         <TouchableOpacity onPress={() => Alert.alert('Clear Cart?', 'Remove all items?', [
           { text: 'Cancel' },
           { text: 'Clear', style: 'destructive', onPress: clearCart },

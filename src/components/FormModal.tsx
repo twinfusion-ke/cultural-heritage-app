@@ -21,6 +21,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import DatePicker from './DatePicker';
 import { appApi } from '../api/appApi';
 import { colors, textStyles, spacing } from '../theme';
 
@@ -190,17 +191,25 @@ export default function FormModal({
                   <Text style={styles.fieldLabel}>
                     {field.label} {field.required && <Text style={{ color: colors.shared.error }}>*</Text>}
                   </Text>
-                  <TextInput
-                    style={[styles.input, field.multiline && styles.inputMultiline]}
-                    placeholder={field.placeholder}
-                    placeholderTextColor={colors.hub.textMuted}
-                    value={values[field.key] || ''}
-                    onChangeText={(v) => updateField(field.key, v)}
-                    keyboardType={field.keyboardType || 'default'}
-                    multiline={field.multiline}
-                    numberOfLines={field.multiline ? 4 : 1}
-                    autoCapitalize={field.keyboardType === 'email-address' ? 'none' : 'sentences'}
-                  />
+                  {field.key === 'date' ? (
+                    <DatePicker
+                      value={values[field.key] || ''}
+                      onChange={(v) => updateField(field.key, v)}
+                      placeholder={field.placeholder}
+                    />
+                  ) : (
+                    <TextInput
+                      style={[styles.input, field.multiline && styles.inputMultiline]}
+                      placeholder={field.placeholder}
+                      placeholderTextColor={colors.hub.textMuted}
+                      value={values[field.key] || ''}
+                      onChangeText={(v) => updateField(field.key, v)}
+                      keyboardType={field.keyboardType || 'default'}
+                      multiline={field.multiline}
+                      numberOfLines={field.multiline ? 4 : 1}
+                      autoCapitalize={field.keyboardType === 'email-address' ? 'none' : 'sentences'}
+                    />
+                  )}
                 </View>
               ))}
 

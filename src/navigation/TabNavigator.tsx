@@ -34,6 +34,7 @@ import VisitScreen from '../screens/visit/VisitScreen';
 import AuthScreen from '../screens/auth/AuthScreen';
 
 import { useFavoritesStore } from '../stores/favoritesStore';
+import { useCartStore } from '../stores/cartStore';
 import { ACTIVE_TAB_GOLD } from '../theme';
 import { colors } from '../theme';
 
@@ -128,6 +129,7 @@ function MoreStack() {
 function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
   const insets = useSafeAreaInsets();
   const favCount = useFavoritesStore((s) => s.items.length);
+  const cartCount = useCartStore((s) => s.getItemCount());
 
   return (
     <View style={[styles.tabBar, { paddingBottom: Math.max(insets.bottom, 4) }]}>
@@ -135,7 +137,9 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         const focused = state.index === index;
         const icons = TAB_CONFIG[route.name] || { active: 'ellipsis-horizontal', inactive: 'ellipsis-horizontal-outline' };
         const iconName = focused ? icons.active : icons.inactive;
-        const showBadge = route.name === 'Favorites' && favCount > 0;
+        const showFavBadge = route.name === 'Favorites' && favCount > 0;
+        const showCartBadge = route.name === 'More' && cartCount > 0;
+        const badgeCount = showFavBadge ? favCount : showCartBadge ? cartCount : 0;
 
         return (
           <TouchableOpacity
@@ -149,8 +153,8 @@ function CustomTabBar({ state, descriptors, navigation }: BottomTabBarProps) {
           >
             <View>
               <Ionicons name={iconName as any} size={22} color={focused ? ACTIVE_TAB_GOLD : 'rgba(255,255,255,0.6)'} />
-              {showBadge && (
-                <View style={styles.badge}><Text style={styles.badgeText}>{favCount}</Text></View>
+              {badgeCount > 0 && (
+                <View style={styles.badge}><Text style={styles.badgeText}>{badgeCount}</Text></View>
               )}
             </View>
             {focused && <View style={styles.activeIndicator} />}

@@ -35,6 +35,7 @@ import { FadeIn } from '../../components/animated';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 import { formatPrice, useCurrencyCode } from '../../utils/currency';
+import { useUIStore } from '../../stores/uiStore';
 import { useEnvStore } from '../../stores/envStore';
 import { useCartStore } from '../../stores/cartStore';
 
@@ -210,6 +211,9 @@ export default function HomeScreen() {
       {/* ═══ REVIEWS ═══ */}
       <ReviewsSection />
 
+      {/* ═══ RECENTLY VIEWED ═══ */}
+      <RecentlyViewedSection navigation={navigation} />
+
       {/* ═══ QUICK LINKS ═══ */}
       <View style={styles.linksSection}>
         <QuickLink label="About Cultural Heritage" icon="information-circle-outline" onPress={() => navigation.navigate('About')} />
@@ -302,6 +306,39 @@ function QuickLink({ label, icon, onPress }: { label: string; icon: string; onPr
       </View>
       <Ionicons name="chevron-forward" size={18} color={colors.shared.gold} />
     </TouchableOpacity>
+  );
+}
+
+function RecentlyViewedSection({ navigation }: any) {
+  const items = useUIStore((s) => s.recentlyViewed);
+  const { formatPrice: fp } = { formatPrice };
+  if (items.length === 0) return null;
+
+  return (
+    <View style={{ backgroundColor: colors.hub.background, paddingVertical: spacing.lg }}>
+      <Text style={[textStyles.label, { color: colors.hub.textMuted, textAlign: 'center', marginBottom: 4 }]}>CONTINUE BROWSING</Text>
+      <Text style={[textStyles.h2, { color: colors.hub.text, textAlign: 'center' }]}>Recently Viewed</Text>
+      <Divider />
+      <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: spacing.lg, gap: 12 }}>
+        {items.map((item, i) => (
+          <TouchableOpacity key={`${item.site}-${item.id}-${i}`} style={{ width: 140, backgroundColor: '#fff', borderRadius: 8, overflow: 'hidden', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 3 }}
+            onPress={() => navigation.navigate('ProductDetail', { product: { id: item.id, name: item.name, price: item.price, images: item.imageUrl ? [{ src: item.imageUrl, alt: '' }] : [], attributes: [], description: '', short_description: '', slug: '', regular_price: item.price, sale_price: '', on_sale: false, stock_status: 'instock', sku: '', categories: [], date: '' }, site: item.site })}
+          >
+            {item.imageUrl ? (
+              <Image source={{ uri: item.imageUrl }} style={{ width: 140, height: 140 }} contentFit="cover" cachePolicy="disk" />
+            ) : (
+              <View style={{ width: 140, height: 140, backgroundColor: '#F0F0F0', alignItems: 'center', justifyContent: 'center' }}>
+                <Ionicons name="image-outline" size={24} color="#CCC" />
+              </View>
+            )}
+            <View style={{ padding: 8 }}>
+              <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 12, color: colors.hub.text }} numberOfLines={1}>{item.name}</Text>
+              <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: colors.shared.gold, marginTop: 2 }}>{formatPrice(item.price)}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 

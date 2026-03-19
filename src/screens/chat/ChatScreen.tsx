@@ -17,6 +17,7 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Keyboard,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -43,6 +44,13 @@ export default function ChatScreen({ navigation }: any) {
   const [sending, setSending] = useState(false);
   const queryClient = useQueryClient();
   const listRef = useRef<FlatList>(null);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+
+  useEffect(() => {
+    const showSub = Keyboard.addListener('keyboardDidShow', (e) => setKeyboardHeight(e.endCoordinates.height));
+    const hideSub = Keyboard.addListener('keyboardDidHide', () => setKeyboardHeight(0));
+    return () => { showSub.remove(); hideSub.remove(); };
+  }, []);
 
   const { data: messages, isLoading, refetch } = useQuery<Message[]>({
     queryKey: ['chat', 'messages'],
@@ -130,7 +138,7 @@ export default function ChatScreen({ navigation }: any) {
         <View style={styles.onlineDot} />
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+      <View style={{ flex: 1, marginBottom: keyboardHeight > 0 ? keyboardHeight - 60 : 0 }}>
         {isLoading ? (
           <View style={styles.loadingWrap}>
             <ActivityIndicator size="large" color={colors.shared.gold} />
@@ -201,7 +209,7 @@ export default function ChatScreen({ navigation }: any) {
             )}
           </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
+      </View>
     </View>
   );
 }

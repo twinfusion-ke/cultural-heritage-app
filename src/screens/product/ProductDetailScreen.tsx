@@ -4,7 +4,7 @@
  * Image carousel, attributes, description, sticky add-to-cart bar.
  */
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -21,6 +21,7 @@ import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useCartStore } from '../../stores/cartStore';
+import { useUIStore } from '../../stores/uiStore';
 import Toast from '../../components/Toast';
 import { useFavoritesStore } from '../../stores/favoritesStore';
 import { colors, textStyles, spacing } from '../../theme';
@@ -51,7 +52,13 @@ export default function ProductDetailScreen({ route, navigation }: any) {
 
   const addItem = useCartStore((s) => s.addItem);
   const cartCount = useCartStore((s) => s.getItemCount());
+  const addRecentlyViewed = useUIStore((s) => s.addRecentlyViewed);
   useCurrencyCode();
+
+  // Track recently viewed
+  useEffect(() => {
+    addRecentlyViewed({ id: product.id, name: product.name, price: product.price, imageUrl: images[0]?.src || '', site });
+  }, [product.id]);
   const toggle = useFavoritesStore((s) => s.toggle);
   const isFav = useFavoritesStore((s) => s.isFavorite(product.id, site));
 

@@ -36,7 +36,12 @@
         "ACCESS_FINE_LOCATION",
         "CAMERA",
         "VIBRATE",
-        "RECEIVE_BOOT_COMPLETED"
+        "RECEIVE_BOOT_COMPLETED",
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_COARSE_LOCATION",
+        "android.permission.ACCESS_FINE_LOCATION",
+        "android.permission.MODIFY_AUDIO_SETTINGS"
       ]
     },
     "web": {
@@ -60,16 +65,17 @@
       "expo-av"
     ],
     "updates": {
-      "url": "https://u.expo.dev/5fb06408-5628-413c-9cf0-d869d8b69511"
+      "url": "https://u.expo.dev/2e487001-d78d-484a-9f35-2c233ba546f0"
     },
     "runtimeVersion": {
       "policy": "appVersion"
     },
     "extra": {
       "eas": {
-        "projectId": "5fb06408-5628-413c-9cf0-d869d8b69511"
-      }
+        "projectId": "2e487001-d78d-484a-9f35-2c233ba546f0"
+      },
+      "expo-navigation-bar": {}
     },
-    "owner": "eagesa"
+    "owner": "e-agesa"
   }
 }

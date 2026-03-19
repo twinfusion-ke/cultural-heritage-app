@@ -18,7 +18,8 @@
       "Bash(npx --yes yt-dlp@latest --version)",
       "Bash(git commit:*)",
       "Read(//c/xampp/htdocs/cultural-heritage-app/**)",
-      "WebFetch(domain:expo.dev)"
+      "WebFetch(domain:expo.dev)",
+      "Bash(EXPO_TOKEN=\"\" npx eas login << 'EOF':*)"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"

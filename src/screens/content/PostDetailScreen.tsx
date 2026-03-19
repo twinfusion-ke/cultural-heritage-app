@@ -52,6 +52,13 @@ function wrapPostHtml(html: string): string {
 export default function PostDetailScreen({ route, navigation }: any) {
   const { title, content: passedContent, imageUrl, date, category, postId, site } = route.params;
 
+  // Fetch approved comments
+  const { data: approvedComments } = useQuery<any[]>({
+    queryKey: ['comments', title],
+    queryFn: () => appApi('get_comments', { post_title: title, site: site || 'hub' }),
+    staleTime: 1000 * 60,
+  });
+
   // If content is missing, fetch the full post from API
   const { data: fetchedPost } = useQuery({
     queryKey: ['post-detail', postId || title],
@@ -95,13 +102,12 @@ export default function PostDetailScreen({ route, navigation }: any) {
 
     setSubmittingComment(true);
     try {
-      await appApi('submit_form', {
-        form_type: 'comment',
+      await appApi('submit_comment', {
         name: commentName,
         email: commentEmail,
         comment: commentText,
         post_title: title,
-        captcha_verified: 'true',
+        site: site || 'hub',
       });
       Alert.alert('Comment Submitted', 'Your comment has been submitted for review. It will appear once approved.');
       setCommentName('');
@@ -186,6 +192,23 @@ export default function PostDetailScreen({ route, navigation }: any) {
             <Text style={[textStyles.label, styles.commentsSectionLabel]}>JOIN THE CONVERSATION</Text>
             <Text style={[textStyles.h2, { color: colors.hub.text, textAlign: 'center' }]}>Leave a Comment</Text>
             <Divider />
+
+            {/* Approved Comments */}
+            {approvedComments && approvedComments.length > 0 && (
+              <View style={{ paddingHorizontal: spacing.lg, marginBottom: spacing.lg }}>
+                {approvedComments.map((c: any, i: number) => (
+                  <View key={i} style={{ backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 8, borderLeftWidth: 3, borderLeftColor: colors.shared.gold }}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                      <Text style={{ fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: colors.hub.text }}>{c.name}</Text>
+                      <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 11, color: colors.hub.textMuted }}>
+                        {new Date(c.date).toLocaleDateString('en', { month: 'short', day: 'numeric' })}
+                      </Text>
+                    </View>
+                    <Text style={{ fontFamily: 'Montserrat-Regular', fontSize: 14, color: '#555', lineHeight: 22 }}>{c.text}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
 
             {/* Comment Form */}
             <View style={styles.commentForm}>

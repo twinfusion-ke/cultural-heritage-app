@@ -975,6 +975,61 @@ switch ($action) {
         echo json_encode(['count' => (int)$stmt->fetchColumn()]);
         break;
 
+    // ── Comments: Submit to WordPress native comments table ────────────
+    case 'submit_comment':
+        $post_title = $_GET['post_title'] ?? $_POST['post_title'] ?? '';
+        $comment_text = $_GET['comment'] ?? $_POST['comment'] ?? '';
+        $author_name = $_GET['name'] ?? $_POST['name'] ?? 'App User';
+        $author_email = $_GET['email'] ?? $_POST['email'] ?? '';
+        $comment_site = $_GET['site'] ?? $_POST['site'] ?? 'hub';
+
+        if (!$comment_text) { echo json_encode(['error' => 'Comment is required']); break; }
+
+        $cp = get_table_prefix($comment_site);
+
+        // Find the post by title
+        $stmt = $pdo->prepare("SELECT ID FROM {$cp}posts WHERE post_title = ? AND post_type = 'post' AND post_status = 'publish' LIMIT 1");
+        $stmt->execute([$post_title]);
+        $post_id = $stmt->fetchColumn();
+
+        if (!$post_id) {
+            // Try partial match
+            $stmt = $pdo->prepare("SELECT ID FROM {$cp}posts WHERE post_title LIKE ? AND post_type = 'post' AND post_status = 'publish' LIMIT 1");
+            $stmt->execute(['%' . $post_title . '%']);
+            $post_id = $stmt->fetchColumn();
+        }
+
+        if (!$post_id) { echo json_encode(['error' => 'Post not found']); break; }
+
+        $ip = $_SERVER['REMOTE_ADDR'] ?? '';
+        $agent = $_SERVER['HTTP_USER_AGENT'] ?? 'Cultural Heritage App';
+
+        $stmt = $pdo->prepare("INSERT INTO {$cp}comments (comment_post_ID, comment_author, comment_author_email, comment_author_IP, comment_date, comment_date_gmt, comment_content, comment_approved, comment_agent, comment_type) VALUES (?, ?, ?, ?, NOW(), UTC_TIMESTAMP(), ?, '0', ?, 'comment')");
+        $stmt->execute([$post_id, $author_name, $author_email, $ip, $comment_text, $agent]);
+
+        // Update comment count
+        $pdo->prepare("UPDATE {$cp}posts SET comment_count = comment_count + 1 WHERE ID = ?")->execute([$post_id]);
+
+        echo json_encode(['success' => true, 'message' => 'Comment submitted for moderation']);
+        break;
+
+    // ── Comments: Get approved comments for a post ───────────────────────
+    case 'get_comments':
+        $post_title = $_GET['post_title'] ?? '';
+        $comment_site = $_GET['site'] ?? 'hub';
+        if (!$post_title) { echo json_encode([]); break; }
+
+        $cp = get_table_prefix($comment_site);
+        $stmt = $pdo->prepare("SELECT ID FROM {$cp}posts WHERE post_title = ? AND post_type = 'post' AND post_status = 'publish' LIMIT 1");
+        $stmt->execute([$post_title]);
+        $post_id = $stmt->fetchColumn();
+        if (!$post_id) { echo json_encode([]); break; }
+
+        $stmt = $pdo->prepare("SELECT comment_author as name, comment_content as text, comment_date as date FROM {$cp}comments WHERE comment_post_ID = ? AND comment_approved = '1' ORDER BY comment_date DESC LIMIT 20");
+        $stmt->execute([$post_id]);
+        echo json_encode($stmt->fetchAll(PDO::FETCH_ASSOC));
+        break;
+
     // ── Default ─────────────────────────────────────────────────────────
     default:
         echo json_encode([

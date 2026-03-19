@@ -16,6 +16,7 @@ import {
   Linking,
   FlatList,
   Share,
+  Alert,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { Ionicons } from '@expo/vector-icons';
@@ -24,6 +25,7 @@ import { useCartStore } from '../../stores/cartStore';
 import { useUIStore } from '../../stores/uiStore';
 import Toast from '../../components/Toast';
 import { useFavoritesStore } from '../../stores/favoritesStore';
+import { useCompareStore } from '../../stores/compareStore';
 import { colors, textStyles, spacing } from '../../theme';
 import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import type { AppProduct } from '../../api/types';
@@ -61,6 +63,9 @@ export default function ProductDetailScreen({ route, navigation }: any) {
   }, [product.id]);
   const toggle = useFavoritesStore((s) => s.toggle);
   const isFav = useFavoritesStore((s) => s.isFavorite(product.id, site));
+  const addCompare = useCompareStore((s) => s.add);
+  const isComparing = useCompareStore((s) => s.isComparing(product.id));
+  const compareCount = useCompareStore((s) => s.items.length);
 
   const accent = accentMap[site] || colors.shared.gold;
   const images = product.images?.length ? product.images : [{ src: '', alt: '' }];
@@ -112,6 +117,17 @@ export default function ProductDetailScreen({ route, navigation }: any) {
           <Ionicons name="arrow-back" size={22} color={colors.hub.text} />
         </TouchableOpacity>
         <View style={styles.topRight}>
+          <TouchableOpacity onPress={() => {
+            if (isComparing) { navigation.navigate('Compare'); }
+            else {
+              const added = addCompare(product, site);
+              if (!added) Alert.alert('Compare Full', 'You can compare up to 3 products. Remove one first.');
+              else setShowToast(false); // reset
+            }
+          }} style={styles.topBtn}>
+            <Ionicons name={isComparing ? 'git-compare' : 'git-compare-outline'} size={22} color={isComparing ? colors.shared.gold : colors.hub.text} />
+            {compareCount > 0 && <View style={styles.compareBadge}><Text style={styles.compareBadgeText}>{compareCount}</Text></View>}
+          </TouchableOpacity>
           <TouchableOpacity onPress={handleShare} style={styles.topBtn}>
             <Ionicons name="share-outline" size={22} color={colors.hub.text} />
           </TouchableOpacity>
@@ -258,6 +274,8 @@ const styles = StyleSheet.create({
   },
   topBtn: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
   topRight: { flexDirection: 'row' },
+  compareBadge: { position: 'absolute', top: 2, right: 0, backgroundColor: colors.shared.gold, borderRadius: 7, minWidth: 14, height: 14, alignItems: 'center', justifyContent: 'center' },
+  compareBadgeText: { fontFamily: 'Montserrat-Bold', fontSize: 8, color: colors.hub.primary },
   cartBadge: {
     position: 'absolute', top: 2, right: 0, backgroundColor: colors.shared.gold,
     borderRadius: 8, minWidth: 16, height: 16, alignItems: 'center', justifyContent: 'center',

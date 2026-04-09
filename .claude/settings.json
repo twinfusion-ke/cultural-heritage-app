@@ -19,7 +19,8 @@
       "Bash(git commit:*)",
       "Read(//c/xampp/htdocs/cultural-heritage-app/**)",
       "WebFetch(domain:expo.dev)",
-      "Bash(EXPO_TOKEN=\"\" npx eas login << 'EOF':*)"
+      "Bash(EXPO_TOKEN=\"\" npx eas login << 'EOF':*)",
+      "Bash(find /c/xampp/htdocs/cultural-heritage* -name \"*.php\")"
     ],
     "additionalDirectories": [
       "c:\\xampp\\htdocs\\cultural-heritage-wp\\wp-content\\mu-plugins"

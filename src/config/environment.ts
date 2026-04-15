@@ -18,16 +18,24 @@ export interface Environment {
 export const ENVIRONMENTS: Record<string, Environment> = {
   production: {
     name: 'Production',
-    baseDomain: 'twinfusion.co.ke/cultural-heritage',
+    baseDomain: 'culturalheritagetz.com',
     apiPath: '/app-api',
     wcConsumerKey: '',
     wcConsumerSecret: '',
     posApiKey: '',
   },
   staging: {
-    name: 'Staging',
+    name: 'Staging (twinfusion.co.ke)',
+    baseDomain: 'twinfusion.co.ke/cultural-heritage',
+    apiPath: '/app-api',
+    wcConsumerKey: '',
+    wcConsumerSecret: '',
+    posApiKey: '',
+  },
+  local: {
+    name: 'Local Dev',
     baseDomain: 'localhost/cultural-heritage-wp',
-    apiPath: '/cultural-heritage-app/api',
+    apiPath: '/app-api',
     wcConsumerKey: '',
     wcConsumerSecret: '',
     posApiKey: '',

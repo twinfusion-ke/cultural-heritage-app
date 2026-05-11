@@ -53,7 +53,7 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
 
   async function handleShare() {
     try {
-      await Share.share({ message: `${title} — Cultural Heritage Art Gallery` });
+      await Share.share({ message: `${title} — Cultural Heritage Collections` });
     } catch {}
   }
 
@@ -111,7 +111,7 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
 
           <DetailRow label="Opens" value={new Date(startDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
           <DetailRow label="Closes" value={new Date(endDate + 'T00:00:00').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })} />
-          <DetailRow label="Location" value="Cultural Heritage Art Gallery\nDodoma Road, Arusha" />
+          <DetailRow label="Location" value="Cultural Heritage Collections\nDodoma Road, Arusha" />
           <DetailRow label="Hours" value="Mon–Fri: 9am–6pm\nSaturday: 10am–4pm" />
           <DetailRow label="Admission" value="Free" />
         </View>

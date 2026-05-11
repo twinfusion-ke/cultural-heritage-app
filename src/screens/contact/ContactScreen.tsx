@@ -119,7 +119,7 @@ export default function ContactScreen({ navigation }: any) {
             icon="diamond-outline"
           />
           <DivisionContact
-            name="Art Gallery"
+            name="Collections"
             desc="Contemporary & Traditional Fine Art"
             color={colors.shared.gold}
             icon="color-palette-outline"

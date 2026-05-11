@@ -50,7 +50,7 @@ const TAB_CONFIG: Record<string, { active: string; inactive: string }> = {
   Home: { active: 'home', inactive: 'home-outline' },
   Market: { active: 'basket', inactive: 'basket-outline' },
   Vault: { active: 'diamond', inactive: 'diamond-outline' },
-  Gallery: { active: 'color-palette', inactive: 'color-palette-outline' },
+  Collections: { active: 'color-palette', inactive: 'color-palette-outline' },
   Favorites: { active: 'heart', inactive: 'heart-outline' },
   More: { active: 'menu', inactive: 'menu-outline' },
 };
@@ -180,7 +180,7 @@ export default function RootNavigator() {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Market" component={MarketStack} />
       <Tab.Screen name="Vault" component={VaultStack} />
-      <Tab.Screen name="Gallery" component={GalleryStack} />
+      <Tab.Screen name="Collections" component={GalleryStack} />
       <Tab.Screen name="Favorites" component={FavoritesStack} />
       <Tab.Screen name="More" component={MoreStack} />
     </Tab.Navigator>

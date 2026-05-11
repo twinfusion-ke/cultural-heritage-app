@@ -35,7 +35,7 @@ const SITE_CONFIG = [
   { key: 'hub', name: 'Heritage Centre', color: colors.hub.accent },
   { key: 'market', name: 'The Market', color: colors.market.accent },
   { key: 'jewelry', name: 'The Vault', color: colors.vault.accent },
-  { key: 'gallery', name: 'Art Gallery', color: colors.shared.gold },
+  { key: 'gallery', name: 'Collections', color: colors.shared.gold },
 ];
 
 export default function BlogScreen() {

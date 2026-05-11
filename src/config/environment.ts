@@ -70,10 +70,17 @@ export function getApiUrls(baseDomain: string, apiPath?: string) {
       base: `${base}/jewelry`,
     },
     gallery: {
-      rest: `${base}/gallery/wp-json/wp/v2`,
-      wc: `${base}/gallery/wp-json/wc/v3`,
-      pos: `${base}/gallery/wp-json/ch-gallery/v1/pos`,
-      base: `${base}/gallery`,
+      // Renamed to /collections/ April 2026 — key kept as 'gallery' for app code stability
+      rest: `${base}/collections/wp-json/wp/v2`,
+      wc: `${base}/collections/wp-json/wc/v3`,
+      pos: `${base}/collections/wp-json/ch-gallery/v1/pos`,
+      base: `${base}/collections`,
+    },
+    collections: {
+      rest: `${base}/collections/wp-json/wp/v2`,
+      wc: `${base}/collections/wp-json/wc/v3`,
+      pos: `${base}/collections/wp-json/ch-gallery/v1/pos`,
+      base: `${base}/collections`,
     },
   };
 }

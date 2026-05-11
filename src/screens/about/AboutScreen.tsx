@@ -180,7 +180,7 @@ export default function AboutScreen({ navigation }: any) {
               <View style={[styles.divisionHeroOverlay, { backgroundColor: 'rgba(26,26,26,0.7)' }]} />
               <View style={styles.divisionHeroContent}>
                 <Ionicons name="color-palette" size={28} color={colors.shared.gold} />
-                <Text style={styles.divisionName}>The Art Gallery</Text>
+                <Text style={styles.divisionName}>Collections</Text>
                 <Text style={styles.divisionTagline}>Contemporary & Traditional Art</Text>
               </View>
             </View>

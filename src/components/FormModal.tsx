@@ -68,7 +68,7 @@ const FORM_CONFIGS: Record<FormType, { fields: FormField[]; successMessage: stri
       ...BASE_FIELDS,
       { key: 'date', label: 'Visit Date', placeholder: 'e.g. 25 March 2026', required: true },
       { key: 'guests', label: 'Number of Visitors', placeholder: '1', keyboardType: 'numeric' },
-      { key: 'interests', label: 'Interests', placeholder: 'Market, Vault, Gallery, or All' },
+      { key: 'interests', label: 'Interests', placeholder: 'Market, Vault, Collections, or All' },
       { key: 'message', label: 'Special Requests', placeholder: 'Wheelchair access, guided tour, etc.', multiline: true },
     ],
     successMessage: 'Your visit request has been received! We look forward to welcoming you.',

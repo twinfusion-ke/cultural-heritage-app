@@ -58,7 +58,7 @@ export default function GalleryScreen() {
         {/* Gallery Header */}
         <View style={styles.galleryHeader}>
           <View style={styles.headerLine} />
-          <Text style={[textStyles.label, { color: colors.shared.gold, letterSpacing: 3 }]}>THE ART GALLERY</Text>
+          <Text style={[textStyles.label, { color: colors.shared.gold, letterSpacing: 3 }]}>COLLECTIONS</Text>
           <Text style={[textStyles.h1, { color: '#fff', textAlign: 'center', marginTop: 8 }]}>Contemporary &{'\n'}Traditional Art</Text>
           <Text style={styles.gallerySubtitle}>Three halls of African art, rotating exhibitions, and a curated collection</Text>
         </View>
@@ -125,7 +125,7 @@ export default function GalleryScreen() {
         {posts && posts.length > 0 && (
           <View style={styles.section}>
             <Text style={[textStyles.label, styles.sectionLabel]}>ART JOURNAL</Text>
-            <Text style={[textStyles.h1, styles.sectionTitle]}>Gallery Stories</Text>
+            <Text style={[textStyles.h1, styles.sectionTitle]}>Collections Stories</Text>
             <Divider color={colors.shared.gold} />
             {posts.map((post) => (
               <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}

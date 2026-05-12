@@ -21,3 +21,16 @@ export async function appApi<T = any>(
   });
   return data;
 }
+
+/** POST variant for endpoints that need a JSON body (e.g. unified_checkout). */
+export async function appApiPost<T = any>(
+  action: string,
+  body: Record<string, any> = {}
+): Promise<T> {
+  const { urls } = useEnvStore.getState();
+  const { data } = await axios.post(`${urls.api}?action=${encodeURIComponent(action)}`, body, {
+    headers: { 'Content-Type': 'application/json' },
+    timeout: 20000,
+  });
+  return data;
+}

@@ -29,13 +29,15 @@ import { Button, Divider } from '../../components';
 import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import { colors, textStyles, spacing } from '../../theme';
 import type { SiteKey } from '../../config/environment';
+import { appApiPost } from '../../api/appApi';
 
 const WHATSAPP_NUMBER = '255786454999';
 
 const siteNames: Record<string, string> = {
   market: 'The Market',
   jewelry: 'The Vault',
-  gallery: 'Art Gallery',
+  gallery: 'Collections',
+  collections: 'Collections',
 };
 
 const siteAccents: Record<string, string> = {
@@ -76,25 +78,57 @@ export default function CartScreen({ navigation }: any) {
       return;
     }
 
-    // Build WhatsApp message
-    let message = `Hello! I would like to order from Cultural Heritage:\n\n`;
-    message += `Name: ${name}\n`;
+    // Build unified payload matching /app-api/?action=unified_checkout schema
+    const payload = {
+      name,
+      email: email || '',
+      phone: phone || '',
+      items: items.map((item) => ({
+        site: item.site,
+        id: item.productId,
+        name: item.name,
+        image: item.imageUrl,
+        qty: item.quantity,
+      })),
+      source: 'mobile_app',
+    };
+
+    if (isOnline) {
+      try {
+        const res = await appApiPost<{
+          ok: boolean;
+          whatsapp_url: string;
+          order_refs: Record<string, string>;
+          message: string;
+        }>('unified_checkout', payload);
+
+        if (res?.whatsapp_url) {
+          await Linking.openURL(res.whatsapp_url);
+          clearCart();
+          navigation.goBack();
+          return;
+        }
+      } catch (err) {
+        // Fall through to offline-style queue + client-side message
+        console.warn('Unified checkout failed, falling back:', err);
+      }
+    }
+
+    // Offline (or API failure) — queue and build message locally
+    let message = `Hello Cultural Heritage,\n\nI would like to place an order:\n\nName: ${name}\n`;
     if (email) message += `Email: ${email}\n`;
     if (phone) message += `Phone: ${phone}\n`;
     message += `\n`;
 
     for (const [site, siteItems] of Object.entries(grouped)) {
-      message += `--- ${siteNames[site] || site} ---\n`;
+      message += `— ${siteNames[site] || site} —\n`;
       for (const item of siteItems) {
-        message += `\u{2022} ${item.name} x${item.quantity} ($${(parseFloat(item.price) * item.quantity).toFixed(2)})\n`;
+        message += `• ${item.name} × ${item.quantity}\n`;
       }
       message += `\n`;
     }
+    message += `Please confirm pricing and availability. Thank you.\nSent from Cultural Heritage App`;
 
-    message += `Total: $${total.toFixed(2)}\n`;
-    message += `\nSent from Cultural Heritage App`;
-
-    // Queue order in outbox (works offline)
     for (const [site, siteItems] of Object.entries(grouped)) {
       const orderPayload = {
         payment_method: 'whatsapp',
@@ -111,33 +145,23 @@ export default function CartScreen({ navigation }: any) {
           quantity: item.quantity,
         })),
         meta_data: [
-          { key: '_ch_pos_order', value: 'true' },
-          { key: '_ch_pos_terminal_id', value: 'MOBILE_APP' },
+          { key: '_ch_source', value: 'mobile_app' },
         ],
       };
-
-      await addToOutbox(
-        'order',
-        site as SiteKey,
-        '/wc/v3/orders',
-        orderPayload,
-        'POST'
-      );
+      await addToOutbox('order', site as SiteKey, '/wc/v3/orders', orderPayload, 'POST');
     }
 
-    // Open WhatsApp (only if online)
     if (isOnline) {
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
       await Linking.openURL(waUrl);
     } else {
       Alert.alert(
         'Order Queued',
-        'Your order has been saved and will be sent via WhatsApp when you reconnect to the internet.',
+        'Your order is saved and will be sent when you reconnect to the internet.',
         [{ text: 'OK' }]
       );
     }
 
-    // Clear cart
     clearCart();
     navigation.goBack();
   }

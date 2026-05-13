@@ -113,7 +113,7 @@ export default function VaultScreen() {
       // Video after second group
       if (i === 4) {
         sections.push(
-          <YouTubeCard key="video-vault" videoId="z_kLkxaQHNg" title="The Art of Tanzanite" subtitle="From the Merelani Hills to the world's finest jewelry."
+          <YouTubeCard key="video-vault" videoId="WefpYngejFE" title="The Art of Tanzanite" subtitle="From the Merelani Hills to the world's finest jewelry."
             accentColor={colors.vault.accent} />
         );
       }

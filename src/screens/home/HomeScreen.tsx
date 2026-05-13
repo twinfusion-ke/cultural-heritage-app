@@ -191,13 +191,13 @@ export default function HomeScreen() {
                 onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
               />
             ))}
-            <YouTubeCard videoId="z9wh0prnkpo" title="Discover the Centre" subtitle="A virtual tour of the Cultural Heritage Centre in Arusha, Tanzania." />
+            <YouTubeCard videoId="WefpYngejFE" title="Discover the Centre" subtitle="A virtual tour of the Cultural Heritage Centre in Arusha, Tanzania." />
             {posts.slice(2).map((post) => (
               <BlogCard key={post.id} title={post.title} excerpt={post.excerpt} imageUrl={post.image || undefined} date={post.date} accentColor={colors.shared.gold}
                 onPress={() => navigation.navigate('PostDetail', { title: post.title, content: post.content, imageUrl: post.image, date: post.date })}
               />
             ))}
-            <YouTubeCard videoId="z_kLkxaQHNg" title="Our Heritage" subtitle="Three decades of preserving Africa's cultural treasures." />
+            <YouTubeCard videoId="WefpYngejFE" title="Our Heritage" subtitle="Three decades of preserving Africa's cultural treasures." />
           </>
         ) : (
           <Text style={styles.emptyText}>Stories loading...</Text>

@@ -113,7 +113,7 @@ export default function MarketScreen() {
         sections.push(
           <YouTubeCard
             key="video-market"
-            videoId="z9wh0prnkpo"
+            videoId="WefpYngejFE"
             title="Inside The Market"
             subtitle="Discover the stories behind our handcrafted collections."
             accentColor={colors.market.accent}

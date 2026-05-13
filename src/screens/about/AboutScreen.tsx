@@ -100,7 +100,7 @@ export default function AboutScreen({ navigation }: any) {
         </FadeIn>
 
         {/* Video */}
-        <YouTubeCard videoId="z9wh0prnkpo" title="Discover the Centre" subtitle="Take a virtual tour of the Cultural Heritage Centre." />
+        <YouTubeCard videoId="WefpYngejFE" title="Discover the Centre" subtitle="Take a virtual tour of the Cultural Heritage Centre." />
 
         {/* Division 1: The Market */}
         <FadeIn delay={100} slideUp={20}>
@@ -169,7 +169,7 @@ export default function AboutScreen({ navigation }: any) {
         </FadeIn>
 
         {/* Video 2 */}
-        <YouTubeCard videoId="z_kLkxaQHNg" title="Our Heritage" subtitle="Three decades of preserving Africa's cultural treasures." />
+        <YouTubeCard videoId="WefpYngejFE" title="Our Heritage" subtitle="Three decades of preserving Africa's cultural treasures." />
 
         {/* Division 3: Art Gallery */}
         <FadeIn delay={100} slideUp={20}>

@@ -180,11 +180,11 @@ export default function VisitScreen({ navigation }: any) {
               </TouchableOpacity>
 
               <View style={styles.ctaActions}>
-                <TouchableOpacity style={styles.ctaActionBtn} onPress={() => Linking.openURL('tel:+255786454999')}>
+                <TouchableOpacity style={styles.ctaActionBtn} onPress={() => Linking.openURL('tel:+255748078278')}>
                   <Ionicons name="call-outline" size={18} color="#fff" />
                   <Text style={styles.ctaActionText}>Call Us</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.ctaActionBtn} onPress={() => Linking.openURL('https://wa.me/255786454999?text=Hello!%20I%20would%20like%20to%20plan%20a%20visit.')}>
+                <TouchableOpacity style={styles.ctaActionBtn} onPress={() => Linking.openURL('https://wa.me/255748078278?text=Hello!%20I%20would%20like%20to%20plan%20a%20visit.')}>
                   <Ionicons name="logo-whatsapp" size={18} color="#fff" />
                   <Text style={styles.ctaActionText}>WhatsApp</Text>
                 </TouchableOpacity>

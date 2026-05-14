@@ -151,7 +151,7 @@ export default function FormModal({
           {
             text: 'Open WhatsApp',
             onPress: () => {
-              const url = `https://wa.me/255786454999?text=${encodeURIComponent(msg)}`;
+              const url = `https://wa.me/255748078278?text=${encodeURIComponent(msg)}`;
               require('react-native').Linking.openURL(url);
               onClose();
             },

@@ -26,7 +26,7 @@ import type { SiteKey } from '../config/environment';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
-const WHATSAPP_NUMBER = '255786454999';
+const WHATSAPP_NUMBER = '255748078278';
 
 const siteNames: Record<string, string> = {
   market: 'The Market',

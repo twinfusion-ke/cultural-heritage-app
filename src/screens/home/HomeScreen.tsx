@@ -228,11 +228,11 @@ export default function HomeScreen() {
         <Text style={styles.contactText}>Dodoma Road, Arusha, Tanzania</Text>
         <Text style={styles.contactText}>Mon–Sat 8am–8pm · Sun 10am–7pm</Text>
         <View style={styles.contactButtons}>
-          <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('tel:+255786454999')}>
+          <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('tel:+255748078278')}>
             <Ionicons name="call-outline" size={16} color={colors.shared.parchment} />
             <Text style={styles.contactBtnText}>Call</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://wa.me/255786454999')}>
+          <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://wa.me/255748078278')}>
             <Ionicons name="logo-whatsapp" size={16} color={colors.shared.parchment} />
             <Text style={styles.contactBtnText}>WhatsApp</Text>
           </TouchableOpacity>

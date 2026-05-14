@@ -200,7 +200,7 @@ export default function MarketScreen() {
           <View style={styles.emptyContainer}>
             <Ionicons name="basket-outline" size={48} color={colors.market.border} />
             <Text style={[textStyles.h2, { color: colors.market.text, marginTop: 16 }]}>Products Coming Soon</Text>
-            <Button title="Contact via WhatsApp" onPress={() => Linking.openURL('https://wa.me/255786454999')} variant="outline" color={colors.market.accent} style={{ marginTop: spacing.lg }} />
+            <Button title="Contact via WhatsApp" onPress={() => Linking.openURL('https://wa.me/255748078278')} variant="outline" color={colors.market.accent} style={{ marginTop: spacing.lg }} />
           </View>
         )}
 
@@ -217,7 +217,7 @@ export default function MarketScreen() {
             <Text style={[textStyles.label, { color: colors.market.accent }]}>CAN'T FIND WHAT YOU'RE LOOKING FOR?</Text>
             <Text style={[textStyles.h2, { color: '#fff', marginTop: 8, textAlign: 'center' }]}>Custom Orders Welcome</Text>
             <Text style={styles.bottomBannerDesc}>Tell us what you need and our artisans will craft it for you.</Text>
-            <TouchableOpacity style={styles.waCta} onPress={() => Linking.openURL('https://wa.me/255786454999?text=Hello!%20I%20have%20a%20custom%20order%20request.')}>
+            <TouchableOpacity style={styles.waCta} onPress={() => Linking.openURL('https://wa.me/255748078278?text=Hello!%20I%20have%20a%20custom%20order%20request.')}>
               <Ionicons name="logo-whatsapp" size={18} color="#fff" />
               <Text style={styles.waCtaText}>Chat on WhatsApp</Text>
             </TouchableOpacity>

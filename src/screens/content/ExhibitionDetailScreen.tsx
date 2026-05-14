@@ -126,9 +126,9 @@ export default function ExhibitionDetailScreen({ route, navigation }: any) {
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.ctaButton, styles.ctaOutline]}
-            onPress={() => Linking.openURL('tel:+255786454999')}
+            onPress={() => Linking.openURL('tel:+255748078278')}
           >
-            <Text style={[styles.ctaText, { color: colors.shared.parchment }]}>Call +255 786 454 999</Text>
+            <Text style={[styles.ctaText, { color: colors.shared.parchment }]}>Call +255 748 078 278</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

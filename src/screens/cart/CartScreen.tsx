@@ -31,7 +31,7 @@ import { colors, textStyles, spacing } from '../../theme';
 import type { SiteKey } from '../../config/environment';
 import { appApiPost } from '../../api/appApi';
 
-const WHATSAPP_NUMBER = '255786454999';
+const WHATSAPP_NUMBER = '255748078278';
 
 const siteNames: Record<string, string> = {
   market: 'The Market',

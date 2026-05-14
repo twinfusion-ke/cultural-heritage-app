@@ -269,7 +269,7 @@ export default function AboutScreen({ navigation }: any) {
                 <Ionicons name="call-outline" size={16} color="#fff" />
                 <Text style={styles.contactBtnText}>Contact</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://wa.me/255786454999')}>
+              <TouchableOpacity style={styles.contactBtn} onPress={() => Linking.openURL('https://wa.me/255748078278')}>
                 <Ionicons name="logo-whatsapp" size={16} color="#fff" />
                 <Text style={styles.contactBtnText}>WhatsApp</Text>
               </TouchableOpacity>

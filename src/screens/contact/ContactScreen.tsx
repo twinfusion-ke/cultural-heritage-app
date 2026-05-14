@@ -21,8 +21,8 @@ import FormModal from '../../components/FormModal';
 import AppHeader from '../../components/AppHeader';
 import { colors, textStyles, spacing } from '../../theme';
 
-const PHONE = '+255786454999';
-const WHATSAPP = '255786454999';
+const PHONE = '+255748078278';
+const WHATSAPP = '255748078278';
 const EMAIL = 'info@culturalheritage.co.tz';
 const MAP_URL = 'https://maps.google.com/?q=-3.3869,36.6830';
 

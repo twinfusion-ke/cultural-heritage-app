@@ -68,7 +68,7 @@ export default function AppHeader({
 
           {/* WhatsApp */}
           <TouchableOpacity
-            onPress={() => Linking.openURL('https://wa.me/255786454999')}
+            onPress={() => Linking.openURL('https://wa.me/255748078278')}
             style={styles.actionBtn}
           >
             <Ionicons name="logo-whatsapp" size={20} color="rgba(255,255,255,0.8)" />

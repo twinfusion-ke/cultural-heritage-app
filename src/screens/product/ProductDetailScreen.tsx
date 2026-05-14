@@ -31,7 +31,7 @@ import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import type { AppProduct } from '../../api/types';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
-const WHATSAPP_NUMBER = '255786454999';
+const WHATSAPP_NUMBER = '255748078278';
 
 const siteNames: Record<string, string> = {
   market: 'The Market',

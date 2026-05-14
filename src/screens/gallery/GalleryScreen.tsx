@@ -145,9 +145,9 @@ export default function GalleryScreen() {
             <Button title="Book Exhibition Visit" onPress={() => setShowBooking(true)} variant="primary" color={colors.shared.gold} textColor={colors.gallery.primary} />
             <Button title="Get Directions" onPress={() => Linking.openURL('https://maps.google.com/?q=-3.3869,36.6830')} variant="outline" color={colors.shared.parchment} />
           </View>
-          <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL('tel:+255786454999')}>
+          <TouchableOpacity style={styles.callBtn} onPress={() => Linking.openURL('tel:+255748078278')}>
             <Ionicons name="call-outline" size={16} color="rgba(255,255,255,0.6)" />
-            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Call +255 786 454 999</Text>
+            <Text style={{ fontFamily: 'Montserrat-Medium', fontSize: 13, color: 'rgba(255,255,255,0.6)' }}>Call +255 748 078 278</Text>
           </TouchableOpacity>
         </View>
 

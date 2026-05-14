@@ -161,7 +161,7 @@ export default function VaultScreen() {
           <View style={styles.emptyContainer}>
             <Ionicons name="diamond-outline" size={48} color="#333" />
             <Text style={[textStyles.h2, { color: '#FAFAFA', marginTop: 16 }]}>The Collection</Text>
-            <Button title="Book Private Viewing" onPress={() => Linking.openURL('https://wa.me/255786454999')} variant="primary" color={colors.vault.accentBlue} style={{ marginTop: spacing.lg }} />
+            <Button title="Book Private Viewing" onPress={() => Linking.openURL('https://wa.me/255748078278')} variant="primary" color={colors.vault.accentBlue} style={{ marginTop: spacing.lg }} />
           </View>
         )}
 
@@ -171,7 +171,7 @@ export default function VaultScreen() {
           <Text style={[textStyles.h2, { color: '#fff', marginTop: 12, textAlign: 'center' }]}>Private Viewings Available</Text>
           <Text style={styles.bottomDesc}>Experience our collection in an exclusive one-on-one session with our gemologists.</Text>
           <TouchableOpacity style={styles.bottomCta}
-            onPress={() => Linking.openURL('https://wa.me/255786454999?text=I%20would%20like%20to%20book%20a%20private%20viewing')}>
+            onPress={() => Linking.openURL('https://wa.me/255748078278?text=I%20would%20like%20to%20book%20a%20private%20viewing')}>
             <Ionicons name="logo-whatsapp" size={18} color="#fff" />
             <Text style={styles.bottomCtaText}>Book Now via WhatsApp</Text>
           </TouchableOpacity>

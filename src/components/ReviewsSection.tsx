@@ -158,7 +158,7 @@ export default function ReviewsSection() {
       {/* Write Review CTA */}
       <TouchableOpacity
         style={styles.writeReviewBtn}
-        onPress={() => Linking.openURL('https://wa.me/255786454999?text=Hello!%20I%20visited%20Cultural%20Heritage%20Centre%20and%20would%20like%20to%20share%20my%20experience.')}
+        onPress={() => Linking.openURL('https://wa.me/255748078278?text=Hello!%20I%20visited%20Cultural%20Heritage%20Centre%20and%20would%20like%20to%20share%20my%20experience.')}
       >
         <Ionicons name="chatbubble-outline" size={16} color={colors.shared.gold} />
         <Text style={styles.writeReviewText}>Share Your Experience</Text>

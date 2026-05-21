@@ -180,7 +180,7 @@ export default function RootNavigator() {
       <Tab.Screen name="Home" component={HomeStack} />
       <Tab.Screen name="Market" component={MarketStack} />
       <Tab.Screen name="Vault" component={VaultStack} />
-      <Tab.Screen name="Collections" component={GalleryStack} />
+      <Tab.Screen name="Collectors" component={GalleryStack} />
       <Tab.Screen name="Favorites" component={FavoritesStack} />
       <Tab.Screen name="More" component={MoreStack} />
     </Tab.Navigator>

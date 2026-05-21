@@ -71,16 +71,16 @@ export function getApiUrls(baseDomain: string, apiPath?: string) {
     },
     gallery: {
       // Renamed to /collections/ April 2026 — key kept as 'gallery' for app code stability
-      rest: `${base}/collections/wp-json/wp/v2`,
-      wc: `${base}/collections/wp-json/wc/v3`,
-      pos: `${base}/collections/wp-json/ch-gallery/v1/pos`,
-      base: `${base}/collections`,
+      rest: `${base}/collectors/wp-json/wp/v2`,
+      wc: `${base}/collectors/wp-json/wc/v3`,
+      pos: `${base}/collectors/wp-json/ch-gallery/v1/pos`,
+      base: `${base}/collectors`,
     },
     collections: {
-      rest: `${base}/collections/wp-json/wp/v2`,
-      wc: `${base}/collections/wp-json/wc/v3`,
-      pos: `${base}/collections/wp-json/ch-gallery/v1/pos`,
-      base: `${base}/collections`,
+      rest: `${base}/collectors/wp-json/wp/v2`,
+      wc: `${base}/collectors/wp-json/wc/v3`,
+      pos: `${base}/collectors/wp-json/ch-gallery/v1/pos`,
+      base: `${base}/collectors`,
     },
   };
 }

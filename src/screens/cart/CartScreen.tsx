@@ -36,8 +36,8 @@ const WHATSAPP_NUMBER = '255748078278';
 const siteNames: Record<string, string> = {
   market: 'The Market',
   jewelry: 'The Vault',
-  gallery: 'Collections',
-  collections: 'Collections',
+  gallery: 'Collectors',
+  collections: 'Collectors',
 };
 
 const siteAccents: Record<string, string> = {

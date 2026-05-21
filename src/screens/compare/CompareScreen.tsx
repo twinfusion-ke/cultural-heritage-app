@@ -20,7 +20,7 @@ import { useCartStore } from '../../stores/cartStore';
 import { formatPrice, useCurrencyCode } from '../../utils/currency';
 import { colors, textStyles, spacing } from '../../theme';
 
-const siteNames: Record<string, string> = { market: 'Market', jewelry: 'Vault', gallery: 'Collections' };
+const siteNames: Record<string, string> = { market: 'Market', jewelry: 'Vault', gallery: 'Collectors' };
 const accentMap: Record<string, string> = { market: colors.market.accent, jewelry: colors.vault.accent, gallery: colors.shared.gold };
 
 export default function CompareScreen({ navigation }: any) {
